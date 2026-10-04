@@ -90,7 +90,7 @@ authRouter.post('/forgot', resetLimiter, (req, res) => {
    * the attacker's site. In development, where PUBLIC_ORIGIN is usually
    * unset, the admin dev server's address is the right one.
    */
-  const origin = config.publicOrigin || (config.isProduction ? null : 'http://localhost:5174');
+  const origin = config.publicOrigin || (config.isProduction ? null : 'http://localhost:5173');
   if (!origin) return;
   const email = req.body?.email;
   createPasswordReset(email)

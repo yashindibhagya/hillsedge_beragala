@@ -12,7 +12,9 @@ export default defineConfig({
     assetsInlineLimit: 0,
   },
   server: {
+    // Fixed, because the public site's dev server forwards /admin here.
     port: 5174,
+    strictPort: true,
     // Same-origin in development as in production, so the session cookie
     // and the CSP behave the same and no CORS is involved.
     proxy: {

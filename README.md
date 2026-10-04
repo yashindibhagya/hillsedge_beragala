@@ -40,18 +40,19 @@ Node 20.12 or newer (`.nvmrc` pins it).
 ```bash
 npm install          # installs all three workspaces
 cp .env.example .env
-npm run dev          # site :5173, admin :5174/admin/, API :4000
+npm run dev          # site localhost:5173, admin localhost:5173/admin, API :4000
 ```
 
-`npm run dev` starts all three. Both Vite servers proxy `/api` and `/media` to
-Express, so the front ends call relative paths in development exactly as in
-production, and no CORS is involved.
+`npm run dev` starts all three. The site's dev server forwards `/admin` to the
+admin's (which runs on :5174 behind it), and both forward `/api` and `/media`
+to Express — so everything is on one address, with relative paths, exactly
+as in production, and no CORS is involved.
 
 On first start the server creates `server/data/store.json`, seeded from the
 restaurant's existing copy and photographs, and a super admin. With
 `ADMIN_EMAIL` / `ADMIN_PASSWORD` unset it creates `admin@hillsedge.local` and
 prints a generated password in the log. Sign in at
-<http://localhost:5174/admin/>.
+<http://localhost:5173/admin>.
 
 ### Production
 
