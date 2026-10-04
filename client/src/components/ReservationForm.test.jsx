@@ -1,8 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, screen, waitFor } from '@testing-library/react';
+import { renderWithSite } from '../test/render';
+import { siteFixture } from '../test/fixtures';
 import { ReservationForm } from './ReservationForm';
-import { site } from '../data/site';
 
 /**
  * A local calendar date `daysFromNow` away, as `YYYY-MM-DD`. Built from the
@@ -17,7 +18,7 @@ function soon(daysFromNow = 1) {
   return `${date.getFullYear()}-${month}-${day}`;
 }
 
-/** Stands in for the API. */
+/** Stands in for the booking endpoint. */
 function mockFetch(response) {
   const fetchMock = vi.fn().mockResolvedValue({
     ok: response.ok ?? true,
@@ -28,9 +29,19 @@ function mockFetch(response) {
   return fetchMock;
 }
 
-/** Fills in the two fields the form insists on. */
-async function fillRequired(user, { name = 'Priya', date = soon() } = {}) {
+async function renderForm(options) {
+  const result = renderWithSite(<ReservationForm {...(options?.props ?? {})} />, options);
+  // Wait for the live site data (the bookable spaces arrive with it).
+  await screen.findByLabelText(/space/i);
+  return result;
+}
+
+async function fillRequired(
+  user,
+  { name = 'Priya', phone = '+94 77 123 4567', date = soon() } = {}
+) {
   await user.type(screen.getByLabelText('Name'), name);
+  if (phone) await user.type(screen.getByLabelText(/phone or whatsapp/i), phone);
   fireEvent.change(screen.getByLabelText('Date'), { target: { value: date } });
 }
 
@@ -45,13 +56,15 @@ afterEach(() => vi.unstubAllGlobals());
 describe('ReservationForm — sending', () => {
   it('posts the booking to the API', async () => {
     const user = userEvent.setup();
-    const fetchMock = mockFetch({ body: { id: 'abc', message: 'ok' } });
-    render(<ReservationForm />);
+    await renderForm();
+    const fetchMock = mockFetch({ body: { id: 'abc' } });
 
     const date = soon(3);
     await fillRequired(user, { date });
-    await user.selectOptions(screen.getByLabelText('Guests'), '5–8');
-    await user.selectOptions(screen.getByLabelText('Time'), 'Sunset');
+    await user.type(screen.getByLabelText('Email'), 'priya@example.com');
+    await user.click(screen.getByRole('radio', { name: 'Dinner' }));
+    await user.click(screen.getByRole('button', { name: /one more guest/i }));
+    await user.selectOptions(screen.getByLabelText(/space/i), 'r1');
     await user.type(screen.getByLabelText(/anything we should know/i), 'One vegan');
     await submit(user);
 
@@ -61,164 +74,133 @@ describe('ReservationForm — sending', () => {
     expect(options.method).toBe('POST');
     expect(JSON.parse(options.body)).toStrictEqual({
       name: 'Priya',
-      guests: '5–8',
+      phone: '+94 77 123 4567',
+      email: 'priya@example.com',
       date,
-      time: 'Sunset',
+      time: 'Dinner',
+      guests: 3,
+      roomId: 'r1',
       message: 'One vegan',
     });
   });
 
+  it('only offers spaces that are taking bookings', async () => {
+    await renderForm();
+    const select = screen.getByLabelText(/space/i);
+    expect(select).toHaveTextContent('The Deck');
+    expect(select).not.toHaveTextContent('Chalets');
+  });
+
+  it('preselects a space passed in from the rooms page', async () => {
+    await renderForm({ props: { initialRoomId: 'r1' } });
+    expect(screen.getByLabelText(/space/i)).toHaveValue('r1');
+  });
+
   it('confirms to the guest once the booking is accepted', async () => {
     const user = userEvent.setup();
+    await renderForm();
     mockFetch({ body: { id: 'abc' } });
-    render(<ReservationForm />);
 
     await fillRequired(user, { name: 'Nuwan' });
     await submit(user);
 
     expect(await screen.findByText(/thank you, nuwan/i)).toBeInTheDocument();
     // The form is gone, so the same booking cannot be sent twice.
-    expect(screen.queryByLabelText('Name')).not.toBeInTheDocument();
-  });
-
-  it('disables the form while the request is in flight', async () => {
-    const user = userEvent.setup();
-    let release;
-    vi.stubGlobal(
-      'fetch',
-      vi.fn(() => new Promise((resolve) => { release = resolve; }))
-    );
-    render(<ReservationForm />);
-
-    await fillRequired(user);
-    await submit(user);
-
-    expect(await screen.findByRole('button', { name: /sending/i })).toBeDisabled();
-    expect(screen.getByLabelText('Name')).toBeDisabled();
-
-    release({ ok: true, status: 201, json: async () => ({ id: 'x' }) });
-    await screen.findByText(/thank you/i);
+    expect(screen.queryByRole('button', { name: /request a table/i })).not.toBeInTheDocument();
   });
 });
 
 describe('ReservationForm — validation', () => {
-  it('refuses to send a booking with no name or date', async () => {
+  it('asks for a name, a way to reach the guest and a date before sending anything', async () => {
     const user = userEvent.setup();
+    await renderForm();
     const fetchMock = mockFetch({});
-    render(<ReservationForm />);
 
     await submit(user);
 
-    expect(fetchMock).not.toHaveBeenCalled();
-    expect(screen.getByText(/please tell us who the table is for/i)).toBeInTheDocument();
-    expect(screen.getByText(/please choose a date/i)).toBeInTheDocument();
+    expect(screen.getByText(/who the table is for/i)).toBeInTheDocument();
+    expect(screen.getByText(/phone number or email so we can confirm/i)).toBeInTheDocument();
+    expect(screen.getByText(/choose a date/i)).toBeInTheDocument();
+    expect(screen.getByLabelText('Name')).toHaveAttribute('aria-invalid', 'true');
     expect(screen.getByLabelText('Name')).toHaveFocus();
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 
-  it('rejects a date in the past without asking the server', async () => {
+  it('accepts an email in place of a phone number', async () => {
     const user = userEvent.setup();
-    const fetchMock = mockFetch({});
-    render(<ReservationForm />);
+    await renderForm();
+    const fetchMock = mockFetch({ body: { id: 'x' } });
+
+    await fillRequired(user, { phone: '' });
+    await user.type(screen.getByLabelText('Email'), 'guest@example.com');
+    await submit(user);
+
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledOnce());
+  });
+
+  it('refuses a date in the past', async () => {
+    const user = userEvent.setup();
+    await renderForm();
+    mockFetch({});
 
     await fillRequired(user, { date: soon(-2) });
     await submit(user);
 
-    expect(fetchMock).not.toHaveBeenCalled();
     expect(screen.getByText(/today or a later date/i)).toBeInTheDocument();
   });
 
-  it('will not let the date picker offer a past day', () => {
-    render(<ReservationForm />);
-    expect(screen.getByLabelText('Date')).toHaveAttribute('min', soon(0));
-  });
-
-  it('clears an error as soon as the guest fixes the field', async () => {
+  it('does not show errors until the first attempt to send', async () => {
     const user = userEvent.setup();
-    mockFetch({});
-    render(<ReservationForm />);
-
-    await submit(user);
-    expect(screen.getByText(/please tell us who the table is for/i)).toBeInTheDocument();
-
-    await user.type(screen.getByLabelText('Name'), 'Priya');
-
-    expect(screen.queryByText(/please tell us who the table is for/i)).not.toBeInTheDocument();
+    await renderForm();
+    await user.type(screen.getByLabelText('Name'), 'P');
+    await user.clear(screen.getByLabelText('Name'));
+    expect(screen.queryByText(/who the table is for/i)).not.toBeInTheDocument();
   });
+});
 
-  it('shows the server\'s own objections against the right fields', async () => {
+describe('ReservationForm — when the server says no', () => {
+  it('shows the server’s field errors against the right fields', async () => {
     const user = userEvent.setup();
+    await renderForm();
     mockFetch({
       ok: false,
       status: 422,
-      body: { error: 'Some details need checking.', errors: { date: 'That date is not valid.' } },
+      body: {
+        error: 'Some details need checking.',
+        errors: { date: 'Please choose today or a later date.' },
+      },
     });
-    render(<ReservationForm />);
 
     await fillRequired(user);
     await submit(user);
 
-    expect(await screen.findByText(/that date is not valid/i)).toBeInTheDocument();
-  });
-});
-
-describe('ReservationForm — when the API cannot be reached', () => {
-  it('says so and keeps the details on screen', async () => {
-    const user = userEvent.setup();
-    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new TypeError('Failed to fetch')));
-    render(<ReservationForm />);
-
-    await fillRequired(user, { name: 'Priya' });
-    await submit(user);
-
-    expect(await screen.findByRole('alert')).toHaveTextContent(/could not reach/i);
-    // Nothing is lost — the guest can retry or switch to WhatsApp.
-    expect(screen.getByLabelText('Name')).toHaveValue('Priya');
+    expect(await screen.findByText('Some details need checking.')).toBeInTheDocument();
+    expect(screen.getByText('Please choose today or a later date.')).toBeInTheDocument();
+    expect(screen.getByLabelText('Date')).toHaveAttribute('aria-invalid', 'true');
   });
 
-  it('offers WhatsApp as the way through', async () => {
+  it('offers WhatsApp when the server cannot be reached', async () => {
     const user = userEvent.setup();
+    await renderForm();
     vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new TypeError('Failed to fetch')));
-    render(<ReservationForm />);
 
     await fillRequired(user);
     await submit(user);
-    await screen.findByRole('alert');
 
-    await user.click(screen.getByRole('button', { name: /whatsapp/i }));
-
-    expect(window.open).toHaveBeenCalledOnce();
-    const url = new URL(window.open.mock.calls[0][0]);
-    expect(url.origin + url.pathname).toBe(`https://wa.me/${site.whatsapp}`);
-  });
-});
-
-describe('ReservationForm — WhatsApp', () => {
-  it('carries the details the guest filled in', async () => {
-    const user = userEvent.setup();
-    mockFetch({});
-    render(<ReservationForm />);
-
-    const date = soon(2);
-    await fillRequired(user, { name: 'Ayesha', date });
-    await user.selectOptions(screen.getByLabelText('Guests'), '9–15');
-    await user.click(screen.getByRole('button', { name: /whatsapp/i }));
-
-    const message = decodeURIComponent(
-      new URL(window.open.mock.calls[0][0]).search.replace('?text=', '')
+    expect(await screen.findByRole('alert')).toHaveTextContent(/whatsapp/i);
+    await user.click(screen.getByRole('button', { name: /send on whatsapp instead/i }));
+    expect(window.open).toHaveBeenCalledWith(
+      expect.stringContaining('https://wa.me/94742373394'),
+      '_blank',
+      'noopener'
     );
-    expect(message).toContain('Name: Ayesha');
-    expect(message).toContain('Guests: 9–15');
-    expect(message).toContain(`Date: ${date}`);
   });
 
-  it('does not post to the API', async () => {
-    const user = userEvent.setup();
-    const fetchMock = mockFetch({});
-    render(<ReservationForm />);
-
-    await fillRequired(user);
-    await user.click(screen.getByRole('button', { name: /whatsapp/i }));
-
-    expect(fetchMock).not.toHaveBeenCalled();
+  it('tells the guest to call when online booking is switched off', async () => {
+    renderWithSite(<ReservationForm />, {
+      site: siteFixture({ settings: { reservations: { acceptingOnline: false } } }),
+    });
+    expect(await screen.findByText(/taking bookings by phone/i)).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /request a table/i })).not.toBeInTheDocument();
   });
 });

@@ -1,56 +1,63 @@
 import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import { shareImage, site } from '../data/site';
+import { shareImage } from '../data/site';
 import { navLinks } from '../data/routes';
 import { cuisines, faqs, nearbyLandmarks } from '../data/content';
+import { useSite } from '../context/SiteData';
+import { addressLines, telHref } from '../lib/format';
+
+const DAY_URI = (day) => `https://schema.org/${day}`;
 
 /**
- * Machine-readable facts for search engines and answer engines.
+ * Machine-readable facts for search engines and answer engines, built from
+ * the live settings so an edit in the admin reaches them without a deploy.
  *
- * Built at runtime so the absolute URLs always match wherever the site is
- * actually served from, rather than a domain hardcoded at build time.
- *
- * Three graphs are published:
- *
- *  - Restaurant, the entity itself. This is what a "restaurants near me"
- *    result is assembled from.
- *  - BreadcrumbList, so a result shows Home › Visit rather than a bare URL.
- *  - FAQPage on the visit page. Both Google and the LLM-backed answer engines
- *    lift these questions and answers more or less verbatim, so the six
- *    already written for guests are worth marking up properly.
+ *  - Restaurant, the entity itself — what a "restaurants near me" result is
+ *    assembled from. Opening hours only for days with both times set:
+ *    search engines ignore a half-filled hours block, and a wrong one is
+ *    worse than none.
+ *  - Menu, once the menu has loaded: sections and dishes, with an Offer only
+ *    where a price is published and suitableForDiet only where it is true.
+ *  - BreadcrumbList, so a result shows Home › Menu rather than a bare URL.
+ *  - FAQPage and nearby attractions on the contact page.
  */
 export function StructuredData() {
   const { pathname } = useLocation();
+  const { settings, categories, menu, media } = useSite();
 
   useEffect(() => {
     const origin = window.location.origin;
-    const [street, locality] = site.address.split('\n');
-    const image = new URL(shareImage.src, origin).href;
+    const { restaurant, hours, social } = settings;
+    const [street, ...rest] = addressLines(restaurant.address);
+    const heroImage = media[settings.home.heroImageId];
+    const image = new URL(heroImage?.url ?? shareImage.src, origin).href;
 
-    const restaurant = {
+    const data = {
       '@context': 'https://schema.org',
       '@type': 'Restaurant',
       '@id': `${origin}/#restaurant`,
-      name: site.name,
-      description: site.tagline,
+      name: restaurant.name,
+      description: restaurant.tagline,
       url: origin,
       image,
-      telephone: site.phone.href.replace('tel:', ''),
-      email: site.email,
-      servesCuisine: cuisines.map((c) => c.title),
-      priceRange: '$$',
-      currenciesAccepted: 'LKR',
+      telephone: telHref(restaurant.phone).replace('tel:', ''),
+      email: restaurant.email || undefined,
+      servesCuisine: categories.length
+        ? categories.map((c) => c.name)
+        : cuisines.map((c) => c.title),
+      priceRange: restaurant.priceRange || undefined,
+      currenciesAccepted: restaurant.currency || undefined,
       address: {
         '@type': 'PostalAddress',
         streetAddress: street,
-        addressLocality: locality,
+        addressLocality: rest.join(', ') || undefined,
         addressRegion: 'Badulla District',
         addressCountry: 'LK',
       },
       geo: { '@type': 'GeoCoordinates', latitude: 6.7630768, longitude: 80.9053593 },
-      hasMap: site.mapsUrl,
-      acceptsReservations: true,
-      // The catchment is what people actually search from, not a radius.
+      hasMap: restaurant.mapsUrl || undefined,
+      acceptsReservations: `${origin}/reservations`,
+      menu: `${origin}/menu`,
       areaServed: [
         'Beragala',
         'Haputale',
@@ -61,44 +68,73 @@ export function StructuredData() {
         'Badulla District',
         'Uva Province',
       ].map((name) => ({ '@type': 'Place', name })),
-      // Attributes that decide a booking: parking for coaches, the view,
-      // and the dietary range. Stated only where the site already says so.
       amenityFeature: [
-        { name: 'On-site parking, including coaches', value: true },
-        { name: 'Outdoor seating', value: true },
-        { name: 'Valley views', value: true },
-        { name: 'Vegetarian options', value: true },
-        { name: 'Vegan options', value: true },
-        { name: 'Group and set menus', value: true },
-      ].map((a) => ({ '@type': 'LocationFeatureSpecification', ...a })),
+        'On-site parking, including coaches',
+        'Outdoor seating',
+        'Valley views',
+        'Vegetarian options',
+        'Vegan options',
+        'Group and set menus',
+      ].map((name) => ({ '@type': 'LocationFeatureSpecification', name, value: true })),
+      sameAs: Object.values(social ?? {}).filter(Boolean),
       publicAccess: true,
       smokingAllowed: false,
-      isAccessibleForFree: true,
     };
 
-    // Search engines ignore an hours block with no times on it, so it is only
-    // published once both ends are configured in src/data/site.js.
-    const { opens, closes } = site.serviceHours;
-    if (opens && closes) {
-      restaurant.openingHoursSpecification = {
+    const openDays = (hours.days ?? []).filter((d) => !d.closed && d.opens && d.closes);
+    if (openDays.length) {
+      data.openingHoursSpecification = openDays.map((d) => ({
         '@type': 'OpeningHoursSpecification',
-        dayOfWeek: [
-          'Monday',
-          'Tuesday',
-          'Wednesday',
-          'Thursday',
-          'Friday',
-          'Saturday',
-          'Sunday',
-        ],
-        opens,
-        closes,
+        dayOfWeek: DAY_URI(d.day),
+        opens: d.opens,
+        closes: d.closes,
+      }));
+    }
+
+    if (menu.data?.items?.length) {
+      const { items, currency } = menu.data;
+      data.hasMenu = {
+        '@type': 'Menu',
+        name: `${restaurant.name} menu`,
+        url: `${origin}/menu`,
+        hasMenuSection: menu.data.categories.map((category) => ({
+          '@type': 'MenuSection',
+          name: category.name,
+          description: category.description || undefined,
+          hasMenuItem: items
+            .filter((item) => item.categoryId === category.id)
+            .map((item) => {
+              const entry = {
+                '@type': 'MenuItem',
+                name: item.name,
+                description: item.description || undefined,
+                url: `${origin}/menu?dish=${item.slug}`,
+              };
+              const diets = [];
+              if (item.vegan) diets.push('https://schema.org/VeganDiet');
+              if (item.vegetarian) diets.push('https://schema.org/VegetarianDiet');
+              if (diets.length) entry.suitableForDiet = diets;
+              const image = media[item.imageId];
+              if (image) entry.image = new URL(image.url, origin).href;
+              if (item.price !== null && item.price !== undefined) {
+                entry.offers = {
+                  '@type': 'Offer',
+                  price: item.price,
+                  priceCurrency: currency,
+                  availability:
+                    item.availability === 'available'
+                      ? 'https://schema.org/InStock'
+                      : 'https://schema.org/OutOfStock',
+                };
+              }
+              return entry;
+            }),
+        })),
       };
     }
 
-    const graphs = [restaurant];
+    const graphs = [data];
 
-    // Breadcrumbs: home, then this page if it is a real route.
     const current = navLinks.find((link) => link.to === pathname);
     if (current && pathname !== '/') {
       graphs.push({
@@ -106,17 +142,12 @@ export function StructuredData() {
         '@type': 'BreadcrumbList',
         itemListElement: [
           { '@type': 'ListItem', position: 1, name: 'Home', item: origin },
-          {
-            '@type': 'ListItem',
-            position: 2,
-            name: current.label,
-            item: `${origin}${current.to}`,
-          },
+          { '@type': 'ListItem', position: 2, name: current.label, item: `${origin}${current.to}` },
         ],
       });
     }
 
-    if (pathname === '/visit') {
+    if (pathname === '/contact') {
       graphs.push({
         '@context': 'https://schema.org',
         '@type': 'FAQPage',
@@ -126,42 +157,38 @@ export function StructuredData() {
           acceptedAnswer: { '@type': 'Answer', text: a },
         })),
       });
-
-      // What is around us, with the distance stated. This is the fact an
-      // answer engine needs to place us against "near Diyaluma Falls".
       graphs.push({
         '@context': 'https://schema.org',
         '@type': 'ItemList',
-        name: `Attractions near ${site.name}`,
+        name: `Attractions near ${restaurant.name}`,
         itemListElement: nearbyLandmarks.map((landmark, index) => ({
           '@type': 'ListItem',
           position: index + 1,
           item: {
             '@type': 'TouristAttraction',
             name: landmark.name,
-            description: `${landmark.text} ${landmark.distance} by road, ${landmark.time.toLowerCase()} from ${site.name}.`,
+            description: `${landmark.text} ${landmark.distance} by road, ${landmark.time.toLowerCase()} from ${restaurant.name}.`,
           },
         })),
       });
     }
 
-    const nodes = graphs.map((data) => {
+    const nodes = graphs.map((graph) => {
       const script = document.createElement('script');
       script.type = 'application/ld+json';
-      script.dataset.hillsedge = data['@type'].toLowerCase();
+      script.dataset.hillsedge = graph['@type'].toLowerCase();
       /*
        * Setting textContent on a detached element does not go through the
        * HTML parser, so a "</script>" in the data cannot break out here. The
-       * escape is belt-and-braces for the day this markup is server-rendered
-       * or serialised, where it would: JSON.stringify leaves "<" alone.
+       * escape is belt-and-braces for the day this is server-rendered.
        */
-      script.textContent = JSON.stringify(data).replace(/</g, '\\u003c');
+      script.textContent = JSON.stringify(graph).replace(/</g, '\\u003c');
       document.head.appendChild(script);
       return script;
     });
 
     return () => nodes.forEach((node) => node.remove());
-  }, [pathname]);
+  }, [pathname, settings, categories, menu.data, media]);
 
   return null;
 }

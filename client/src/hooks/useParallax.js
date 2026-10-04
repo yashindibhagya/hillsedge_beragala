@@ -1,11 +1,12 @@
 import { useEffect, useRef } from 'react';
 
 /**
- * Gentle vertical drift on a hero image. Disabled for reduced-motion users
- * and on coarse-pointer (touch) devices, where the effect costs battery and
- * fights native scrolling.
+ * Gentle vertical drift on an image as it crosses the viewport. Writes a
+ * transform only — never layout — and only while the element is near the
+ * screen. Disabled for reduced-motion users and on coarse pointers, where it
+ * costs battery and fights native scrolling.
  */
-export function useParallax(strength = 26) {
+export function useParallax(strength = 40, { scale = 1.12 } = {}) {
   const ref = useRef(null);
 
   useEffect(() => {
@@ -17,16 +18,14 @@ export function useParallax(strength = 26) {
     if (reduce || coarse) return undefined;
 
     let ticking = false;
-
     const frame = () => {
       ticking = false;
       const vh = window.innerHeight;
       const rect = node.getBoundingClientRect();
       if (rect.bottom < -200 || rect.top > vh + 200) return;
       const progress = (rect.top + rect.height / 2 - vh / 2) / vh;
-      node.style.transform = `scale(1.1) translate3d(0, ${(progress * strength).toFixed(2)}px, 0)`;
+      node.style.transform = `translate3d(0, ${(progress * strength).toFixed(2)}px, 0) scale(${scale})`;
     };
-
     const onScroll = () => {
       if (ticking) return;
       ticking = true;
@@ -35,8 +34,12 @@ export function useParallax(strength = 26) {
 
     frame();
     document.addEventListener('scroll', onScroll, { passive: true });
-    return () => document.removeEventListener('scroll', onScroll);
-  }, [strength]);
+    window.addEventListener('resize', onScroll);
+    return () => {
+      document.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onScroll);
+    };
+  }, [strength, scale]);
 
   return ref;
 }

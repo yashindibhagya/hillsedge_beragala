@@ -1,62 +1,107 @@
-import { Link } from 'react-router-dom';
-import { credit, footerColumns, site } from '../data/site';
+import { navLinks } from '../data/routes';
+import { credit } from '../data/site';
+import { useSite } from '../context/SiteData';
+import { addressLines, groupHours, telHref } from '../lib/format';
 import { BrandMark } from './BrandMark';
-import { SocialIcons } from './SocialIcons';
-
-function FooterLink({ link }) {
-  if (link.static) return <span>{link.label}</span>;
-  if (link.to) return <Link to={link.to}>{link.label}</Link>;
-  return (
-    <a
-      href={link.href}
-      {...(link.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-    >
-      {link.label}
-    </a>
-  );
-}
+import { Button, TLink } from './Button';
+import { SocialLinks } from './SocialLinks';
 
 export function Footer() {
-  const scrollTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
+  const { settings } = useSite();
+  const { restaurant, hours } = settings;
+  const rows = groupHours(hours.days);
+  const year = new Date().getFullYear();
 
   return (
-    <footer>
-      <div className="wrap">
-        <div className="ft">
-          <div className="ft-brand">
-            <Link to="/" aria-label={`${site.name} — home`}>
-              <BrandMark variant="full" />
-            </Link>
-            <p>{site.tagline}</p>
-            <SocialIcons />
-          </div>
-
-          {footerColumns.map(({ heading, links }) => (
-            <div key={heading}>
-              <h4>{heading}</h4>
-              <ul>
-                {links.map((link) => (
-                  <li key={link.label}>
-                    <FooterLink link={link} />
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
+    <footer className="site-footer">
+      <div className="footer-grid wrap">
+        <div className="footer-brand">
+          <BrandMark variant="full" className="footer-mark" />
+          <p>{restaurant.tagline}</p>
+          <Button to="/reservations" variant="gold" size="sm" arrow>
+            Reserve a table
+          </Button>
+          <SocialLinks className="social-light" />
         </div>
 
-        <div className="fb">
-          <span>© {new Date().getFullYear()} {site.name}. All rights reserved.</span>
-          <span className="fb-credit">
-            {credit.prefix}{' '}
-            <a href={credit.href} target="_blank" rel="noopener noreferrer">
-              {credit.name}
+        <nav className="footer-col" aria-label="Footer">
+          <h2 className="footer-heading">Explore</h2>
+          <ul>
+            {navLinks.map(({ to, label }) => (
+              <li key={to}>
+                <TLink to={to}>{label}</TLink>
+              </li>
+            ))}
+          </ul>
+        </nav>
+
+        <div className="footer-col">
+          <h2 className="footer-heading">Visit</h2>
+          <address>
+            {addressLines(restaurant.address).map((line) => (
+              <span key={line}>{line}</span>
+            ))}
+            <span>{restaurant.region}</span>
+          </address>
+          {restaurant.mapsUrl && (
+            <a
+              href={restaurant.mapsUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-link"
+            >
+              Open in Google Maps
             </a>
-          </span>
-          <button type="button" className="top" onClick={scrollTop}>
-            Back to top ↑
-          </button>
+          )}
         </div>
+
+        <div className="footer-col">
+          <h2 className="footer-heading">Hours</h2>
+          {hours.summary && <p>{hours.summary}</p>}
+          {rows.length > 0 && (
+            <dl className="footer-hours">
+              {rows.map(({ label, value }) => (
+                <div key={label}>
+                  <dt>{label}</dt>
+                  <dd>{value}</dd>
+                </div>
+              ))}
+            </dl>
+          )}
+          <h2 className="footer-heading footer-heading-gap">Contact</h2>
+          <ul>
+            {restaurant.phone && (
+              <li>
+                <a href={telHref(restaurant.phone)}>{restaurant.phone}</a>
+              </li>
+            )}
+            {restaurant.email && (
+              <li>
+                <a href={`mailto:${restaurant.email}`}>{restaurant.email}</a>
+              </li>
+            )}
+          </ul>
+        </div>
+      </div>
+
+      <div className="footer-bottom wrap">
+        <p>
+          © {year} {restaurant.name}. All rights reserved.
+        </p>
+        <ul className="footer-policies">
+          <li>
+            <TLink to="/contact#faq">Booking & dietary FAQs</TLink>
+          </li>
+          <li>
+            <TLink to="/reservations#policy">Reservation policy</TLink>
+          </li>
+        </ul>
+        <p className="credit">
+          {credit.prefix}{' '}
+          <a href={credit.href} target="_blank" rel="noopener noreferrer">
+            {credit.name}
+          </a>
+        </p>
       </div>
     </footer>
   );

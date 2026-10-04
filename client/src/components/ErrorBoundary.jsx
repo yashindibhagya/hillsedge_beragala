@@ -39,32 +39,25 @@ export class ErrorBoundary extends Component {
     const stale = CHUNK_ERROR.test(error.message || '');
 
     return (
-      <section className="sec state not-found">
-        <div className="wrap">
-          <span className="lab">{stale ? 'New Version Available' : 'Something Went Wrong'}</span>
-          <h1>
-            {stale
-              ? 'The site was updated while you were here.'
-              : 'That part of the page failed to load.'}
-          </h1>
-          <div className="rule" />
-          <p className="lede">
-            {stale
-              ? 'Reload to pick up the latest version — you will land back where you were.'
-              : 'Reloading usually clears it. If it keeps happening, the rest of the site still works.'}
-          </p>
-          <div className="cta-btns not-found-actions">
-            <button
-              type="button"
-              className="btn b-fill"
-              onClick={() => window.location.reload()}
-            >
-              Reload the page
-            </button>
-            <Link to="/" className="btn b-dark" onClick={() => this.setState({ error: null })}>
-              Back to home
-            </Link>
-          </div>
+      <section className="state-page wrap">
+        <p className="eyebrow">{stale ? 'New version available' : 'Something went wrong'}</p>
+        <h1 className="display-2">
+          {stale
+            ? 'The site was updated while you were here.'
+            : 'That part of the page failed to load.'}
+        </h1>
+        <p className="lede">
+          {stale
+            ? 'Reload to pick up the latest version — you will land back where you were.'
+            : 'Reloading usually clears it. If it keeps happening, the rest of the site still works.'}
+        </p>
+        <div className="state-page-actions">
+          <button type="button" className="btn btn-solid" onClick={() => window.location.reload()}>
+            <span>Reload the page</span>
+          </button>
+          <Link to="/" className="btn btn-outline" onClick={() => this.setState({ error: null })}>
+            <span>Back to home</span>
+          </Link>
         </div>
       </section>
     );

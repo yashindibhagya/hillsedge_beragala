@@ -1,30 +1,28 @@
-import { Reveal } from './Reveal';
-
 /**
- * The two-column "label + heading / supporting paragraph" block that opens
- * most sections. `layout` maps to the original .sh-head / .cui-head /
- * .gal-head / .pill-head rules.
- *
- * `as="h1"` is for a page that opens on a section head rather than a hero —
- * the gallery — so that every indexed page has exactly one first-level
- * heading. The styling is identical either way.
+ * Eyebrow, heading and an optional lede, in the editorial rhythm every
+ * section uses. `as` sets the heading level so the outline stays correct.
  */
 export function SectionHead({
-  layout = 'cui-head',
-  label,
+  eyebrow,
   title,
-  children,
-  motion = 'flat',
   as: Heading = 'h2',
+  children,
+  align = 'start',
+  className = '',
+  id,
+  action,
 }) {
   return (
-    <Reveal className={layout} motion={motion}>
-      <div>
-        <span className="lab">{label}</span>
-        <Heading>{title}</Heading>
+    <header className={`section-head section-head-${align} ${className}`.trim()}>
+      <div className="section-head-text">
+        {eyebrow && <p className="eyebrow">{eyebrow}</p>}
+        <Heading className="section-title" id={id}>
+          {title}
+        </Heading>
+        {children && <div className="lede">{children}</div>}
       </div>
-      {children ? (typeof children === 'string' ? <p>{children}</p> : children) : null}
-    </Reveal>
+      {action && <div className="section-head-action">{action}</div>}
+    </header>
   );
 }
 

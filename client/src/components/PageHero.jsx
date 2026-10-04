@@ -1,76 +1,64 @@
+import { useDeclareHero } from '../context/Hero';
 import { useParallax } from '../hooks/useParallax';
-import { Button } from './Button';
+import { Media } from './Media';
 import { Picture } from './Picture';
 
 /**
- * The hero at the top of every page. The home page uses the tall variant
- * with an info card; inner pages use `short`. Previously each page carried
- * its own near-identical copy of this markup.
+ * The opening of an inner page: a full-bleed image (live media from the
+ * admin, else a bundled photograph) with the page's title laid over it.
+ * Shorter than the home hero — enough to set the scene, not to make anybody
+ * scroll for the content.
  */
-export function PageHero({
-  photo,
-  label,
-  title,
-  intro,
-  short = false,
-  actions = [],
-  card = null,
-  metaLeft,
-  metaRight,
-  scrollTo,
-  scrollLabel = 'Scroll',
-  id = 'top',
-}) {
-  const imgRef = useParallax();
+export function PageHero({ eyebrow, title, intro, media, photo, children, align = 'start' }) {
+  useDeclareHero();
+  const parallax = useParallax(50);
 
   return (
-    <section className={`hero ${short ? 'short' : ''}`.trim()} id={id}>
-      <div className="stage">
-        <figure className="frame">
-          <Picture
-            photo={photo}
+    <section className={`page-hero page-hero-${align}`}>
+      <div className="page-hero-media" aria-hidden="true">
+        <div className="page-hero-parallax" ref={parallax}>
+          <Media
+            media={media}
             priority
-            imgRef={short ? imgRef : null}
-            className={short ? 'par-img' : undefined}
-            sizes="100vw"
+            className="page-hero-img"
+            fallback={
+              photo ? <Picture photo={photo} priority className="page-hero-img" alt="" /> : null
+            }
           />
-          <div className="veil" aria-hidden="true" />
-          <div className="copy">
-            <span className="lab">{label}</span>
-            <h1>{title}</h1>
-            {intro && <p>{intro}</p>}
-            {actions.length > 0 && (
-              <div className="hero-btns">
-                {actions.map((action) => (
-                  <Button key={action.children} {...action} />
-                ))}
-              </div>
-            )}
-          </div>
-
-          {card && (
-            <aside className="card">
-              {card.rows.map(({ label: key, value }) => (
-                <div className="row" key={key}>
-                  <span>{key}</span>
-                  <b>{value}</b>
-                </div>
-              ))}
-              {card.action}
-            </aside>
-          )}
-        </figure>
-
-        <div className="meta">
-          <span className="lab">{metaLeft}</span>
-          <span className="lab m2">{metaRight}</span>
-          {scrollTo && (
-            <a href={scrollTo} className="scroll lab">
-              {scrollLabel} <i aria-hidden="true" />
-            </a>
-          )}
         </div>
       </div>
+      <div className="page-hero-content wrap">
+        {eyebrow && (
+          <p className="eyebrow eyebrow-light hero-in" style={{ '--i': 0 }}>
+            {eyebrow}
+          </p>
+        )}
+        <h1 className="page-hero-title hero-in" style={{ '--i': 1 }}>
+          {title}
+        </h1>
+        {intro && (
+          <p className="page-hero-intro hero-in" style={{ '--i': 2 }}>
+            {intro}
+          </p>
+        )}
+        {children && (
+          <div className="page-hero-actions hero-in" style={{ '--i': 3 }}>
+            {children}
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}
+
+/** A quieter opening for pages that lead with content rather than a picture. */
+export function PageIntro({ eyebrow, title, intro, children }) {
+  return (
+    <section className="page-intro wrap">
+      {eyebrow && <p className="eyebrow">{eyebrow}</p>}
+      <h1 className="page-intro-title">{title}</h1>
+      {intro && <p className="page-intro-lede">{intro}</p>}
+      {children}
     </section>
   );
 }

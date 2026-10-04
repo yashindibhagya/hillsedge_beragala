@@ -3,7 +3,8 @@ import { navLinks } from './routes';
 
 export const site = {
   name: 'Hillsedge Beragala',
-  tagline: 'A mountain smokehouse and dining destination in Beragala, Sri Lanka — smoke, flavour and nature, in one place.',
+  tagline:
+    'A mountain smokehouse and dining destination in Beragala, Sri Lanka — smoke, flavour and nature, in one place.',
   region: 'Beragala · Sri Lanka Hill Country',
   coordinates: '6.7631° N, 80.9054° E',
   hours: 'Lunch & dinner, daily',
@@ -26,48 +27,69 @@ export const site = {
 /** Re-exported so components keep importing navigation from one module. */
 export { navLinks };
 
-export const footerColumns = [
-  {
-    heading: 'Explore',
-    links: navLinks.slice(0, 5).map(({ to, label }) => ({ to, label })),
-  },
-  {
-    heading: 'Visit',
-    links: [
-      { to: '/visit', label: 'Location' },
-      { to: '/visit#reserve', label: 'Reservations' },
-      { href: site.mapsUrl, label: 'Google Maps', external: true },
-      { to: '/visit', label: 'Opening hours' },
-    ],
-  },
-  {
-    heading: 'Contact',
-    links: [
-      { href: site.phone.href, label: site.phone.label },
-      { href: `mailto:${site.email}`, label: site.email },
-      { label: 'Beragala, Sri Lanka', static: true },
-    ],
-  },
-];
-
 /**
- * Social profiles. Set a URL here to make the icon appear anywhere social
- * links are rendered; leave it `null` and that profile is omitted rather
- * than rendered as a link that goes nowhere.
+ * What the site shows before the live settings arrive, or if the server
+ * cannot be reached. The same shape as the admin's settings document
+ * (server/src/validators/entities.js); only facts already published are here.
  */
-export const socialProfiles = {
-  instagram: null,
-  facebook: null,
-  whatsapp: `https://wa.me/${site.whatsapp}`,
+export const fallbackSettings = {
+  restaurant: {
+    name: site.name,
+    tagline: site.tagline,
+    description:
+      'Slow smoke, handcrafted flavour and hill-country views, on the road between Ella and Haputale.',
+    region: site.region,
+    address: site.address,
+    phone: site.phone.label,
+    whatsapp: site.whatsapp,
+    email: site.email,
+    mapsUrl: site.mapsUrl,
+    currency: 'LKR',
+    priceRange: '$$',
+  },
+  hours: {
+    summary: site.hours,
+    days: [],
+    note: 'Reservations recommended for the sunset sitting, weekends and groups over four.',
+  },
+  social: { instagram: '', facebook: '', tripadvisor: '', tiktok: '', youtube: '' },
+  home: {
+    heroEyebrow: 'Beragala · Sri Lanka Hill Country',
+    heroTitle: 'Slow smoke, mountain air.',
+    heroSubtitle:
+      'A smokehouse and dining destination 1,000 m above the sea, on the hill road between Ella and Haputale.',
+    heroImageId: null,
+    heroVideoId: null,
+    introTitle: 'A table at the edge of the hills.',
+    introBody:
+      'Timber, stone and thatch, open on the valley side. Hardwood smoke from a hand-built smoker, nine kitchens on one menu, and a view that changes from daylight to sunset to lantern-light in a single visit.',
+    experienceTitle: 'Come for lunch. Stay for the light.',
+    experienceBody:
+      'Arrive late afternoon: the valley in daylight, the sunset over the hills, then the lit pathways after dark — three versions of the place in one sitting.',
+    reserveTitle: 'Reserve the sunset sitting.',
+    reserveBody:
+      'Walk-ins are welcome, but the deck at sunset, weekends and groups over four are worth booking ahead.',
+  },
+  about: {
+    title: 'A destination first. A smokehouse at its heart.',
+    body: 'Hillsedge Beragala is built in the hill-country tradition — timber, stone and thatch, open-sided and level with the treeline. Inside it is Hillsedge Smoke Lovers: hardwood smoke, charcoal grills, and the flavour that carries the name.',
+    story:
+      'Around the smokehouse sits the full range of the kitchen: Sri Lankan heritage and fusion, continental grills, Italian, Indian, Chinese, appetizers and desserts — enough for every member of a family or a tour group to find their plate.',
+    imageId: null,
+  },
+  menu: {
+    intro:
+      'Smokehouse and BBQ at the heart of it, with Sri Lankan, Italian, Indian, Chinese and continental kitchens around it. Start with the smoke; finish with watalappan.',
+    hideUnavailable: false,
+    note: 'Tell us about allergies or dietary needs when you book and the kitchen will plan around them.',
+  },
+  reservations: {
+    intro: 'Tell us when you are coming and how many you are, and we will confirm by message.',
+    policy:
+      'Nothing is charged and nothing is held until we confirm. For groups over 15, or set menus, message us and we will plan it with you.',
+    acceptingOnline: true,
+  },
 };
-
-export const socialLinks = [
-  { label: 'Instagram', icon: 'instagram' },
-  { label: 'Facebook', icon: 'facebook' },
-  { label: 'WhatsApp', icon: 'whatsapp' },
-]
-  .map((link) => ({ ...link, href: socialProfiles[link.icon] }))
-  .filter((link) => Boolean(link.href));
 
 /**
  * Every photograph used anywhere on the site, with its caption and gallery

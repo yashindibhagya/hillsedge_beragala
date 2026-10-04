@@ -1,93 +1,173 @@
 /*
- * Scroll-in choreography. Every entry direction the six pages used is
- * expressed here once; components pick one with `motion="…"`.
+ * Motion. Everything here animates transform and opacity only, so it runs
+ * on the compositor and never forces layout. All of it switches off under
+ * prefers-reduced-motion (bottom of file), and the hooks that drive scroll
+ * effects check the same setting before doing any work.
  */
-.scene {
-  perspective: 1500px;
-  perspective-origin: 50% 42%;
+
+/* ───────────── scroll reveals (Reveal / useReveal) ───────────── */
+.reveal {
+  transition:
+    opacity var(--dur-3) var(--ease),
+    transform var(--dur-3) var(--ease);
+  transition-delay: var(--reveal-delay, 0s);
 }
 
-.d3 {
+.reveal-up:not(.is-in) {
   opacity: 0;
-  transition: opacity 0.95s var(--ez), transform 1.15s var(--ez);
-  will-change: transform, opacity;
+  transform: translateY(32px);
 }
 
-.d3-flat {
-  transform: translate3d(0, 34px, -70px) rotateX(8deg);
+.reveal-fade:not(.is-in) {
+  opacity: 0;
 }
 
-.d3-up {
-  transform: translate3d(0, 70px, -200px) scale(0.94);
+.reveal-left:not(.is-in) {
+  opacity: 0;
+  transform: translateX(-32px);
 }
 
-.d3-left {
-  transform: translate3d(-40px, 40px, -160px) rotateY(15deg);
+.reveal-right:not(.is-in) {
+  opacity: 0;
+  transform: translateX(32px);
 }
 
-.d3-right {
-  transform: translate3d(40px, 40px, -160px) rotateY(-15deg);
-}
-
-.d3-none {
-  transform: translate3d(0, 28px, 0);
-}
-
-.d3.in {
+/* Staggered children: the container stays put, each child rises in turn. */
+.reveal-stagger:not(.is-in) {
   opacity: 1;
   transform: none;
 }
 
-.par-img {
-  will-change: transform;
+.reveal-stagger > * {
+  transition:
+    opacity var(--dur-3) var(--ease),
+    transform var(--dur-3) var(--ease);
+  transition-delay: calc(var(--i, 0) * 90ms);
 }
 
-/* Hover flourishes: cursor devices only, so touch users never get stuck
-   with a half-applied hover state after a tap. */
-@media (hover: hover) and (pointer: fine) {
-  .sh-photo:hover img,
-  .sp-media:hover img,
-  .gwall figure:hover img {
-    transform: scale(1.05);
-  }
+.reveal-stagger:not(.is-in) > * {
+  opacity: 0;
+  transform: translateY(28px);
+}
 
-  .mos figure:hover img {
-    transform: scale(1.06);
-  }
+/* Image reveal: an ivory curtain lifts off the picture while it settles. */
+.reveal-mask {
+  position: relative;
+  overflow: hidden;
+}
 
-  .mos figure:hover figcaption,
-  .gwall figure:hover figcaption {
-    opacity: 1;
-  }
+.reveal-mask::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--ivory);
+  transform-origin: top;
+  transition: transform var(--dur-4) var(--ease-in-out);
+  pointer-events: none;
+}
 
-  .gwall figure:hover {
-    box-shadow: 0 30px 60px -30px rgba(0, 0, 0, 0.8);
-  }
+.reveal-mask.is-in::after {
+  transform: scaleY(0);
+}
 
-  .tier {
-    transition: transform 0.8s var(--ez), border-color 0.5s, background 0.5s;
-  }
+.reveal-mask img,
+.reveal-mask video {
+  transform: scale(1.12);
+  transition: transform 1.8s var(--ease);
+}
 
-  .tier:hover {
-    transform: translateZ(30px) translateY(-4px);
-    border-color: rgba(224, 138, 69, 0.45);
-  }
+.reveal-mask.is-in img,
+.reveal-mask.is-in video {
+  transform: none;
+}
 
-  .step:hover {
-    padding-left: 10px;
-  }
+/* ───────────── hero entrance ───────────── */
+.hero-in {
+  animation: rise-in 1.1s var(--ease) both;
+  /* After the splash has begun to lift. */
+  animation-delay: calc(450ms + var(--i, 0) * 130ms);
+}
 
-  .hello span:hover {
-    border-color: var(--glow);
-    color: #fff;
-    transform: translateY(-3px);
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(28px);
   }
 }
 
-/* On touch, captions are always legible instead of hover-gated. */
-@media (hover: none) {
-  .mos figcaption,
-  .gwall figcaption {
-    opacity: 1;
+/* A slow push-in on the hero still, like a camera settling. */
+.hero-kenburns {
+  animation: kenburns 22s var(--ease) both;
+}
+
+@keyframes kenburns {
+  from {
+    transform: scale(1.14);
+  }
+  to {
+    transform: scale(1.02);
+  }
+}
+
+/* ───────────── page transitions (View Transitions API) ───────────── */
+::view-transition-old(root) {
+  animation: vt-out 260ms var(--ease) both;
+}
+
+::view-transition-new(root) {
+  animation: vt-in 520ms var(--ease) both;
+}
+
+::view-transition-group(site-header) {
+  animation-duration: 0s;
+}
+
+@keyframes vt-out {
+  to {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes vt-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+}
+
+/* ───────────── reduced motion ───────────── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    animation-delay: 0s !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
+    scroll-behavior: auto !important;
+  }
+
+  .reveal,
+  .reveal-stagger > * {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  .reveal-mask::after {
+    display: none;
+  }
+
+  .reveal-mask img,
+  .reveal-mask video,
+  .hero-kenburns {
+    transform: none !important;
+  }
+
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
   }
 }

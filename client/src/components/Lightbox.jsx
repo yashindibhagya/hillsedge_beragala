@@ -1,151 +1,96 @@
-import { useCallback, useEffect, useRef } from 'react';
-import { useBodyScrollLock } from '../hooks/useBodyScrollLock';
-import { Picture } from './Picture';
+import { useCallback, useRef } from 'react';
+import { createPortal } from 'react-dom';
+import { useDialog } from '../hooks/useDialog';
+import { Icon } from './Icon';
+import { Media } from './Media';
 
-/** Everything inside the dialog that can hold focus, in tab order. */
-const FOCUSABLE = 'button';
+/** How far a finger has to travel before a swipe counts. */
+const SWIPE_PX = 50;
 
 /**
- * Full-screen photo viewer for the gallery.
+ * Full-screen viewer for the gallery: photographs and video.
  *
- * `index` addresses into `photos` so the viewer can step through the wall as
- * it is currently filtered; `null` closes it. Wrapping at both ends means the
- * arrows never dead-end, which matters most on a phone where they are the
- * only way through.
+ * `index` addresses into `items` so the viewer steps through the wall as it
+ * is currently filtered; `null` closes it. Arrow keys and swipes both move,
+ * and both wrap at the ends so the controls never dead-end — on a phone the
+ * swipe is the only way through.
  */
-export function Lightbox({ photos = [], index = null, onClose, onNavigate }) {
-  const open = index !== null && index >= 0 && index < photos.length;
-  const photo = open ? photos[index] : null;
-
-  const dialogRef = useRef(null);
-  // The element that opened the viewer, so focus can go back to the thumbnail
-  // the guest actually clicked rather than the top of the page.
-  const openerRef = useRef(null);
-
-  useBodyScrollLock(open);
+export function Lightbox({ items = [], index = null, onClose, onNavigate }) {
+  const open = index !== null && index >= 0 && index < items.length;
+  const item = open ? items[index] : null;
+  const touch = useRef(null);
 
   const step = useCallback(
     (delta) => {
-      if (!open || photos.length < 2) return;
-      onNavigate((index + delta + photos.length) % photos.length);
+      if (!open || items.length < 2) return;
+      onNavigate((index + delta + items.length) % items.length);
     },
-    [open, index, photos.length, onNavigate]
+    [open, index, items.length, onNavigate]
   );
 
-  // Remember the opener while it is still focused, and restore it on close.
-  useEffect(() => {
-    if (!open) return undefined;
-    openerRef.current = document.activeElement;
-    dialogRef.current?.focus();
-
-    return () => {
-      const opener = openerRef.current;
-      openerRef.current = null;
-      if (opener?.isConnected) opener.focus();
-    };
-  }, [open]);
-
-  useEffect(() => {
-    if (!open) return undefined;
-
-    const onKeyDown = (event) => {
-      switch (event.key) {
-        case 'Escape':
-          onClose();
-          break;
-        case 'ArrowLeft':
-          step(-1);
-          break;
-        case 'ArrowRight':
-          step(1);
-          break;
-        case 'Tab': {
-          // A modal must not leak focus to the page behind it, and jsdom and
-          // real browsers agree on nothing here except explicit wrapping.
-          const stops = dialogRef.current?.querySelectorAll(FOCUSABLE);
-          if (!stops?.length) break;
-          const first = stops[0];
-          const last = stops[stops.length - 1];
-          const active = document.activeElement;
-
-          if (event.shiftKey && (active === first || active === dialogRef.current)) {
-            event.preventDefault();
-            last.focus();
-          } else if (!event.shiftKey && active === last) {
-            event.preventDefault();
-            first.focus();
-          }
-          break;
-        }
-        default:
-          break;
-      }
-    };
-
-    document.addEventListener('keydown', onKeyDown);
-    return () => document.removeEventListener('keydown', onKeyDown);
-  }, [open, onClose, step]);
+  const ref = useDialog(open, {
+    onClose,
+    onKey: (event) => {
+      if (event.key === 'ArrowLeft') step(-1);
+      if (event.key === 'ArrowRight') step(1);
+    },
+  });
 
   if (!open) return null;
 
-  const many = photos.length > 1;
-  // The backdrop closes on click; anything meaningful inside it must not.
-  const keepOpen = (event) => event.stopPropagation();
-
-  return (
+  return createPortal(
     <div
-      className="lbox on"
+      className="lightbox"
       role="dialog"
       aria-modal="true"
-      aria-label="Enlarged photo"
-      ref={dialogRef}
+      aria-label={item.caption || 'Photograph'}
+      ref={ref}
       tabIndex={-1}
-      onClick={onClose}
+      onTouchStart={(e) => {
+        touch.current = e.touches[0].clientX;
+      }}
+      onTouchEnd={(e) => {
+        if (touch.current === null) return;
+        const delta = e.changedTouches[0].clientX - touch.current;
+        touch.current = null;
+        if (Math.abs(delta) > SWIPE_PX) step(delta < 0 ? 1 : -1);
+      }}
     >
-      <button type="button" className="x" aria-label="Close" onClick={onClose}>
-        ×
-      </button>
-
-      {many && (
-        <button
-          type="button"
-          className="lb-nav lb-prev"
-          aria-label="Previous photo"
-          onClick={(event) => {
-            keepOpen(event);
-            step(-1);
-          }}
-        >
-          ‹
+      <div className="lightbox-bar">
+        <span className="lightbox-count" aria-live="polite">
+          {index + 1} / {items.length}
+        </span>
+        <button type="button" className="lightbox-btn" onClick={onClose}>
+          <Icon name="close" size={24} />
+          <span className="sr-only">Close</span>
         </button>
-      )}
+      </div>
 
-      <figure className="lb-figure" onClick={keepOpen}>
-        <Picture photo={photo} priority sizes="min(1200px, 94vw)" />
-        <figcaption>
-          <span>{photo.caption}</span>
-          {many && (
-            <span className="lb-count">
-              {index + 1} / {photos.length}
-            </span>
-          )}
-        </figcaption>
+      <figure className="lightbox-figure" key={item.id}>
+        <Media
+          media={item}
+          sizes="100vw"
+          priority
+          controls={item.kind === 'video'}
+          className="lightbox-media"
+        />
+        {item.caption && <figcaption>{item.caption}</figcaption>}
       </figure>
 
-      {many && (
-        <button
-          type="button"
-          className="lb-nav lb-next"
-          aria-label="Next photo"
-          onClick={(event) => {
-            keepOpen(event);
-            step(1);
-          }}
-        >
-          ›
-        </button>
+      {items.length > 1 && (
+        <>
+          <button type="button" className="lightbox-btn lightbox-prev" onClick={() => step(-1)}>
+            <Icon name="chevronLeft" size={28} />
+            <span className="sr-only">Previous</span>
+          </button>
+          <button type="button" className="lightbox-btn lightbox-next" onClick={() => step(1)}>
+            <Icon name="chevronRight" size={28} />
+            <span className="sr-only">Next</span>
+          </button>
+        </>
       )}
-    </div>
+    </div>,
+    document.body
   );
 }
 

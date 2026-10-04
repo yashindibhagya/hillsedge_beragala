@@ -1,19 +1,28 @@
 import { useReveal } from '../hooks/useReveal';
 
 /**
- * Scroll-in wrapper. `motion` picks the entry direction:
- * flat | up | left | right | none.
+ * Scroll-in wrapper. `motion` picks the entry: fade | up | left | right |
+ * mask (an image wiped in from below) | none. `stagger` delays each direct
+ * child in turn — the children read `--i` from their own style.
  */
 export function Reveal({
   as: Tag = 'div',
-  motion = 'flat',
+  motion = 'up',
   delay,
+  stagger = false,
   className = '',
+  style,
   children,
   ...rest
 }) {
   const [ref, visible] = useReveal();
-  const classes = ['d3', `d3-${motion}`, visible ? 'in' : '', className]
+  const classes = [
+    'reveal',
+    `reveal-${motion}`,
+    stagger ? 'reveal-stagger' : '',
+    visible ? 'is-in' : '',
+    className,
+  ]
     .filter(Boolean)
     .join(' ');
 
@@ -21,7 +30,7 @@ export function Reveal({
     <Tag
       ref={ref}
       className={classes}
-      style={delay ? { transitionDelay: delay, ...rest.style } : rest.style}
+      style={delay ? { '--reveal-delay': delay, ...style } : style}
       {...rest}
     >
       {children}

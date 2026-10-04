@@ -5,10 +5,22 @@
 
 export const pillars = [
   { icon: 'wild', title: 'Wild', text: 'Mountains, forest and fresh hill-country air.' },
-  { icon: 'rustic', title: 'Rustic', text: 'Timber, stone and thatch — natural textures throughout.' },
+  {
+    icon: 'rustic',
+    title: 'Rustic',
+    text: 'Timber, stone and thatch — natural textures throughout.',
+  },
   { icon: 'premium', title: 'Premium', text: 'Quality ingredients, presentation and hospitality.' },
-  { icon: 'authentic', title: 'Authentic', text: 'Genuine Sri Lankan flavour, in a real hill-country setting.' },
-  { icon: 'experiential', title: 'Experiential', text: 'To see, smell, taste and remember — not just to eat.' },
+  {
+    icon: 'authentic',
+    title: 'Authentic',
+    text: 'Genuine Sri Lankan flavour, in a real hill-country setting.',
+  },
+  {
+    icon: 'experiential',
+    title: 'Experiential',
+    text: 'To see, smell, taste and remember — not just to eat.',
+  },
 ];
 
 export const homeStats = [

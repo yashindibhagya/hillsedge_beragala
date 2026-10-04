@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { BrowserRouter } from 'react-router-dom';
-import App from './App';
+import { RouterProvider, createBrowserRouter } from 'react-router-dom';
+import { routes } from './App';
 import './styles/index.css';
 
 /*
@@ -15,10 +15,14 @@ for (const link of document.querySelectorAll('link[data-webfont]')) {
   link.media = 'all';
 }
 
+/*
+ * A data router rather than <BrowserRouter>: it is what lets links opt into
+ * the View Transitions API, so moving between pages crossfades.
+ */
+const router = createBrowserRouter(routes);
+
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <BrowserRouter>
-      <App />
-    </BrowserRouter>
+    <RouterProvider router={router} />
   </React.StrictMode>
 );

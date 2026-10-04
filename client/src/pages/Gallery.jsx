@@ -1,110 +1,136 @@
 import { useMemo, useState } from 'react';
+import { useSite } from '../context/SiteData';
 import { photos } from '../data/site';
-import { galleryFilters, galleryOrder } from '../data/content';
+import { galleryOrder } from '../data/content';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
-import { SectionHead } from '../components/SectionHead';
-import { ClosingBand } from '../components/Bands';
+import { Icon } from '../components/Icon';
 import { Lightbox } from '../components/Lightbox';
-import { Reveal } from '../components/Reveal';
-import { Picture } from '../components/Picture';
+import { Media } from '../components/Media';
+import { PageIntro } from '../components/PageHero';
+import { Loading } from '../components/StateBlock';
 
+export const CATEGORY_LABELS = {
+  place: 'The Place',
+  smoke: 'The Smokehouse',
+  table: 'The Table',
+  views: 'Views & Nature',
+  rooms: 'Spaces',
+  menu: 'The Menu',
+  events: 'Events',
+  other: 'More',
+};
+
+/** A bundled photograph, shaped like an uploaded one. */
+function photoAsMedia(key) {
+  const photo = photos[key];
+  const variants = (photo.srcSet || '')
+    .split(',')
+    .map((part) => part.trim().split(/\s+/))
+    .filter(([url, w]) => url && w)
+    .map(([url, w]) => ({ url, width: parseInt(w, 10) }));
+  return { id: key, kind: 'image', ...photo, url: photo.src, variants };
+}
+
+/**
+ * The gallery wall: everything the admin has marked for the gallery, in
+ * their order, filterable by category.
+ *
+ * If the server cannot be reached the wall falls back to the photographs
+ * bundled with the site, so the page is never empty.
+ */
 export default function Gallery() {
   useDocumentTitle(
     'Gallery — A Restaurant With A View, Haputale Road',
     'The lodge, the smoker, the table and the light over the valley — photographs of Hillsedge Beragala on the Beragala–Haputale hill road.',
     { brandSuffix: false }
   );
-
+  const { gallery, media, status } = useSite();
   const [filter, setFilter] = useState('all');
-  const [lightbox, setLightbox] = useState(null);
+  const [open, setOpen] = useState(null);
 
-  const visible = useMemo(
-    () =>
-      galleryOrder
-        .map((key) => photos[key])
-        .filter((photo) => filter === 'all' || photo.category === filter),
-    [filter]
-  );
+  const all = useMemo(() => {
+    const live = gallery.map((id) => media[id]).filter(Boolean);
+    if (live.length || status !== 'error') return live;
+    return galleryOrder.map(photoAsMedia);
+  }, [gallery, media, status]);
+
+  const filters = useMemo(() => {
+    const used = new Set(all.map((item) => item.category));
+    return [
+      { id: 'all', label: 'All' },
+      ...Object.entries(CATEGORY_LABELS)
+        .filter(([id]) => used.has(id))
+        .map(([id, label]) => ({ id, label })),
+    ];
+  }, [all]);
+
+  const shown = filter === 'all' ? all : all.filter((item) => item.category === filter);
 
   return (
     <>
-      <section className="sec gal scene gal-top" id="top">
-        <div className="wrap">
-          <SectionHead
-            as="h1"
-            layout="gal-head"
-            label="Gallery"
-            title="See it, smell it, stay a while."
-          >
-            The lodge, the smoker, the table and the light over the valley — the drive up included.
-            Tap any photo to open it full size.
-          </SectionHead>
+      <PageIntro
+        eyebrow="Gallery"
+        title={
+          <>
+            The light, <em>the smoke,</em> the view.
+          </>
+        }
+        intro="The lodge, the smoker, the table and the light over the valley — as it looks from the hill road."
+      />
 
-          <div className="chips" role="tablist" aria-label="Filter photographs">
-            {galleryFilters.map(({ id, label }) => (
-              <button
-                type="button"
-                role="tab"
-                aria-selected={filter === id}
-                className={`chip ${filter === id ? 'on' : ''}`.trim()}
-                key={id}
-                onClick={() => {
-                  setFilter(id);
-                  // The viewer addresses photos by position in the filtered
-                  // wall, so a filter change would otherwise strand it.
-                  setLightbox(null);
-                }}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="gal gal-wall-sec">
+      <section className="section gallery" aria-label="Photographs">
         <div className="wrap">
-          <div className="gwall">
-            {visible.map((photo, index) => (
-              <Reveal
-                as="figure"
-                motion="up"
-                key={photo.src}
-                delay={`${Math.min(index, 6) * 0.05}s`}
-              >
+          {filters.length > 2 && (
+            <div className="gallery-filters" role="tablist" aria-label="Filter the gallery">
+              {filters.map(({ id, label }) => (
                 <button
+                  key={id}
                   type="button"
-                  className="gwall-btn"
-                  onClick={() => setLightbox(index)}
-                  aria-label={`Open “${photo.caption}” full size`}
+                  role="tab"
+                  aria-selected={filter === id}
+                  className={`chip ${filter === id ? 'is-on' : ''}`}
+                  onClick={() => {
+                    setFilter(id);
+                    setOpen(null);
+                  }}
                 >
-                  <Picture
-                    photo={photo}
-                    sizes="(max-width: 720px) 100vw, (max-width: 1100px) 50vw, 33vw"
-                  />
-                  <figcaption>{photo.caption}</figcaption>
+                  {label}
                 </button>
-              </Reveal>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
+
+          {status === 'loading' && all.length === 0 ? (
+            <Loading label="Loading the gallery" rows={4} />
+          ) : (
+            <ul className="masonry" key={filter}>
+              {shown.map((item, index) => (
+                <li key={item.id} className="masonry-item" style={{ '--i': Math.min(index, 12) }}>
+                  <button
+                    type="button"
+                    className="masonry-button zoom"
+                    onClick={() => setOpen(index)}
+                    aria-label={`Open “${item.caption || item.alt || 'photograph'}”`}
+                  >
+                    <Media
+                      media={item}
+                      sizes="(min-width: 80rem) 25vw, (min-width: 48rem) 33vw, 50vw"
+                    />
+                    {item.kind === 'video' && (
+                      <span className="masonry-play" aria-hidden="true">
+                        <Icon name="play" size={22} />
+                      </span>
+                    )}
+                    {item.caption && <span className="masonry-caption">{item.caption}</span>}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       </section>
 
-      <ClosingBand
-        label="Photos Don't Do The Air Justice"
-        title="The valley changes with the light. Come and watch it happen."
-        actions={[
-          { to: '/visit', variant: 'fill', children: 'Reserve a table' },
-          { to: '/smokehouse', variant: 'ghost', children: 'Meet the smokehouse' },
-        ]}
-      />
-
-      <Lightbox
-        photos={visible}
-        index={lightbox}
-        onNavigate={setLightbox}
-        onClose={() => setLightbox(null)}
-      />
+      <Lightbox items={shown} index={open} onClose={() => setOpen(null)} onNavigate={setOpen} />
     </>
   );
 }

@@ -1,103 +1,126 @@
-import { Link } from 'react-router-dom';
-import { photos, site } from '../data/site';
-import { settingPoints, hierarchyTiers, greetings } from '../data/content';
+import { useSite } from '../context/SiteData';
+import { photos } from '../data/site';
+import { greetings, hierarchyTiers, pillars, settingPoints } from '../data/content';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
+import { Button, TLink } from '../components/Button';
+import { Icon } from '../components/Icon';
+import { Visual } from '../components/Media';
 import { PageHero } from '../components/PageHero';
-import { SplitFeature } from '../components/SplitFeature';
-import { StatementBand, ClosingBand } from '../components/Bands';
+import { Picture } from '../components/Picture';
 import { Reveal } from '../components/Reveal';
+import { SectionHead } from '../components/SectionHead';
 
 export default function About() {
   useDocumentTitle(
     'About — Mountain Dining Destination, Beragala',
-    'A dining destination on the Beragala–Haputale hill road in Sri Lanka\'s tea country. How the smokehouse, the setting and nine kitchens fit together.',
+    "A dining destination on the Beragala–Haputale hill road in Sri Lanka's tea country. How the smokehouse, the setting and nine kitchens fit together.",
     { brandSuffix: false }
   );
+  const { settings } = useSite();
+  const { about } = settings;
 
   return (
     <>
       <PageHero
-        short
         photo={photos.sunsetValley}
-        label="About Hillsedge"
+        eyebrow="About Hillsedge"
         title={
           <>
-            A destination,
-            <br />
-            <em>not a stop.</em>
+            A destination, <em>not a stop.</em>
           </>
         }
         intro="On the Beragala–Haputale hill road, on an escarpment above the valleys — built from timber, stone and thatch, and built to be remembered."
-        metaLeft="Beragala · Badulla District"
-        metaRight="Sri Lanka Hill Country"
-        scrollTo="#setting"
-        scrollLabel="Read on"
       />
 
-      <StatementBand
-        className="scene"
-        label="The Short Version"
-        title={
-          <>
-            Most places can offer food. Hillsedge offers an <em>experience around it</em>.
-          </>
-        }
-      />
-
-      <section className="sec scene section-flush-top light-sec" id="setting">
-        <SplitFeature
-          photo={photos.timberThatch}
-          label="The Setting"
-          title="Built into the hillside, not dropped onto it."
-          paragraphs={[
-            'A tall open-sided lodge with a soaring thatched roof sits on the escarpment, with open-air dining, landscaped pathways and views that change with the light — mist in the morning, gold at sunset, lantern-light after dark.',
-            'The building and the landscape are part of what you come for. They are not a backdrop to the meal.',
-          ]}
-          items={settingPoints}
-        />
+      <section className="section statement">
+        <Reveal className="wrap">
+          <p className="statement-text">
+            Most places can offer food. Hillsedge offers <em>an experience around it.</em>
+          </p>
+        </Reveal>
       </section>
 
-      <section className="sec pill-sec scene">
-        <div className="wrap">
-          <Reveal className="pill-head" motion="flat">
-            <span className="lab">How It Fits Together</span>
-            <h2>One destination, one signature, nine kitchens.</h2>
+      <section className="section split-section" aria-labelledby="about-title">
+        <div className="wrap split">
+          <Reveal motion="mask" className="split-media">
+            <Visual
+              id={about.imageId}
+              photo={photos.timberThatch}
+              sizes="(min-width: 64rem) 45vw, 100vw"
+            />
           </Reveal>
-
-          <div className="stack">
-            {hierarchyTiers.map(({ level, title, text, link, feature }, index) => (
-              <Reveal
-                className={`tier ${feature ? 't1' : ''}`.trim()}
-                motion="up"
-                delay={`${0.05 + index * 0.13}s`}
-                key={title}
-              >
-                <span className="n">{level}</span>
-                <h3>{title}</h3>
-                <p>
-                  {text}{' '}
-                  {link && (
-                    <Link to={link.to} className="inline-link">
-                      {link.label} &rarr;
-                    </Link>
-                  )}
-                </p>
-                {index < hierarchyTiers.length - 1 && (
-                  <span className="arrow" aria-hidden="true">
-                    &darr;
-                  </span>
-                )}
-              </Reveal>
-            ))}
-          </div>
+          <Reveal className="split-text">
+            <p className="eyebrow">Our story</p>
+            <h2 className="display-3" id="about-title">
+              {about.title}
+            </h2>
+            <p className="lede">{about.body}</p>
+            {about.story && <p>{about.story}</p>}
+            <ol className="points">
+              {settingPoints.map(({ key, text }) => (
+                <li key={key}>
+                  <span className="points-key">{key}</span>
+                  {text}
+                </li>
+              ))}
+            </ol>
+          </Reveal>
         </div>
       </section>
 
-      <section className="sec visit scene">
-        <div className="wrap split">
-          <Reveal className="sp-text on-dark" motion="left">
-            <span className="lab lab-glow">Everyone At The Table</span>
-            <h2>A wide table, on purpose.</h2>
+      <section className="section tiers-section" aria-labelledby="tiers-title">
+        <div className="wrap">
+          <SectionHead
+            eyebrow="How it fits together"
+            title="One destination, one signature, nine kitchens."
+            id="tiers-title"
+          />
+          <Reveal as="ol" className="tiers" stagger>
+            {hierarchyTiers.map(({ level, title, text, link }, i) => (
+              <li key={title} className="tier" style={{ '--i': i }}>
+                <span className="tier-level">{level}</span>
+                <h3 className="tier-title">{title}</h3>
+                <p>{text}</p>
+                {link && (
+                  <TLink
+                    to={link.to.replace('/smokehouse', '/experiences').replace('/cuisine', '/menu')}
+                    className="text-link"
+                  >
+                    {link.label} <Icon name="arrow" size={16} />
+                  </TLink>
+                )}
+              </li>
+            ))}
+          </Reveal>
+        </div>
+      </section>
+
+      <section className="section pillars-section" aria-labelledby="pillars-title">
+        <div className="wrap">
+          <SectionHead
+            eyebrow="What we hold to"
+            title="Five words for the place."
+            id="pillars-title"
+            align="center"
+          />
+          <Reveal as="ul" className="pillars" stagger>
+            {pillars.map(({ title, text }, i) => (
+              <li key={title} style={{ '--i': i }}>
+                <h3 className="pillar-title">{title}</h3>
+                <p>{text}</p>
+              </li>
+            ))}
+          </Reveal>
+        </div>
+      </section>
+
+      <section className="section split-section welcome" aria-labelledby="welcome-title">
+        <div className="wrap split split-reverse">
+          <Reveal className="split-text">
+            <p className="eyebrow">Everyone at the table</p>
+            <h2 className="display-3" id="welcome-title">
+              A wide table, on purpose.
+            </h2>
             <p>
               Hill-country travellers arrive from everywhere — the Ella and Haputale circuit brings
               visitors from China, the UK, India, France, Germany, Italy, Russia, Switzerland, the
@@ -110,25 +133,32 @@ export default function About() {
               identity everybody remembers.
             </p>
           </Reveal>
-
-          <Reveal motion="right">
-            <div className="hello">
-              {greetings.map((word) => (
-                <span key={word}>{word}</span>
-              ))}
-            </div>
+          <Reveal className="greetings" aria-label="Welcome, in the languages of our guests">
+            {greetings.map((word, i) => (
+              <span key={word} style={{ '--i': i }}>
+                {word}
+              </span>
+            ))}
           </Reveal>
         </div>
       </section>
 
-      <ClosingBand
-        label="The Core Message"
-        title={`${site.name} is where mountain nature meets smoke and flavour.`}
-        actions={[
-          { to: '/cuisine', variant: 'fill', children: 'Explore the cuisine' },
-          { to: '/visit', variant: 'ghost', children: 'Plan your visit' },
-        ]}
-      />
+      <section className="section closing">
+        <div className="closing-media" aria-hidden="true">
+          <Picture photo={photos.underTheStars} className="media is-loaded" alt="" />
+        </div>
+        <Reveal className="wrap closing-content">
+          <p className="closing-title">Where mountain nature meets smoke and flavour.</p>
+          <div className="closing-actions">
+            <Button to="/menu" variant="gold" arrow>
+              Explore the menu
+            </Button>
+            <Button to="/contact" variant="light">
+              Plan your visit
+            </Button>
+          </div>
+        </Reveal>
+      </section>
     </>
   );
 }

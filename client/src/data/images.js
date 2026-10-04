@@ -59,8 +59,7 @@ const group = (entries, extension) => {
 const ladders = group(webp, 'webp');
 const avifLadders = group(avif, 'avif');
 
-const toSrcSet = (ladder) =>
-  (ladder ?? []).map(({ url, width }) => `${url} ${width}w`).join(', ');
+const toSrcSet = (ladder) => (ladder ?? []).map(({ url, width }) => `${url} ${width}w`).join(', ');
 
 /** @type {Record<string, ImageAsset>} */
 export const images = {};

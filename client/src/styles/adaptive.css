@@ -1,0 +1,325 @@
+/*
+ * Beyond the usual breakpoints: short landscape phones, ultrawide monitors,
+ * and foldable and dual-screen devices.
+ *
+ * Most of the layout is already fluid (clamp() type and spacing, auto-fit
+ * grids, container queries on cards), so this file handles the shapes that
+ * fluid sizing alone gets wrong.
+ */
+
+/* ───────────── short screens: landscape phones, split-screen ───────────── */
+@media (max-height: 30rem) and (orientation: landscape) {
+  :root {
+    --header-h: 60px;
+  }
+
+  .hero {
+    min-height: 100svh;
+  }
+
+  .hero-title {
+    font-size: clamp(2.2rem, 7vh + 1rem, 3.4rem);
+  }
+
+  .hero-sub,
+  .hero-foot,
+  .hero-scroll {
+    display: none;
+  }
+
+  .hero-actions {
+    margin-top: 1rem;
+  }
+
+  .page-hero {
+    min-height: 100svh;
+  }
+
+  .page-hero-title {
+    font-size: clamp(2rem, 6vh + 1rem, 3rem);
+  }
+
+  /* Two columns of links, so the whole menu fits without scrolling. */
+  .mobile-menu-nav ol {
+    grid-template-columns: 1fr 1fr;
+    column-gap: 2rem;
+  }
+
+  .mobile-link-label {
+    font-size: 1.6rem;
+  }
+
+  .modal {
+    max-height: 96dvh;
+  }
+
+  .hstory.is-pinned .hstory-panel {
+    width: min(70vw, 900px);
+  }
+}
+
+/* ───────────── large and ultrawide screens ───────────── */
+@media (min-width: 120rem) {
+  :root {
+    --max: 1520px;
+  }
+
+  .hero-content,
+  .hero-foot {
+    width: min(100% - 2 * var(--gutter), var(--max-wide));
+  }
+}
+
+/* At 21:9 and wider, keep reading measures and image crops sensible. */
+@media (min-aspect-ratio: 21 / 9) and (min-width: 100rem) {
+  .hero {
+    min-height: min(100svh, 62vw);
+  }
+
+  .intro-media,
+  .split-media {
+    aspect-ratio: 1;
+  }
+
+  .reserve-cta,
+  .closing {
+    min-height: min(80svh, 46vw);
+  }
+}
+
+/* ───────────── narrow-but-tall outer screens (folded phones) ───────────── */
+@media (max-width: 22rem) {
+  :root {
+    --gutter: 14px;
+  }
+
+  .brand-word {
+    display: none;
+  }
+
+  .btn {
+    padding-inline: 1.15em;
+    letter-spacing: 0.1em;
+  }
+
+  .hero-title {
+    font-size: 2.6rem;
+  }
+}
+
+/* ───────────── foldables and dual screens: side by side ───────────── */
+/*
+ * Two segments next to each other with a hinge (or a seam) between. Content
+ * is laid out per segment, so nothing — text, buttons, the dish being read —
+ * lands across the fold. env(viewport-segment-*) gives each segment's edges.
+ */
+@media (horizontal-viewport-segments: 2) {
+  :root {
+    --seg-left-w: env(viewport-segment-width 0 0);
+    --seg-right-x: env(viewport-segment-left 1 0);
+    --seg-right-w: env(viewport-segment-width 1 0);
+    --hinge: calc(env(viewport-segment-left 1 0) - env(viewport-segment-right 0 0));
+  }
+
+  /* A row of links would run across the fold, so the header keeps only the
+     brand (left screen) and its actions (right screen); the links live in
+     the menu, which lays out one column per screen. */
+  .site-header-inner {
+    width: 100%;
+    padding-inline: var(--gutter);
+  }
+
+  .nav-desktop {
+    display: none;
+  }
+
+  .nav-desktop + .header-actions {
+    margin-left: auto;
+  }
+
+  .menu-toggle {
+    display: grid;
+  }
+
+  .mobile-menu {
+    grid-template-columns: var(--seg-left-w) var(--seg-right-w);
+    grid-template-rows: 1fr;
+    column-gap: var(--hinge);
+    padding-inline: 0;
+  }
+
+  .mobile-menu > * {
+    padding-inline: var(--gutter);
+  }
+
+  .mobile-menu-foot {
+    align-self: end;
+    border-top: 0;
+  }
+
+  /* Hero copy stays on the left screen; the picture spans both. */
+  .hero-content,
+  .page-hero-content,
+  .hero-foot {
+    width: calc(var(--seg-left-w) - 2 * var(--gutter));
+    margin-left: var(--gutter);
+    margin-right: 0;
+  }
+
+  .hero-scroll {
+    display: none;
+  }
+
+  /* Two-column sections become exactly one column per screen. */
+  .intro-grid,
+  .split,
+  .contact-grid,
+  .faq-grid,
+  .menu-preview-grid,
+  .room-wide {
+    width: 100%;
+    margin: 0;
+    grid-template-columns: var(--seg-left-w) var(--seg-right-w);
+    column-gap: var(--hinge);
+  }
+
+  .intro-grid > *,
+  .split > *,
+  .contact-grid > *,
+  .faq-grid > *,
+  .menu-preview-grid > *,
+  .room-wide > * {
+    padding-inline: var(--gutter);
+  }
+
+  .split-reverse > :first-child {
+    order: 0;
+  }
+
+  /* Intros and the menu's search row stay on the left screen rather than
+     running across the fold; the filters wrap beneath the search. */
+  .page-intro,
+  .menu-toolbar {
+    width: calc(var(--seg-left-w) - 2 * var(--gutter));
+    max-width: none;
+    margin-left: var(--gutter);
+    margin-right: 0;
+    flex-wrap: wrap;
+  }
+
+  /* Menu: sections list on the left screen, dishes on the right. */
+  .menu-layout {
+    width: 100%;
+    margin: 0;
+    grid-template-columns: var(--seg-left-w) var(--seg-right-w);
+    column-gap: var(--hinge);
+  }
+
+  .menu-layout > * {
+    padding-inline: var(--gutter);
+  }
+
+  .menu-nav {
+    position: sticky;
+    top: calc(var(--header-h) + 24px);
+    align-self: start;
+    margin: 0;
+    background: none;
+    border: 0;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+
+  .menu-nav ul {
+    flex-direction: column;
+    overflow: visible;
+  }
+
+  .dish-preview {
+    display: none !important;
+  }
+
+  /* Dialogs open on the right screen, clear of the hinge. */
+  .modal-backdrop {
+    justify-content: flex-start;
+    padding-left: calc(var(--seg-right-x) + 16px);
+    padding-right: 16px;
+  }
+
+  .modal {
+    width: calc(var(--seg-right-w) - 32px);
+  }
+
+  .dish-modal.has-media {
+    grid-template-columns: 1fr;
+  }
+
+  /* The booking page: the picture on one screen, the form on the other. */
+  .reserve-page {
+    grid-template-columns: var(--seg-left-w) var(--seg-right-w);
+    column-gap: var(--hinge);
+  }
+
+  .reserve-aside {
+    position: sticky;
+    top: 0;
+    height: 100svh;
+  }
+
+  .reserve-main {
+    padding-top: calc(var(--header-h) + 40px);
+  }
+
+  .lightbox-figure {
+    padding-inline: 16px;
+  }
+
+  .lightbox-prev {
+    left: 12px;
+  }
+
+  .lightbox-next {
+    right: 12px;
+  }
+
+  .sticky-reserve {
+    left: var(--seg-right-x);
+  }
+}
+
+/* ───────────── foldables: top and bottom (laptop / tabletop posture) ───────────── */
+@media (vertical-viewport-segments: 2) {
+  :root {
+    --seg-top-h: env(viewport-segment-height 0 0);
+    --seg-bottom-y: env(viewport-segment-top 0 1);
+  }
+
+  /* The hero fills the top screen only, so its buttons are not on the fold. */
+  .hero,
+  .page-hero {
+    min-height: var(--seg-top-h);
+    height: var(--seg-top-h);
+  }
+
+  .hero-scroll {
+    display: none;
+  }
+
+  /* Dialogs and the lightbox use the bottom screen — the one in your hands. */
+  .modal-backdrop {
+    align-items: flex-end;
+    padding-top: calc(var(--seg-bottom-y) + 8px);
+  }
+
+  .modal {
+    max-height: calc(100dvh - var(--seg-bottom-y) - 16px);
+  }
+
+  .hstory.is-pinned .hstory-sticky {
+    height: var(--seg-top-h);
+  }
+
+  .mobile-menu {
+    padding-top: calc(var(--seg-bottom-y) + 16px);
+  }
+}

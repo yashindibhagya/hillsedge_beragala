@@ -80,11 +80,7 @@ for (const file of files) {
    * under the real photograph, not a thumbnail, and every byte here ships in
    * the JS bundle on first load.
    */
-  const lqip = await sharp(source)
-    .resize({ width: 20 })
-    .blur(1.5)
-    .jpeg({ quality: 40 })
-    .toBuffer();
+  const lqip = await sharp(source).resize({ width: 20 }).blur(1.5).jpeg({ quality: 40 }).toBuffer();
 
   manifest[name] = {
     width: meta.width,

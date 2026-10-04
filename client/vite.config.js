@@ -12,12 +12,18 @@ export default defineConfig({
   },
   server: {
     /*
-     * In production the Express server serves this build and the API from
-     * one origin, so the app calls /api with a relative path. Proxying the
-     * same path in development keeps that true and avoids needing CORS.
+     * In production the Express server serves this build, the API and the
+     * uploaded media from one origin, so the app uses relative paths.
+     * Proxying the same paths in development keeps that true and avoids
+     * needing CORS.
      */
     proxy: {
       '/api': {
+        target: process.env.VITE_DEV_API_TARGET ?? 'http://localhost:4000',
+        changeOrigin: true,
+      },
+      // Photographs and video uploaded through the admin panel.
+      '/media': {
         target: process.env.VITE_DEV_API_TARGET ?? 'http://localhost:4000',
         changeOrigin: true,
       },

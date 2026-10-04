@@ -1,11 +1,14 @@
 /*
- * Hillsedge Beragala — one stylesheet for the whole site.
- * The static build shipped the same ~30KB of CSS inline on all six pages;
- * everything now lives here once, in layers.
+ * Hillsedge Beragala — the public site's stylesheet, in layers.
+ *
+ * Tokens are shared with the admin panel (shared/tokens.css). Everything
+ * after them is ordered from general to specific, so a later file can rely
+ * on — and override — an earlier one without fighting specificity.
  */
-@import './tokens.css';
+@import '../../../shared/tokens.css';
 @import './base.css';
 @import './components.css';
-@import './sections.css';
+@import './layout.css';
+@import './pages.css';
 @import './motion.css';
-@import './responsive.css';
+@import './adaptive.css';

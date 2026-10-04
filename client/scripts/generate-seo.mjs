@@ -39,6 +39,9 @@ await writeFile(
   path.join(publicDir, 'robots.txt'),
   `User-agent: *
 Allow: /
+# The admin panel and the API are not pages.
+Disallow: /admin
+Disallow: /api/
 
 Sitemap: ${PRODUCTION_ORIGIN}/sitemap.xml
 `
@@ -72,14 +75,22 @@ await writeFile(
 - Reservations: recommended for the sunset sitting, weekends and groups over four
 - Parking: on site, including coaches
 - Accommodation: none yet — this is a dining destination; chalets are being prepared
+- Spaces: the timber dining hall, the open-air sunset deck, and group and private dining by arrangement
 
 ## What the kitchen serves
+
+The full menu, with live availability, is at ${page('/menu')}.
 
 ${cuisines.map((c) => `- ${c.title}: ${c.text}`).join('\n')}
 
 Vegetarian and vegan dishes run across the menu, in particular the Sri Lankan,
 Indian, Italian and Chinese sections. Tell the kitchen about allergies or
 dietary needs when booking.
+
+## Reservations
+
+Book at ${page('/reservations')}. Bookings are requests, confirmed by message;
+nothing is charged. Choose a sitting: lunch, afternoon, sunset or dinner.
 
 ## Getting here
 

@@ -1,210 +1,319 @@
-import { Link } from 'react-router-dom';
+import { useSite } from '../context/SiteData';
+import { useDeclareHero } from '../context/Hero';
 import { photos, site } from '../data/site';
-import { pillars, homeStats, homeCuisineCards, homeGalleryKeys, homeFacts } from '../data/content';
+import { homeStats } from '../data/content';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
-import { PageHero } from '../components/PageHero';
-import { SectionHead } from '../components/SectionHead';
-import { StatementBand, PhotoCta } from '../components/Bands';
-import { MapPanel, FactList } from '../components/MapPanel';
-import { Reveal } from '../components/Reveal';
-import { Button } from '../components/Button';
-import { PillarIcon } from '../components/PillarIcon';
+import { useParallax } from '../hooks/useParallax';
+import { telHref } from '../lib/format';
+import { Button, TLink } from '../components/Button';
+import { DishFeature } from '../components/Dish';
+import { HorizontalStory } from '../components/HorizontalStory';
+import { Icon } from '../components/Icon';
+import { Media, MediaById, Visual } from '../components/Media';
 import { Picture } from '../components/Picture';
+import { Promotions } from '../components/Promotions';
+import { Reveal } from '../components/Reveal';
+import { RoomCard } from '../components/RoomCard';
+import { SectionHead } from '../components/SectionHead';
+import { Testimonials } from '../components/Testimonials';
+
+/** The four moods of a visit, in the order the light moves through them. */
+const story = [
+  {
+    photo: photos.sunsetValley,
+    kicker: '01 · Daylight',
+    title: 'The valley, laid out below.',
+    text: 'Open-sided dining level with the treeline, and the hills folding away to the south coast on a clear day.',
+  },
+  {
+    photo: photos.smoker,
+    kicker: '02 · Smoke',
+    title: 'You smell it long before you see the plate.',
+    text: 'Hand-built offset smokers, hardwood-fed and always working — in the open, where guests walk past them.',
+  },
+  {
+    photo: photos.deckDinner,
+    kicker: '03 · Sunset',
+    title: 'The deck turns gold.',
+    text: 'The sunset sitting is the most requested seat in the house. Sundowners as the sun drops behind the hills.',
+  },
+  {
+    photo: photos.afterDark,
+    kicker: '04 · After dark',
+    title: 'Lanterns on the path.',
+    text: 'Terraced gardens and stone pathways lit from dusk onwards — a third version of the place, in the same visit.',
+  },
+];
+
+function Hero() {
+  useDeclareHero();
+  const { settings, media } = useSite();
+  const { home } = settings;
+  const parallax = useParallax(80, { scale: 1.08 });
+  const image = media[home.heroImageId];
+  const video = media[home.heroVideoId];
+  const still = image ? (
+    <Media media={image} priority className="hero-img" />
+  ) : (
+    <Picture photo={photos.pathDusk} priority className="hero-img media is-loaded" alt="" />
+  );
+
+  return (
+    <section className="hero" aria-labelledby="hero-title">
+      <div className="hero-media" aria-hidden="true">
+        <div className="hero-parallax" ref={parallax}>
+          <div className="hero-kenburns">
+            {video ? <Media media={video} priority className="hero-img" fallback={still} /> : still}
+          </div>
+        </div>
+      </div>
+      <div className="hero-content wrap">
+        <p className="eyebrow eyebrow-light hero-in" style={{ '--i': 0 }}>
+          {home.heroEyebrow}
+        </p>
+        <h1 className="hero-title hero-in" id="hero-title" style={{ '--i': 1 }}>
+          {home.heroTitle}
+        </h1>
+        {home.heroSubtitle && (
+          <p className="hero-sub hero-in" style={{ '--i': 2 }}>
+            {home.heroSubtitle}
+          </p>
+        )}
+        <div className="hero-actions hero-in" style={{ '--i': 3 }}>
+          <Button to="/reservations" variant="gold" size="lg" arrow>
+            Reserve a table
+          </Button>
+          <Button to="/menu" variant="light" size="lg">
+            Explore the menu
+          </Button>
+          <TLink to="/rooms" className="hero-link">
+            Discover our spaces <Icon name="arrow" size={16} />
+          </TLink>
+        </div>
+      </div>
+      <div className="hero-foot wrap hero-in" style={{ '--i': 4 }}>
+        <span>{site.coordinates}</span>
+        <span className="hero-foot-rule" aria-hidden="true" />
+        <span>{settings.hours.summary}</span>
+      </div>
+      <a href="#intro" className="hero-scroll" aria-label="Scroll to the introduction">
+        <span aria-hidden="true" />
+      </a>
+    </section>
+  );
+}
 
 export default function Home() {
   useDocumentTitle(
     null,
     'A mountain smokehouse and BBQ restaurant in Beragala, on the hill road between Ella and Haputale. Slow-smoked meats, nine kitchens and views over the valley.'
   );
+  const { settings, featured, categories, rooms, gallery, media } = useSite();
+  const { home, restaurant } = settings;
+  const galleryItems = gallery
+    .map((id) => media[id])
+    .filter(Boolean)
+    .slice(0, 10);
 
   return (
     <>
-      <PageHero
-        id="home"
-        photo={photos.pathDusk}
-        label={site.region}
-        title={
-          <>
-            Slow smoke.
-            <br />
-            <em>Mountain air.</em>
-          </>
-        }
-        intro="A mountain smokehouse and dining destination where handcrafted flavour, rustic timber architecture and hill-country views come together."
-        actions={[
-          { to: '/visit', variant: 'fill', children: 'Reserve a table' },
-          { to: '/smokehouse', variant: 'ghost', children: 'Meet the smokehouse' },
-        ]}
-        card={{
-          rows: [
-            { label: 'Open', value: site.hours },
-            { label: 'Setting', value: 'Open-air, hill views' },
-            { label: 'Kitchen', value: 'Smokehouse & 8 more' },
-          ],
-          action: (
-            <Link to="/visit" className="go">
-              Reserve <i aria-hidden="true">&rarr;</i>
-            </Link>
-          ),
-        }}
-        metaLeft="Smoke · Flavour · Nature"
-        metaRight={site.coordinates}
-        scrollTo="#experience"
-      />
+      <Hero />
 
-      <StatementBand
-        className="scene"
-        label="The Hillsedge Experience"
-        title={
-          <>
-            Where mountain nature meets <em>smoke and flavour</em>.
-          </>
-        }
-      >
-        <Reveal className="stats" motion="up">
-          {homeStats.map(({ value, label }) => (
-            <div className="stat" key={label}>
-              <b>{value}</b>
-              <span>{label}</span>
+      <section className="section intro" id="intro" aria-labelledby="intro-title">
+        <div className="wrap intro-grid">
+          <Reveal className="intro-text">
+            <p className="eyebrow">Welcome to Hillsedge</p>
+            <h2 className="display-2" id="intro-title">
+              {home.introTitle}
+            </h2>
+            <p className="lede">{home.introBody}</p>
+            <Button to="/about" variant="outline" arrow>
+              Our story
+            </Button>
+          </Reveal>
+          <Reveal motion="mask" className="intro-media">
+            <Visual
+              id={settings.about.imageId}
+              photo={photos.timberThatch}
+              sizes="(min-width: 64rem) 45vw, 100vw"
+            />
+          </Reveal>
+        </div>
+        <Reveal as="dl" className="wrap stats" stagger>
+          {homeStats.map(({ value, label }, i) => (
+            <div key={label} style={{ '--i': i }}>
+              <dt>{label}</dt>
+              <dd>{value}</dd>
             </div>
           ))}
         </Reveal>
-      </StatementBand>
-
-      <section className="sec smoke-sec scene" id="experience">
-        <div className="wrap">
-          <SectionHead
-            layout="sh-head"
-            label="The Signature"
-            title={
-              <>
-                Hillsedge <em>Smoke Lovers</em>
-              </>
-            }
-          >
-            Our traditional smokers are not decoration. They are the heart of the kitchen — where
-            cuts rest low and slow over hardwood until the flavour is deep enough to carry the
-            Hillsedge name.
-          </SectionHead>
-
-          <Reveal as="figure" className="sh-photo" motion="up">
-            <Picture photo={photos.smoker} sizes="(max-width: 1280px) 100vw, 1200px" />
-            <figcaption>The Hillsedge smoker — hardwood-fed, hand-built, always working</figcaption>
-          </Reveal>
-
-          <Reveal className="section-action" motion="flat">
-            <Button to="/smokehouse" variant="ghost">
-              Meet the smokehouse
-            </Button>
-          </Reveal>
-        </div>
       </section>
 
-      <section className="sec pill-sec scene">
-        <div className="wrap">
-          <Reveal className="pill-head" motion="flat">
-            <span className="lab">Brand Personality</span>
-            <h2>Five things you&apos;ll feel here.</h2>
-          </Reveal>
-          <Reveal className="pill-grid" motion="up">
-            {pillars.map(({ icon, title, text }) => (
-              <div className="pill" key={title}>
-                <PillarIcon name={icon} />
-                <h3>{title}</h3>
-                <p>{text}</p>
-              </div>
-            ))}
-          </Reveal>
-        </div>
-      </section>
+      <Promotions />
 
-      <section className="sec cui scene">
-        <div className="wrap">
-          <SectionHead layout="cui-head" label="Culinary Identity" title="A table without borders.">
-            From heritage Sri Lankan rice &amp; curry to Italian, Indian and Chinese favourites —
-            with the smokehouse running through everything we serve.
-          </SectionHead>
+      {featured.length > 0 && (
+        <section className="section signature" aria-labelledby="signature-title">
+          <div className="wrap">
+            <SectionHead
+              eyebrow="Signature dishes"
+              title="What the hills are known for."
+              id="signature-title"
+              action={
+                <Button to="/menu" variant="outline" arrow>
+                  View full menu
+                </Button>
+              }
+            />
+            <Reveal className="signature-grid" stagger>
+              {featured.slice(0, 6).map((item, index) => (
+                <div key={item.id} style={{ '--i': index }}>
+                  <DishFeature item={item} currency={restaurant.currency} index={index} />
+                </div>
+              ))}
+            </Reveal>
+          </div>
+        </section>
+      )}
 
-          <Reveal className="cui-grid" motion="up">
-            {homeCuisineCards.map(({ tag, title, text, highlight }) => (
-              <div className={`cui-card ${highlight ? 'hi' : ''}`.trim()} key={title}>
-                <span className="t">{tag}</span>
-                <h3>{title}</h3>
-                <p>{text}</p>
-              </div>
-            ))}
-          </Reveal>
-
-          <Reveal className="section-action" motion="flat">
-            <Button to="/cuisine" variant="dark">
-              All nine cuisines
-            </Button>
-          </Reveal>
-        </div>
-      </section>
-
-      <section className="sec gal scene">
-        <div className="wrap">
-          <SectionHead layout="gal-head" label="The Atmosphere" title="A look around.">
-            Waterfalls on the drive up, a lodge that glows after dark, and a table set above the
-            clouds.
-          </SectionHead>
-
-          <Reveal className="mos trio" motion="up">
-            {homeGalleryKeys.map((key) => (
-              <figure key={key}>
-                <Picture photo={photos[key]} sizes="(max-width: 720px) 100vw, (max-width: 1100px) 50vw, 33vw" />
-                <figcaption>{photos[key].caption}</figcaption>
-              </figure>
-            ))}
-          </Reveal>
-
-          <Reveal className="section-action" motion="flat">
-            <Button to="/gallery" variant="ghost">
-              View the full gallery
-            </Button>
-          </Reveal>
-        </div>
-      </section>
-
-      <section className="sec visit scene" id="visit">
-        <div className="wrap vg">
-          <Reveal motion="left">
-            <span className="lab">Plan Your Visit</span>
-            <h2>
-              Find us <em>above</em> the clouds.
-            </h2>
-            <p className="lede">
-              Hillsedge sits on the Beragala–Haputale hill road in Sri Lanka&apos;s tea country — an
-              easy stop between Ella, Bandarawela, Nuwara Eliya and the south coast.
-            </p>
-            <FactList facts={homeFacts} />
-            <div className="hero-btns">
-              <Button href={site.mapsUrl} variant="fill">
-                Get directions
+      {categories.length > 0 && (
+        <section className="section menu-preview" aria-labelledby="menu-preview-title">
+          <div className="wrap menu-preview-grid">
+            <SectionHead
+              eyebrow="The menu"
+              title="Nine kitchens, one table."
+              id="menu-preview-title"
+            >
+              <p>{settings.menu.intro}</p>
+              <Button to="/menu" variant="solid" arrow>
+                View full menu
               </Button>
-              <Button to="/visit#reserve" variant="ghost">
-                Reserve a table
-              </Button>
+            </SectionHead>
+            <Reveal as="ol" className="menu-index" stagger>
+              {categories.map((category, index) => (
+                <li key={category.id} style={{ '--i': index }}>
+                  <TLink to={`/menu#${category.slug}`} className="menu-index-link">
+                    <span className="menu-index-num">{String(index + 1).padStart(2, '0')}</span>
+                    <span className="menu-index-name">{category.name}</span>
+                    {category.imageId && (
+                      <span className="menu-index-peek" aria-hidden="true">
+                        <MediaById id={category.imageId} sizes="240px" alt="" />
+                      </span>
+                    )}
+                    <Icon name="arrowUpRight" className="menu-index-arrow" />
+                  </TLink>
+                </li>
+              ))}
+            </Reveal>
+          </div>
+        </section>
+      )}
+
+      <section className="section experience-head" aria-labelledby="experience-title">
+        <div className="wrap">
+          <SectionHead eyebrow="The experience" title={home.experienceTitle} id="experience-title">
+            <p>{home.experienceBody}</p>
+          </SectionHead>
+        </div>
+      </section>
+      <HorizontalStory label="A visit, from daylight to dark">
+        {story.map((panel) => (
+          <article className="hstory-panel" key={panel.kicker}>
+            <div className="hstory-media zoom">
+              <Picture
+                photo={panel.photo}
+                sizes="(min-width: 64rem) 60vw, 85vw"
+                className="media is-loaded"
+              />
             </div>
-          </Reveal>
-          <MapPanel />
-        </div>
-      </section>
+            <div className="hstory-text">
+              <p className="eyebrow">{panel.kicker}</p>
+              <h3 className="hstory-title">{panel.title}</h3>
+              <p>{panel.text}</p>
+            </div>
+          </article>
+        ))}
+        <article className="hstory-panel hstory-end">
+          <p className="eyebrow">Stay for all three</p>
+          <p className="hstory-end-title">Arrive late afternoon.</p>
+          <Button to="/experiences" variant="outline" arrow>
+            Experiences
+          </Button>
+        </article>
+      </HorizontalStory>
 
-      <PhotoCta
-        photo={photos.signboard}
-        label="You'll know it when you see it"
-        title={
-          <>
-            Come for the food. <em>Stay for the feeling.</em>
-          </>
-        }
-        actions={[
-          { to: '/visit', variant: 'fill', children: 'Reserve a table' },
-          { to: '/gallery', variant: 'ghost', children: 'See the place' },
-        ]}
-      />
+      {rooms.length > 0 && (
+        <section className="section spaces" aria-labelledby="spaces-title">
+          <div className="wrap">
+            <SectionHead
+              eyebrow="Rooms & private dining"
+              title="Somewhere for every table."
+              id="spaces-title"
+              action={
+                <Button to="/rooms" variant="outline" arrow>
+                  All spaces
+                </Button>
+              }
+            />
+            <Reveal className="room-grid" stagger>
+              {rooms.slice(0, 3).map((room, i) => (
+                <div key={room.id} style={{ '--i': i }}>
+                  <RoomCard room={room} currency={restaurant.currency} />
+                </div>
+              ))}
+            </Reveal>
+          </div>
+        </section>
+      )}
+
+      {galleryItems.length > 0 && (
+        <section className="section gallery-strip" aria-labelledby="strip-title">
+          <div className="wrap">
+            <SectionHead
+              eyebrow="Gallery"
+              title="Timber, stone and thatch."
+              id="strip-title"
+              action={
+                <Button to="/gallery" variant="outline" arrow>
+                  Open the gallery
+                </Button>
+              }
+            />
+          </div>
+          <ul className="strip" tabIndex={0} aria-label="Photographs — scroll sideways">
+            {galleryItems.map((item) => (
+              <li key={item.id} className="strip-item zoom">
+                <Media media={item} sizes="(min-width: 64rem) 30vw, 70vw" />
+                {item.caption && <span className="strip-caption">{item.caption}</span>}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      <Testimonials />
+
+      <section className="reserve-cta" aria-labelledby="reserve-title">
+        <div className="reserve-cta-media" aria-hidden="true">
+          <Picture photo={photos.sundowners} className="media is-loaded" alt="" />
+        </div>
+        <Reveal className="reserve-cta-content wrap">
+          <p className="eyebrow eyebrow-light">Reservations</p>
+          <h2 className="display-2" id="reserve-title">
+            {home.reserveTitle}
+          </h2>
+          <p className="lede">{home.reserveBody}</p>
+          <div className="reserve-cta-actions">
+            <Button to="/reservations" variant="gold" size="lg" arrow>
+              Reserve a table
+            </Button>
+            {restaurant.phone && (
+              <Button href={telHref(restaurant.phone)} variant="light" icon="phone">
+                {restaurant.phone}
+              </Button>
+            )}
+          </div>
+        </Reveal>
+      </section>
     </>
   );
 }

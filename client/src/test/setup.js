@@ -34,3 +34,17 @@ globalThis.matchMedia ??= (query) => ({
 
 globalThis.scrollTo ??= () => {};
 Element.prototype.scrollIntoView ??= () => {};
+
+/*
+ * The data router builds a fetch Request for every navigation. Under jsdom
+ * the AbortSignal it passes is jsdom's, which Node's own Request rejects —
+ * so the signal is dropped here. Navigation in tests never needs aborting.
+ */
+const NodeRequest = globalThis.Request;
+globalThis.Request = class Request extends NodeRequest {
+  constructor(input, init = {}) {
+    // eslint-disable-next-line no-unused-vars
+    const { signal, ...rest } = init;
+    super(input, rest);
+  }
+};

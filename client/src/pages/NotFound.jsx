@@ -5,19 +5,19 @@ export default function NotFound() {
   useDocumentTitle('Page not found', undefined, { noindex: true });
 
   return (
-    <section className="sec state not-found">
-      <div className="wrap">
-        <span className="lab">Error 404</span>
-        <h1>That page has drifted off down the valley.</h1>
-        <div className="rule" />
-        <div className="cta-btns not-found-actions">
-          <Button to="/" variant="fill">
-            Back to home
-          </Button>
-          <Button to="/visit" variant="dark">
-            Visit &amp; reserve
-          </Button>
-        </div>
+    <section className="state-page wrap">
+      <p className="eyebrow">404</p>
+      <h1 className="display-2">This path leads off the hillside.</h1>
+      <p className="lede">
+        The page you were looking for is not here — it may have moved when the site was rebuilt.
+      </p>
+      <div className="state-page-actions">
+        <Button to="/" variant="solid" arrow>
+          Back to home
+        </Button>
+        <Button to="/menu" variant="outline">
+          See the menu
+        </Button>
       </div>
     </section>
   );

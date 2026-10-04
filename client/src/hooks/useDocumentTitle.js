@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { shareImage, site } from '../data/site';
 
-const DEFAULT_TITLE = `${site.name} — Mountain Smokehouse & BBQ, Haputale`;
+const DEFAULT_TITLE = `${site.name} — Mountain Smokehouse & Restaurant, Haputale`;
 
 /** Creates the tag if it is missing, then sets it. */
 function setMeta(selector, attributes) {
@@ -26,11 +26,7 @@ function setMeta(selector, attributes) {
  * have a title worth spending the space on opt out and carry the brand name
  * themselves.
  */
-export function useDocumentTitle(
-  title,
-  description,
-  { noindex = false, brandSuffix = true } = {}
-) {
+export function useDocumentTitle(title, description, { noindex = false, brandSuffix = true } = {}) {
   const { pathname } = useLocation();
 
   useEffect(() => {

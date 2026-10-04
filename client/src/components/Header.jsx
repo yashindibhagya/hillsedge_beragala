@@ -1,86 +1,129 @@
 import { useEffect, useState } from 'react';
-import { Link, NavLink, useLocation } from 'react-router-dom';
-import { navLinks, site } from '../data/site';
+import { useLocation } from 'react-router-dom';
+import { navLinks } from '../data/routes';
 import { useScrolled } from '../hooks/useScrolled';
-import { useBodyScrollLock } from '../hooks/useBodyScrollLock';
+import { useDialog } from '../hooks/useDialog';
+import { useHeroState } from '../context/Hero';
+import { useSite } from '../context/SiteData';
+import { telHref } from '../lib/format';
 import { BrandMark } from './BrandMark';
+import { Button, TLink, TNavLink } from './Button';
+import { Icon } from './Icon';
+import { SocialLinks } from './SocialLinks';
 
+const primary = navLinks.filter((link) => link.nav !== false);
+
+/**
+ * Sticky header. Over a page's hero it is transparent with light text; once
+ * the page scrolls, or on a page with no hero, it turns solid white.
+ *
+ * Below the desktop breakpoint the links fold into a full-screen menu: a
+ * modal dialog with its own focus trap, closed by Escape, by choosing a
+ * link, or by the route changing underneath it.
+ */
 export function Header() {
+  const scrolled = useScrolled(24);
+  const overHero = useHeroState();
   const [open, setOpen] = useState(false);
-  const scrolled = useScrolled(40);
-  const location = useLocation();
+  const { pathname } = useLocation();
+  const { settings } = useSite();
+  const { restaurant } = settings;
 
-  useBodyScrollLock(open);
+  useEffect(() => setOpen(false), [pathname]);
 
-  // Close the sheet whenever navigation happens.
-  useEffect(() => setOpen(false), [location.pathname]);
-
-  useEffect(() => {
-    if (!open) return undefined;
-    const onKeyDown = (event) => {
-      if (event.key === 'Escape') setOpen(false);
-    };
-    document.addEventListener('keydown', onKeyDown);
-    return () => document.removeEventListener('keydown', onKeyDown);
-  }, [open]);
+  const sheetRef = useDialog(open, { onClose: () => setOpen(false) });
+  const transparent = overHero && !scrolled && !open;
 
   return (
-    <>
-      <header className={[scrolled ? 'stuck' : '', open ? 'menu-open' : ''].filter(Boolean).join(' ') || undefined}>
-        <div className="wrap nav">
-          <Link to="/" className="lockup" aria-label={`${site.name} — home`}>
-            <BrandMark variant="lockup" />
-            <span className="lk-txt">
-              <b>HILLSEDGE</b>
-              <s>BERAGALA</s>
-            </span>
-          </Link>
+    <header
+      className={`site-header ${transparent ? 'is-transparent' : 'is-solid'} ${open ? 'is-open' : ''}`}
+    >
+      <div className="site-header-inner">
+        <TLink to="/" className="brand" aria-label={`${restaurant.name} — home`}>
+          <BrandMark className="brand-mark" />
+          <span className="brand-word">
+            <span className="brand-name">Hillsedge</span>
+            <span className="brand-place">Beragala</span>
+          </span>
+        </TLink>
 
-          <nav className="menu" aria-label="Primary">
-            {navLinks.map(({ to, label }) => (
-              <NavLink key={to} to={to} end={to === '/'}>
-                {label}
-              </NavLink>
+        <nav className="nav-desktop" aria-label="Main">
+          <ul>
+            {primary.map(({ to, label }) => (
+              <li key={to}>
+                <TNavLink to={to} end={to === '/'} className="nav-link">
+                  {label}
+                </TNavLink>
+              </li>
             ))}
-          </nav>
+          </ul>
+        </nav>
 
-          <Link to="/visit" className="btn b-fill nav-cta">
-            Reserve <i aria-hidden="true">&rarr;</i>
-          </Link>
-
+        <div className="header-actions">
+          <Button to="/reservations" variant="gold" size="sm" className="header-reserve">
+            Reserve
+          </Button>
           <button
             type="button"
-            className={`burger ${open ? 'on' : ''}`.trim()}
-            aria-label={open ? 'Close menu' : 'Open menu'}
+            className="menu-toggle"
             aria-expanded={open}
-            aria-controls="nav-sheet"
+            aria-controls="mobile-menu"
             onClick={() => setOpen((value) => !value)}
           >
-            <span />
-            <span />
-            <span />
+            <Icon name={open ? 'close' : 'menu'} size={24} />
+            <span className="sr-only">{open ? 'Close menu' : 'Open menu'}</span>
           </button>
         </div>
-      </header>
-
-      {/* `inert` rather than `hidden`: it keeps the links out of the tab
-          order and the accessibility tree without display:none, which would
-          skip the reveal transition. */}
-      <div
-        id="nav-sheet"
-        className={`sheet ${open ? 'on' : ''}`.trim()}
-        {...(open ? {} : { inert: '' })}
-      >
-        <nav aria-label="Mobile">
-          {navLinks.map(({ to, sheetLabel, index }) => (
-            <NavLink key={to} to={to} end={to === '/'}>
-              {sheetLabel} <em>{index}</em>
-            </NavLink>
-          ))}
-        </nav>
-        <div className="sf">{site.region}</div>
       </div>
-    </>
+
+      {open && (
+        <div
+          id="mobile-menu"
+          className="mobile-menu"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Menu"
+          ref={sheetRef}
+          tabIndex={-1}
+        >
+          <nav aria-label="Main" className="mobile-menu-nav">
+            <ol>
+              {navLinks.map(({ to, label, index }, position) => (
+                <li key={to} style={{ '--i': position }}>
+                  <TNavLink
+                    to={to}
+                    end={to === '/'}
+                    className="mobile-link"
+                    onClick={() => setOpen(false)}
+                  >
+                    <span className="mobile-link-index">{index}</span>
+                    <span className="mobile-link-label">{label}</span>
+                  </TNavLink>
+                </li>
+              ))}
+            </ol>
+          </nav>
+          <div className="mobile-menu-foot">
+            <Button to="/reservations" variant="gold" arrow onClick={() => setOpen(false)}>
+              Reserve a table
+            </Button>
+            <div className="mobile-menu-contact">
+              {restaurant.phone && (
+                <a href={telHref(restaurant.phone)}>
+                  <Icon name="phone" size={18} /> {restaurant.phone}
+                </a>
+              )}
+              {restaurant.email && (
+                <a href={`mailto:${restaurant.email}`}>
+                  <Icon name="mail" size={18} /> {restaurant.email}
+                </a>
+              )}
+            </div>
+            <SocialLinks />
+          </div>
+        </div>
+      )}
+    </header>
   );
 }
 
