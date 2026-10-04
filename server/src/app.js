@@ -6,6 +6,7 @@ import { config } from './config/index.js';
 import { security } from './middleware/security.js';
 import { apiRouter } from './routes/index.js';
 import { errorHandler, apiNotFound } from './middleware/errorHandler.js';
+import { isKnownRoute, redirectFor } from './services/clientRoutes.js';
 
 /**
  * Builds the Express app without starting it, so the tests can drive it
@@ -20,14 +21,66 @@ export function createApp() {
   app.set('trust proxy', config.trustProxy);
   app.disable('x-powered-by');
 
+  /*
+   * A forwarded-for header with TRUST_PROXY=0 means a proxy is in front that
+   * Express has not been told about, so every visitor shares one rate-limit
+   * allowance. Said once, loudly, rather than discovered when staff are
+   * locked out.
+   */
+  if (!config.trustProxy) {
+    let warned = false;
+    app.use((req, res, next) => {
+      if (!warned && req.headers['x-forwarded-for']) {
+        warned = true;
+        console.warn(
+          '[server] Requests arrive with X-Forwarded-For but TRUST_PROXY=0. Every visitor ' +
+            'will share one rate limit. Set TRUST_PROXY to the number of proxies in front.'
+        );
+      }
+      next();
+    });
+  }
+
   app.use(security);
   app.use(compression());
-  // A booking is a few hundred bytes; the cap is to stop a large body being
-  // parsed before anything else gets a chance to reject it.
-  app.use(express.json({ limit: '32kb' }));
+  // The largest legitimate body is a page of site copy; the cap is to stop a
+  // large body being parsed before anything else gets a chance to reject it.
+  // Uploads are multipart and never pass through here.
+  app.use(express.json({ limit: '256kb' }));
 
   app.use('/api', apiRouter);
   app.use('/api', apiNotFound);
+
+  // Uploaded media. Each upload lives under its own random id and is never
+  // rewritten in place — a replacement is a new upload — so it can be cached
+  // as hard as the hashed build assets.
+  app.use(
+    '/media',
+    express.static(config.uploadsDir, {
+      immutable: true,
+      maxAge: '1y',
+      index: false,
+      dotfiles: 'ignore',
+      fallthrough: false,
+    })
+  );
+
+  if (config.serveClient && existsSync(config.adminDir)) {
+    const adminDir = config.adminDir;
+    app.use('/admin', (req, res, next) => {
+      res.set('X-Robots-Tag', 'noindex, nofollow');
+      next();
+    });
+    app.use(
+      '/admin/assets',
+      express.static(path.join(adminDir, 'assets'), { immutable: true, maxAge: '1y' })
+    );
+    app.use('/admin', express.static(adminDir, { index: false, redirect: false, maxAge: '1h' }));
+    app.get(['/admin', '/admin/*'], (req, res) => {
+      res.set('Cache-Control', 'no-store');
+      res.sendFile(path.join(adminDir, 'index.html'));
+    });
+  }
 
   if (config.serveClient) {
     const clientDir = config.clientDir;
@@ -49,8 +102,15 @@ export function createApp() {
       // Client-side routing: anything not matched above is a route in the
       // app, so the shell answers with 200 rather than a 404.
       app.get('*', (req, res) => {
+        const target = redirectFor(req.path);
+        if (target) {
+          const query = req.originalUrl.slice(req.path.length);
+          return res.redirect(301, target + query);
+        }
         res.set('Cache-Control', 'public, max-age=0, must-revalidate');
-        res.sendFile(path.join(clientDir, 'index.html'));
+        // The app renders its own not-found page; the status tells crawlers.
+        if (!isKnownRoute(req.path)) res.status(404);
+        return res.sendFile(path.join(clientDir, 'index.html'));
       });
     } else {
       console.warn(

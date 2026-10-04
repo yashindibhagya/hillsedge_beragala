@@ -1,27 +1,22 @@
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import request from 'supertest';
-import { validBooking, withTempStore } from './helpers.js';
+import { bootApp, dayFromToday, validBooking, withTempStore } from './helpers.js';
 
 let app;
-let listReservations;
+let read;
 let cleanup;
 
 beforeAll(async () => {
-  cleanup = await withTempStore();
-  process.env.SERVE_CLIENT = 'false';
   // Generous, so the validation tests are not throttled by each other.
-  process.env.RATE_LIMIT_MAX = '1000';
-  const [{ createApp }, store] = await Promise.all([
-    import('../src/app.js'),
-    import('../src/services/reservationStore.js'),
-  ]);
-  app = createApp();
-  listReservations = store.listReservations;
+  ({ cleanup } = await withTempStore({ RATE_LIMIT_MAX: '1000' }));
+  app = await bootApp();
+  ({ read } = await import('../src/services/store.js'));
 });
 
 afterAll(() => cleanup());
 
 const post = (body) => request(app).post('/api/reservations').send(body);
+const stored = (id) => read().reservations.find((r) => r.id === id);
 
 describe('POST /api/reservations', () => {
   it('accepts a complete booking and returns its id', async () => {
@@ -32,43 +27,71 @@ describe('POST /api/reservations', () => {
     expect(res.body.message).toMatch(/confirm/i);
   });
 
-  it('persists what was booked', async () => {
-    const booking = validBooking({ name: 'Ayesha', guests: '5–8', message: 'One vegan' });
+  it('persists what was booked, as pending', async () => {
+    const booking = validBooking({
+      name: 'Ayesha',
+      guests: 7,
+      email: 'A@Example.com',
+      message: 'One vegan',
+    });
     const { body } = await post(booking).expect(201);
 
-    const stored = (await listReservations()).find((r) => r.id === body.id);
-    expect(stored).toMatchObject({
+    expect(stored(body.id)).toMatchObject({
       name: 'Ayesha',
-      guests: '5–8',
+      guests: 7,
+      email: 'a@example.com',
       date: booking.date,
       time: 'Sunset',
       message: 'One vegan',
+      status: 'pending',
+      source: 'website',
     });
-  });
-
-  it('stores no note rather than an empty string', async () => {
-    const { body } = await post(validBooking({ message: '   ' })).expect(201);
-    const stored = (await listReservations()).find((r) => r.id === body.id);
-    expect(stored.message).toBeNull();
   });
 
   it('trims the name', async () => {
     const { body } = await post(validBooking({ name: '  Priya  ' })).expect(201);
-    const stored = (await listReservations()).find((r) => r.id === body.id);
-    expect(stored.name).toBe('Priya');
+    expect(stored(body.id).name).toBe('Priya');
+  });
+
+  it('accepts a bookable space and refuses one that is not', async () => {
+    const rooms = read().rooms;
+    const open = rooms.find((r) => r.bookingStatus === 'open' && r.available);
+    const soon = rooms.find((r) => r.bookingStatus === 'coming_soon');
+
+    const { body } = await post(validBooking({ roomId: open.id })).expect(201);
+    expect(stored(body.id).roomId).toBe(open.id);
+
+    const res = await post(validBooking({ roomId: soon.id })).expect(422);
+    expect(res.body.errors.roomId).toMatch(/cannot be booked/i);
   });
 });
 
 describe('POST /api/reservations — rejections', () => {
-  it('requires a name and a date', async () => {
-    const res = await post({ guests: '1–2', time: 'Lunch' }).expect(422);
+  it('requires a name, a date and a way to reach the guest', async () => {
+    const res = await post({ guests: 2, time: 'Lunch' }).expect(422);
     expect(res.body.errors.name).toMatch(/who the table is for/i);
     expect(res.body.errors.date).toMatch(/choose a date/i);
+    expect(res.body.errors.phone).toMatch(/phone number or email/i);
+  });
+
+  it('accepts email alone as the contact', async () => {
+    await post(validBooking({ phone: '', email: 'guest@example.com' })).expect(201);
+  });
+
+  it('refuses a malformed phone or email', async () => {
+    const res = await post(validBooking({ phone: 'call me', email: 'nope' })).expect(422);
+    expect(res.body.errors.phone).toBeDefined();
+    expect(res.body.errors.email).toBeDefined();
   });
 
   it('refuses a date in the past', async () => {
     const res = await post(validBooking({ date: '2020-01-01' })).expect(422);
     expect(res.body.errors.date).toMatch(/today or a later date/i);
+  });
+
+  it('accepts today', async () => {
+    const { localToday } = await import('../src/services/time.js');
+    await post(validBooking({ date: localToday() })).expect(201);
   });
 
   it('refuses a date that does not exist', async () => {
@@ -77,9 +100,31 @@ describe('POST /api/reservations — rejections', () => {
   });
 
   it('refuses a party size or sitting it does not offer', async () => {
-    const res = await post(validBooking({ guests: '400', time: 'Breakfast' })).expect(422);
+    const res = await post(validBooking({ guests: 0, time: 'Breakfast' })).expect(422);
     expect(res.body.errors.guests).toBeDefined();
     expect(res.body.errors.time).toBeDefined();
+
+    const big = await post(validBooking({ guests: 5000 })).expect(422);
+    expect(big.body.errors.guests).toMatch(/message us/i);
+  });
+
+  it('refuses dates more than a year ahead', async () => {
+    const res = await post(validBooking({ date: '9999-12-31' })).expect(422);
+    expect(res.body.errors.date).toMatch(/year ahead/i);
+    await post(validBooking({ date: dayFromToday(360) })).expect(201);
+  });
+
+  it('only takes a real number of guests', async () => {
+    for (const guests of [[3], true, '3e1', '', null]) {
+      const res = await post(validBooking({ guests })).expect(422);
+      expect(res.body.errors.guests, JSON.stringify(guests)).toBeDefined();
+    }
+    await post(validBooking({ guests: '6' })).expect(201);
+  });
+
+  it('refuses a phone number with no digits to it', async () => {
+    const res = await post(validBooking({ phone: '+-----' })).expect(422);
+    expect(res.body.errors.phone).toBeDefined();
   });
 
   it('caps the note instead of storing whatever is sent', async () => {
@@ -89,13 +134,19 @@ describe('POST /api/reservations — rejections', () => {
 
   it('ignores fields it did not ask for', async () => {
     const { body } = await post(
-      validBooking({ id: 'forged', receivedAt: '1999-01-01T00:00:00Z', admin: true })
+      validBooking({
+        id: 'forged',
+        receivedAt: '1999-01-01T00:00:00Z',
+        status: 'confirmed',
+        admin: true,
+      })
     ).expect(201);
 
-    const stored = (await listReservations()).find((r) => r.id === body.id);
-    expect(stored.id).not.toBe('forged');
-    expect(stored.receivedAt).not.toMatch(/^1999/);
-    expect(stored.admin).toBeUndefined();
+    const record = stored(body.id);
+    expect(record.id).not.toBe('forged');
+    expect(record.receivedAt).not.toMatch(/^1999/);
+    expect(record.status).toBe('pending');
+    expect(record.admin).toBeUndefined();
   });
 
   it('rejects a body that is not a JSON object', async () => {
@@ -116,8 +167,20 @@ describe('POST /api/reservations — rejections', () => {
       .expect(400);
   });
 
-  it('does not accept a booking over GET', async () => {
+  it('does not list bookings to the public', async () => {
     await request(app).get('/api/reservations').expect(404);
+  });
+
+  it('refuses online bookings while they are switched off', async () => {
+    const { write } = await import('../src/services/store.js');
+    await write((d) => {
+      d.settings.reservations.acceptingOnline = false;
+    });
+    const res = await post(validBooking({ date: dayFromToday(5) })).expect(409);
+    expect(res.body.error).toMatch(/not taking bookings online/i);
+    await write((d) => {
+      d.settings.reservations.acceptingOnline = true;
+    });
   });
 });
 
@@ -125,12 +188,11 @@ describe('rate limiting', () => {
   it('stops a flood of booking attempts', async () => {
     process.env.RATE_LIMIT_MAX = '3';
     process.env.RATE_LIMIT_WINDOW_MS = '60000';
-    // Config reads the environment once, at import time, and a query-string
-    // import would still resolve config to the instance already cached.
-    // Only a registry reset gets the new limit read.
+    // Config reads the environment once, at import time; only a registry
+    // reset gets the new limit read. The store comes back up from disk.
     vi.resetModules();
-    const { createApp } = await import('../src/app.js');
-    const limited = createApp();
+    const { bootApp: boot } = await import('./helpers.js');
+    const limited = await boot();
 
     const codes = [];
     for (let i = 0; i < 5; i++) {

@@ -14,8 +14,9 @@ npm-debug.log*
 .env.local
 .env.*.local
 
-# Runtime data. Bookings live here; they are not source.
-server/data/*.jsonl
+# Runtime data: the store (menu, rooms, bookings, users) and uploaded media.
+# Not source — back these up, do not commit them.
+server/data/
 
 # Derived by `npm run images`; regenerated automatically before dev/build.
 client/src/assets/images/generated/

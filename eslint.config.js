@@ -10,7 +10,7 @@ export default [
 
   // Front end.
   {
-    files: ['client/src/**/*.{js,jsx}'],
+    files: ['client/src/**/*.{js,jsx}', 'admin/src/**/*.{js,jsx}'],
     languageOptions: {
       ecmaVersion: 2023,
       sourceType: 'module',
@@ -31,13 +31,19 @@ export default [
 
   // Front-end tests.
   {
-    files: ['client/src/**/*.test.{js,jsx}', 'client/src/test/**/*.{js,jsx}'],
+    files: ['{client,admin}/src/**/*.test.{js,jsx}', '{client,admin}/src/test/**/*.{js,jsx}'],
     languageOptions: { globals: { ...globals.browser, ...globals.node } },
   },
 
   // Server and build scripts.
   {
-    files: ['server/**/*.js', 'client/scripts/**/*.mjs', 'client/vite.config.js', 'eslint.config.js'],
+    files: [
+      'server/**/*.js',
+      'client/scripts/**/*.mjs',
+      'client/vite.config.js',
+      'admin/vite.config.js',
+      'eslint.config.js',
+    ],
     languageOptions: {
       ecmaVersion: 2023,
       sourceType: 'module',

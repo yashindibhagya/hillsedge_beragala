@@ -7,7 +7,7 @@
   "type": "module",
   "main": "src/index.js",
   "engines": {
-    "node": ">=20.11"
+    "node": ">=20.12"
   },
   "scripts": {
     "dev": "node --watch src/index.js",
@@ -19,7 +19,10 @@
     "compression": "^1.7.5",
     "express": "^4.21.2",
     "express-rate-limit": "^7.5.0",
-    "helmet": "^8.0.0"
+    "helmet": "^8.0.0",
+    "multer": "^2.4.0",
+    "nodemailer": "^10.0.14",
+    "sharp": "^0.35.5"
   },
   "devDependencies": {
     "supertest": "^7.0.0",

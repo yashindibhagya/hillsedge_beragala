@@ -18,7 +18,9 @@ const directives = {
   // webfont stylesheet comes from Google.
   styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
   fontSrc: ["'self'", 'https://fonts.gstatic.com'],
-  imgSrc: ["'self'", 'data:'],
+  // blob: lets the admin preview a photo before it finishes uploading.
+  imgSrc: ["'self'", 'data:', 'blob:'],
+  mediaSrc: ["'self'", 'blob:'],
   frameSrc: ['https://maps.google.com', 'https://www.google.com'],
   connectSrc: ["'self'"],
   manifestSrc: ["'self'"],
@@ -35,9 +37,7 @@ export const security = helmet({
   // helmet defaults to SAMEORIGIN; the static configs send DENY, and so does
   // frame-ancestors above. Match the stricter one rather than disagree.
   frameguard: { action: 'deny' },
-  hsts: config.isProduction
-    ? { maxAge: 63072000, includeSubDomains: true, preload: true }
-    : false,
+  hsts: config.isProduction ? { maxAge: 63072000, includeSubDomains: true, preload: true } : false,
 });
 
 export default security;

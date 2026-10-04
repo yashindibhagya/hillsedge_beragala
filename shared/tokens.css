@@ -1,0 +1,144 @@
+/*
+ * Hillsedge Beragala — design tokens, shared by the public site (client/)
+ * and the admin panel (admin/). Both import this file; change it once.
+ *
+ * White for space, olive for the brand, gold for accent. Gold is a highlight
+ * and never body text on white below --gold-700, which is the darkest gold
+ * that still reads as gold and the lightest that passes 4.5:1 on white.
+ */
+/*
+ * Metric-matched stand-ins for the webfonts, used until they arrive.
+ *
+ * Cormorant is far narrower than Georgia, so without this every heading
+ * reflows when the font swaps in and the page below it jumps (measured: a
+ * cumulative layout shift of 0.23 on the gallery, where 0.1 is the limit for
+ * "good"). size-adjust is the measured width ratio of the webfont to the local
+ * font; the overrides are the webfont's own vertical metrics divided by it.
+ */
+@font-face {
+  font-family: 'Cormorant Fallback';
+  src: local('Georgia'), local('Georgia Regular');
+  size-adjust: 87.6%;
+  ascent-override: 105.5%;
+  descent-override: 32.8%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: 'Manrope Fallback';
+  src: local('Arial'), local('ArialMT'), local('Helvetica');
+  size-adjust: 100.9%;
+  ascent-override: 105.7%;
+  descent-override: 29.7%;
+  line-gap-override: 0%;
+}
+
+:root {
+  /* neutrals */
+  --white: #ffffff;
+  --ivory: #faf8f3;
+  --cream: #f4efe4;
+  --beige: #ebe3d3;
+  --sand: #d9cdb5;
+  --charcoal: #1d1e1a;
+  --ink: #23251f;
+  --warm-gray: #6b675d;
+  --warm-gray-2: #8e897d;
+
+  /* olive — the brand */
+  --olive-950: #151a0e;
+  --olive-900: #1f2616;
+  --olive-800: #2a331d;
+  --olive-700: #384427;
+  --olive-600: #4a5a32;
+  --olive-500: #63753f;
+  --olive-400: #8a9a68;
+  --olive-200: #cdd4bb;
+  --olive-100: #e8ecdd;
+  --olive-50: #f3f5ec;
+
+  /* gold — the accent */
+  --gold-800: #6f5320;
+  --gold-700: #8a6a2c;
+  --gold-600: #a7843f;
+  --gold-500: #c3a25e;
+  --gold-400: #d4b97f;
+  --gold-200: #ecdcb6;
+  --gold-100: #f6eedb;
+
+  /* status */
+  --ok: #4a6b34;
+  --ok-bg: #edf2e4;
+  --warn: #8a5a12;
+  --warn-bg: #fbf0db;
+  --danger: #9b2f24;
+  --danger-bg: #fbe9e6;
+  --info: #3b5566;
+  --info-bg: #e8eff3;
+
+  /* semantic */
+  --bg: var(--white);
+  --bg-soft: var(--ivory);
+  --bg-sunk: var(--cream);
+  --surface: var(--white);
+  --text: var(--ink);
+  --text-soft: var(--warm-gray);
+  --text-faint: var(--warm-gray-2);
+  --brand: var(--olive-600);
+  --brand-strong: var(--olive-800);
+  --accent: var(--gold-500);
+  --accent-text: var(--gold-700);
+  --line: rgba(31, 38, 22, 0.1);
+  --line-strong: rgba(31, 38, 22, 0.2);
+  --line-gold: rgba(195, 162, 94, 0.45);
+  --focus: var(--gold-600);
+
+  /* type */
+  --font-display: 'Cormorant Garamond', 'Cormorant Fallback', Georgia, 'Times New Roman', serif;
+  --font-body: 'Manrope', 'Manrope Fallback', system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  --step--1: clamp(0.8rem, 0.78rem + 0.1vw, 0.86rem);
+  --step-0: clamp(0.95rem, 0.92rem + 0.15vw, 1.05rem);
+  --step-1: clamp(1.15rem, 1.08rem + 0.35vw, 1.35rem);
+  --step-2: clamp(1.45rem, 1.3rem + 0.7vw, 1.9rem);
+  --step-3: clamp(1.9rem, 1.6rem + 1.4vw, 2.85rem);
+  --step-4: clamp(2.5rem, 1.9rem + 2.8vw, 4.4rem);
+  --step-5: clamp(3.1rem, 2.1rem + 4.8vw, 7rem);
+
+  /* radius & depth — restrained: hairlines over shadows */
+  --radius-s: 6px;
+  --radius: 12px;
+  --radius-l: 22px;
+  --radius-pill: 999px;
+  --shadow-s: 0 1px 2px rgba(21, 26, 14, 0.06), 0 2px 8px rgba(21, 26, 14, 0.04);
+  --shadow: 0 10px 30px -12px rgba(21, 26, 14, 0.18);
+  --shadow-l: 0 30px 80px -30px rgba(21, 26, 14, 0.35);
+
+  /* motion */
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-1: 160ms;
+  --dur-2: 320ms;
+  --dur-3: 700ms;
+  --dur-4: 1200ms;
+
+  /* layout */
+  --gutter: clamp(16px, 4.5vw, 64px);
+  --max: 1320px;
+  --max-wide: 1680px;
+  --max-text: 68ch;
+  --tap: 44px;
+  --safe-t: env(safe-area-inset-top, 0px);
+  --safe-r: env(safe-area-inset-right, 0px);
+  --safe-b: env(safe-area-inset-bottom, 0px);
+  --safe-l: env(safe-area-inset-left, 0px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-1: 0ms;
+    --dur-2: 0ms;
+    --dur-3: 0ms;
+    --dur-4: 0ms;
+  }
+}

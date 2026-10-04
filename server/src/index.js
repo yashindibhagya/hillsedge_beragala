@@ -1,6 +1,16 @@
 import { createApp } from './app.js';
-import { config } from './config/index.js';
+import { config, productionProblems } from './config/index.js';
+import { initStore } from './services/bootstrap.js';
+import { flushViews } from './routes/public.js';
 
+const problems = productionProblems();
+if (problems.length) {
+  for (const problem of problems) console.error(`[server] ${problem}`);
+  console.error('[server] Refusing to start in production until these are fixed.');
+  process.exit(1);
+}
+
+await initStore();
 const app = createApp();
 
 const server = app.listen(config.port, config.host, () => {
@@ -17,7 +27,8 @@ const server = app.listen(config.port, config.host, () => {
  */
 function shutdown(signal) {
   console.log(`[server] ${signal} received, closing`);
-  server.close(() => {
+  server.close(async () => {
+    await flushViews();
     console.log('[server] closed');
     process.exit(0);
   });
