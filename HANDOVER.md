@@ -36,17 +36,17 @@ None of these are bugs. They are facts nobody has supplied, deliberately left
 empty rather than guessed, because a confident wrong answer on a live site is
 worse than a gap. All of them are now filled in from the admin panel, not code.
 
-| What | Where in the admin | While unset |
-|---|---|---|
-| Menu prices | Dishes | No price is shown |
-| Opening times by day | Website content → Opening hours | Hours left out of the footer and of the structured data |
-| Instagram / Facebook / TripAdvisor | Website content → Social | Icons hidden |
-| Room capacities and prices | Rooms & spaces | Not shown |
-| Testimonials | Testimonials | Section hidden. Only genuine reviews, with permission |
-| Hero video | Media library → Website content → Homepage | The hero uses the photograph |
-| Dietary flags and allergens | Dishes | Set only where the dish itself settles it (e.g. naan is vegetarian) |
-| Halal position | nothing claims it | Still a hard yes/no for Middle Eastern and Malaysian visitors |
-| Privacy notice | no page yet | The booking form collects names, phones and emails. Someone should write and approve a privacy policy; the footer's "policies" links currently go to the reservation policy and FAQs |
+| What                               | Where in the admin                         | While unset                                                                                                                                                                          |
+| ---------------------------------- | ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Menu prices                        | Dishes                                     | No price is shown                                                                                                                                                                    |
+| Opening times by day               | Website content → Opening hours            | Hours left out of the footer and of the structured data                                                                                                                              |
+| Instagram / Facebook / TripAdvisor | Website content → Social                   | Icons hidden                                                                                                                                                                         |
+| Room capacities and prices         | Rooms & spaces                             | Not shown                                                                                                                                                                            |
+| Testimonials                       | Testimonials                               | Section hidden. Only genuine reviews, with permission                                                                                                                                |
+| Hero video                         | Media library → Website content → Homepage | The hero uses the photograph                                                                                                                                                         |
+| Dietary flags and allergens        | Dishes                                     | Set only where the dish itself settles it (e.g. naan is vegetarian)                                                                                                                  |
+| Halal position                     | nothing claims it                          | Still a hard yes/no for Middle Eastern and Malaysian visitors                                                                                                                        |
+| Privacy notice                     | no page yet                                | The booking form collects names, phones and emails. Someone should write and approve a privacy policy; the footer's "policies" links currently go to the reservation policy and FAQs |
 
 **Landmark distances still need checking** — `client/src/data/content.js` →
 `nearbyLandmarks`. Derived from mapping data, not driven.
@@ -70,7 +70,7 @@ would lock out every member of staff. The server logs a warning the first time
 it sees a proxy header with this at `0`.
 
 **The CSP will block any third-party script you add.** Analytics, a chat
-widget, a booking embed — all blocked until the origin is added in *five*
+widget, a booking embed — all blocked until the origin is added in _five_
 places: `client/vercel.json`, `client/public/_headers`,
 `client/public/.htaccess`, `server/src/middleware/security.js`, and the nginx
 block in the deployment doc.
