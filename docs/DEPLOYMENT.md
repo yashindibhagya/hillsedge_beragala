@@ -105,7 +105,7 @@ change the others.
 
 | Host                       | File                                 | Notes                                  |
 | -------------------------- | ------------------------------------ | -------------------------------------- |
-| Vercel                     | `client/vercel.json`                 | Picked up automatically.               |
+| Vercel                     | `vercel.json` (repo root)            | Picked up automatically.               |
 | Netlify / Cloudflare Pages | `client/dist/_headers`, `_redirects` | Picked up automatically.               |
 | Apache / cPanel            | `client/dist/.htaccess`              | Needs `mod_headers` and `mod_rewrite`. |
 | nginx                      | see below                            | Paste into your server block.          |
@@ -185,7 +185,7 @@ curl -o /dev/null -w '%{http_code}\n' https://your-domain/llms.txt  # expect 200
 
 Then load the site and check the browser console is free of CSP violations.
 If you add a third-party script, analytics or embed later, it will be blocked
-until you add its origin to the CSP in all five places (`client/vercel.json`, `client/public/_headers`, `client/public/.htaccess`, the
+until you add its origin to the CSP in all five places (`vercel.json` (twice: client and admin services), `client/public/_headers`, `client/public/.htaccess`, the
 nginx block above, and `server/src/middleware/security.js`).
 
 Worth checking once the domain is live:

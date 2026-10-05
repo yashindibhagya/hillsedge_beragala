@@ -71,7 +71,7 @@ it sees a proxy header with this at `0`.
 
 **The CSP will block any third-party script you add.** Analytics, a chat
 widget, a booking embed — all blocked until the origin is added in _five_
-places: `client/vercel.json`, `client/public/_headers`,
+places: `vercel.json` (twice: client and admin services), `client/public/_headers`,
 `client/public/.htaccess`, `server/src/middleware/security.js`, and the nginx
 block in the deployment doc.
 
