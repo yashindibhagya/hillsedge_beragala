@@ -73,6 +73,14 @@
       "framework": "vite",
       "rewrites": [
         {
+          "source": "/admin/assets/:path*",
+          "destination": "/assets/:path*"
+        },
+        {
+          "source": "/admin/favicon.svg",
+          "destination": "/favicon.svg"
+        },
+        {
           "source": "/(.*)",
           "destination": "/index.html"
         }
@@ -120,7 +128,7 @@
           ]
         },
         {
-          "source": "/assets/(.*)",
+          "source": "/admin/assets/(.*)",
           "headers": [
             {
               "key": "Cache-Control",
@@ -129,7 +137,7 @@
           ]
         },
         {
-          "source": "/index.html",
+          "source": "/admin((?!/assets/).*)",
           "headers": [
             {
               "key": "Cache-Control",
@@ -176,10 +184,15 @@
       }
     },
     {
-      "source": "/admin/:path*",
+      "source": "/admin",
       "destination": {
-        "service": "admin",
-        "path": "/:path*"
+        "service": "admin"
+      }
+    },
+    {
+      "source": "/admin/(.*)",
+      "destination": {
+        "service": "admin"
       }
     },
     {
