@@ -74,6 +74,65 @@ export const api = {
   del: (path) => request(path, { method: 'DELETE' }),
 };
 
+/*
+ * Where the server runs on Vercel, a request body over 4.5 MB never reaches
+ * it, so files go straight to Vercel Blob and the server is then asked to
+ * process them. Elsewhere they are posted to the server as before. Asked
+ * once per page load.
+ */
+let directUploads = null;
+function usesDirectUploads() {
+  directUploads ??= request('/admin/media/upload-mode')
+    .then((mode) => Boolean(mode?.direct))
+    .catch((error) => {
+      directUploads = null;
+      throw error;
+    });
+  return directUploads;
+}
+
+/** A Blob pathname from the file's name: no slashes, no surprises. */
+const incomingPath = (name) =>
+  `incoming/${String(name || 'upload')
+    .replace(/[^\w.-]+/g, '-')
+    .slice(-100)}`;
+
+async function uploadDirect(file, fields, onProgress) {
+  let blob;
+  try {
+    // Loaded on first upload, not with every admin page.
+    const { upload: uploadToBlob } = await import('@vercel/blob/client');
+    blob = await uploadToBlob(incomingPath(file.name), file, {
+      access: 'public',
+      handleUploadUrl: `${BASE}/api/admin/media/upload-token`,
+      headers: APP_HEADER,
+      contentType: file.type || undefined,
+      multipart: file.size > 20 * 1024 * 1024,
+      // The last stretch is the server processing it.
+      onUploadProgress: ({ percentage }) => onProgress?.((percentage / 100) * 0.95),
+    });
+  } catch (error) {
+    if (error.name === 'AbortError') throw error;
+    if (/not allowed|content type/i.test(error.message)) {
+      throw new ApiError(
+        'Upload a JPEG, PNG, WebP, AVIF or HEIC photograph, or an MP4 or WebM video.'
+      );
+    }
+    if (/too large|maximum/i.test(error.message)) {
+      throw new ApiError('That file is too large.');
+    }
+    throw new ApiError('The upload was interrupted. Try again.');
+  }
+
+  const body = { url: blob.url, originalName: file.name, mime: file.type };
+  for (const [key, value] of Object.entries(fields)) {
+    if (value !== undefined && value !== null) body[key] = value;
+  }
+  const payload = await request('/admin/media/import', { method: 'POST', body });
+  onProgress?.(1);
+  return payload.item;
+}
+
 /**
  * Uploads one file with progress. fetch cannot report upload progress, and a
  * 100 MB video with no progress bar looks exactly like a frozen page, so this
@@ -84,7 +143,12 @@ export const api = {
  * @param {(fraction: number) => void} [onProgress]
  * @returns {Promise<object>} the stored media record
  */
-export function uploadMedia(file, fields = {}, onProgress) {
+export async function uploadMedia(file, fields = {}, onProgress) {
+  if (await usesDirectUploads()) return uploadDirect(file, fields, onProgress);
+  return uploadToServer(file, fields, onProgress);
+}
+
+function uploadToServer(file, fields, onProgress) {
   return new Promise((resolve, reject) => {
     const form = new FormData();
     for (const [key, value] of Object.entries(fields)) {

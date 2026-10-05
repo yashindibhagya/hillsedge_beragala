@@ -1,15 +1,19 @@
 import { Router } from 'express';
 import multer from 'multer';
+import { handleUpload } from '@vercel/blob/client';
 import { mkdirSync } from 'node:fs';
 import { rm } from 'node:fs/promises';
 import { config } from '../../config/index.js';
 import { requirePermission } from '../../middleware/auth.js';
 import {
+  INCOMING_PREFIX,
   MediaError,
   processImage,
+  processIncoming,
   removeMediaFiles,
   storeVideo,
   uploadTempDir,
+  usesBlob,
 } from '../../services/media.js';
 import { byOrder, logActivity, now, read, write } from '../../services/store.js';
 import { mediaSchema } from '../../validators/entities.js';
@@ -58,6 +62,33 @@ function receive(req, res, next) {
   });
 }
 
+/** Records a processed upload, last in the order. */
+function addMedia(user, processed, { originalName, size, isVideo, meta, body }) {
+  return write((data) => {
+    const item = {
+      ...processed,
+      originalName: String(originalName ?? '').slice(0, 200),
+      size: processed.size ?? size,
+      ...meta,
+      alt: meta.alt,
+      order: data.media.reduce((max, m) => Math.max(max, (m.order ?? 0) + 1), 0),
+      createdAt: now(),
+      createdBy: user.id,
+    };
+    // A video is not a gallery photograph unless the admin says so.
+    if (isVideo && !('inGallery' in (body ?? {}))) item.inGallery = false;
+    data.media.push(item);
+    logActivity(data, {
+      user,
+      action: 'uploaded',
+      entity: 'media',
+      entityId: item.id,
+      label: item.caption || item.originalName,
+    });
+    return item;
+  });
+}
+
 mediaRouter.post('/', requirePermission('media:write'), receive, async (req, res, next) => {
   const file = req.file;
   if (!file) return invalid(res, { file: 'Choose a file to upload.' });
@@ -75,28 +106,12 @@ mediaRouter.post('/', requirePermission('media:write'), receive, async (req, res
     }
     const processed = isVideo ? await storeVideo(file.path) : await processImage(file.path);
 
-    const record = await write((data) => {
-      const item = {
-        ...processed,
-        originalName: file.originalname.slice(0, 200),
-        size: processed.size ?? file.size,
-        ...meta.value,
-        alt: meta.value.alt,
-        order: data.media.reduce((max, m) => Math.max(max, (m.order ?? 0) + 1), 0),
-        createdAt: now(),
-        createdBy: req.user.id,
-      };
-      // A video is not a gallery photograph unless the admin says so.
-      if (isVideo && !('inGallery' in (req.body ?? {}))) item.inGallery = false;
-      data.media.push(item);
-      logActivity(data, {
-        user: req.user,
-        action: 'uploaded',
-        entity: 'media',
-        entityId: item.id,
-        label: item.caption || item.originalName,
-      });
-      return item;
+    const record = await addMedia(req.user, processed, {
+      originalName: file.originalname,
+      size: file.size,
+      isVideo,
+      meta: meta.value,
+      body: req.body,
     });
     return res.status(201).json({ item: record });
   } catch (error) {
@@ -105,6 +120,86 @@ mediaRouter.post('/', requirePermission('media:write'), receive, async (req, res
     return next(error);
   } finally {
     await rm(file.path, { force: true });
+  }
+});
+
+/*
+ * Direct-to-Blob uploads (Vercel only). A function cannot receive a body over
+ * 4.5 MB, so the admin asks here for a short-lived token, uploads the
+ * original straight to Blob under incoming/, then calls /import to have it
+ * processed into the media library. 404 where uploads go to disk, which
+ * tells the admin to post the file instead.
+ */
+const ACCEPTED_UPLOADS = [
+  'image/jpeg',
+  'image/png',
+  'image/webp',
+  'image/avif',
+  'image/heic',
+  'image/heif',
+  'image/tiff',
+  'image/gif',
+  'video/mp4',
+  'video/webm',
+];
+
+/** Which way the admin should send files: straight to Blob, or posted here. */
+mediaRouter.get('/upload-mode', requirePermission('media:write'), (req, res) => {
+  res.json({ direct: usesBlob() });
+});
+
+mediaRouter.post('/upload-token', requirePermission('media:write'), async (req, res, next) => {
+  if (!usesBlob()) return res.status(404).json({ error: 'Direct uploads are not enabled.' });
+  try {
+    const body = await handleUpload({
+      body: req.body,
+      request: req,
+      token: config.blobToken,
+      onBeforeGenerateToken: async (pathname) => {
+        if (!pathname.startsWith(INCOMING_PREFIX) || pathname.includes('..')) {
+          throw new MediaError('Uploads must go to incoming/.');
+        }
+        return {
+          allowedContentTypes: ACCEPTED_UPLOADS,
+          maximumSizeInBytes: config.maxVideoMb * MB,
+          addRandomSuffix: true,
+          validUntil: Date.now() + 30 * 60 * 1000,
+        };
+      },
+    });
+    return res.json(body);
+  } catch (error) {
+    if (error instanceof MediaError) return res.status(422).json({ error: error.message });
+    return next(error);
+  }
+});
+
+mediaRouter.post('/import', requirePermission('media:write'), async (req, res, next) => {
+  if (!usesBlob()) return res.status(404).json({ error: 'Direct uploads are not enabled.' });
+  const { url, originalName, mime, ...fields } = req.body ?? {};
+  if (typeof url !== 'string' || !url) return invalid(res, { file: 'Choose a file to upload.' });
+
+  const meta = validate(mediaSchema, fields);
+  if (!meta.ok) return invalid(res, meta.errors);
+
+  try {
+    const isVideo = String(mime ?? '').startsWith('video/');
+    const processed = await processIncoming(url, {
+      isVideo,
+      maxImageBytes: config.maxImageMb * MB,
+    });
+    const record = await addMedia(req.user, processed, {
+      originalName,
+      size: processed.size,
+      isVideo,
+      meta: meta.value,
+      body: fields,
+    });
+    return res.status(201).json({ item: record });
+  } catch (error) {
+    if (error instanceof MediaError)
+      return res.status(422).json({ error: error.message, errors: { file: error.message } });
+    return next(error);
   }
 });
 

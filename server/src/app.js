@@ -7,6 +7,7 @@ import { security } from './middleware/security.js';
 import { apiRouter } from './routes/index.js';
 import { errorHandler, apiNotFound } from './middleware/errorHandler.js';
 import { isKnownRoute, redirectFor } from './services/clientRoutes.js';
+import { refreshStore } from './services/store.js';
 
 /**
  * Builds the Express app without starting it, so the tests can drive it
@@ -48,6 +49,11 @@ export function createApp() {
   // Uploads are multipart and never pass through here.
   app.use(express.json({ limit: '256kb' }));
 
+  // Another copy of the API may have written since this one last looked
+  // (Postgres only; a no-op for the file store).
+  app.use('/api', (req, res, next) => {
+    refreshStore().then(() => next(), next);
+  });
   app.use('/api', apiRouter);
   app.use('/api', apiNotFound);
 

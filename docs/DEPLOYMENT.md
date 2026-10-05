@@ -91,6 +91,34 @@ rsync -a "$UPLOADS_DIR/" backup/uploads/
 Restoring is putting both back and restarting. The store is plain JSON; it
 can be read, and in an emergency edited, by hand while the process is stopped.
 
+## On Vercel
+
+`vercel.json` deploys the three parts as Vercel services: the public site at
+`/`, the admin at `/admin`, and the API at `/api` and `/media`. Vercel runs
+many short-lived copies of the API and none of them can keep a file, so two
+settings take the place of `DATA_FILE` and `UPLOADS_DIR`:
+
+- **`DATABASE_URL`** (Neon, from the Vercel Marketplace) — the store lives in
+  one Postgres row, with a version number so the copies never overwrite
+  each other and all see the same sessions.
+- **`BLOB_READ_WRITE_TOKEN`** (a public Vercel Blob store) — uploads and
+  their variants live under `media/<id>/`. The admin uploads originals
+  straight to Blob, because a function cannot receive a body over 4.5 MB.
+
+Both are set by connecting the stores to the project. Before the first
+deploy, seed the new database once from your machine, so no visitor's
+request has to:
+
+```bash
+vercel env pull .env.local
+set -a; source .env.local; set +a
+npm run seed --workspace server
+```
+
+The Blob store's host is in the CSP in `vercel.json` (`img-src`,
+`media-src`). A new store has a new host: update both services' policies.
+Backups are Neon's point-in-time restore and the Blob store itself.
+
 ## Static hosts and CDNs
 
 ## Two things every host must get right

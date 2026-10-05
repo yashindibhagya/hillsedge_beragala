@@ -2,7 +2,7 @@
   "name": "@hillsedge/server",
   "version": "1.0.0",
   "private": true,
-  "description": "Hillsedge Beragala API — serves the built front end and takes table reservations.",
+  "description": "Hillsedge Beragala API \u2014 serves the built front end and takes table reservations.",
   "license": "UNLICENSED",
   "type": "module",
   "main": "src/index.js",
@@ -13,9 +13,12 @@
     "dev": "node --watch src/index.js",
     "start": "node src/index.js",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "seed": "node scripts/seed-store.js"
   },
   "dependencies": {
+    "@neondatabase/serverless": "^1.2.0",
+    "@vercel/blob": "^2.8.0",
     "compression": "^1.7.5",
     "express": "^4.21.2",
     "express-rate-limit": "^7.5.0",
@@ -25,6 +28,7 @@
     "sharp": "^0.35.5"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "^0.5.8",
     "supertest": "^7.0.0",
     "vitest": "^2.1.9"
   }

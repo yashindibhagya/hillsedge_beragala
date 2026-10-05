@@ -198,7 +198,10 @@ export async function ensureBootstrapAdmin() {
   }
 
   const passwordHash = await hashPassword(credentials.password);
-  await write((data) => {
+  // Checked again inside the write: another copy of the API, starting at the
+  // same moment, may have created the admin while this one hashed.
+  const created = await write((data) => {
+    if (data.users.length > 0) return false;
     data.users.push({
       id: newId(),
       name,
@@ -209,7 +212,9 @@ export async function ensureBootstrapAdmin() {
       createdAt: now(),
       lastLoginAt: null,
     });
+    return true;
   });
+  if (!created) return;
 
   if (credentials.generated) {
     console.log(

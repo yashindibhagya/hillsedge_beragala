@@ -26,6 +26,19 @@ const directives = {
   manifestSrc: ["'self'"],
 };
 
+/*
+ * Uploads in Vercel Blob are served from the store's own host, and the admin
+ * uploads to it through vercel.com. The store id is the second part of its
+ * read-write token.
+ */
+const blobStore = /^vercel_blob_rw_([a-z0-9]+)_/i.exec(config.blobToken)?.[1];
+if (blobStore) {
+  const host = `https://${blobStore.toLowerCase()}.public.blob.vercel-storage.com`;
+  directives.imgSrc.push(host);
+  directives.mediaSrc.push(host);
+  directives.connectSrc.push('https://vercel.com');
+}
+
 if (config.isProduction) directives.upgradeInsecureRequests = [];
 
 export const security = helmet({

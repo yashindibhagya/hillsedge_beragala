@@ -1,6 +1,7 @@
-import { mkdir, open, rename, rm, stat } from 'node:fs/promises';
+import { mkdir, open, readFile, rename, rm, stat, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import sharp from 'sharp';
+import { copy, del, head, list, put } from '@vercel/blob';
 import { config } from '../config/index.js';
 import { newId } from './store.js';
 
@@ -20,7 +21,20 @@ import { newId } from './store.js';
  *
  * Each upload gets its own directory, uploads/<id>/, so deleting one is
  * removing a folder.
+ *
+ * With BLOB_READ_WRITE_TOKEN set (Vercel, where there is no disk to keep),
+ * the same files go to Vercel Blob under media/<id>/ instead, and the
+ * records point at their Blob URLs. The admin uploads the original straight
+ * to Blob under incoming/ — a Vercel function cannot receive a body over
+ * 4.5 MB — and the server processes it from there.
  */
+
+export const usesBlob = () => Boolean(config.blobToken);
+
+/** Pathnames the admin may upload originals to before they are processed. */
+export const INCOMING_PREFIX = 'incoming/';
+
+const CACHE_FOREVER = 60 * 60 * 24 * 365;
 
 export const IMAGE_WIDTHS = [480, 960, 1600];
 const FULL_MAX = 2400;
@@ -37,6 +51,26 @@ export class MediaError extends Error {
 }
 
 const mediaUrl = (id, file) => `/media/${id}/${file}`;
+
+/** Stores one finished file and returns the URL it is served at. */
+async function saveFile(id, file, buffer, contentType) {
+  if (usesBlob()) {
+    const blob = await put(`media/${id}/${file}`, buffer, {
+      access: 'public',
+      addRandomSuffix: false,
+      allowOverwrite: true,
+      contentType,
+      // Never rewritten in place — a replacement is a new upload.
+      cacheControlMaxAge: CACHE_FOREVER,
+      token: config.blobToken,
+    });
+    return blob.url;
+  }
+  const dir = path.join(config.uploadsDir, id);
+  await mkdir(dir, { recursive: true });
+  await writeFile(path.join(dir, file), buffer);
+  return mediaUrl(id, file);
+}
 
 async function leadingBytes(file, length = 16) {
   const handle = await open(file, 'r');
@@ -57,6 +91,7 @@ export async function sniffVideo(file) {
   return null;
 }
 
+/** `sourceFile` is a file path or a Buffer. */
 export async function processImage(sourceFile, { id = newId() } = {}) {
   let meta;
   try {
@@ -72,9 +107,6 @@ export async function processImage(sourceFile, { id = newId() } = {}) {
     throw new MediaError('That photograph is too large. Export it at under 60 megapixels.');
   }
 
-  const dir = path.join(config.uploadsDir, id);
-  await mkdir(dir, { recursive: true });
-
   // Orientation from EXIF is applied first, so the stored dimensions are the
   // ones the photo is displayed at.
   const base = () => sharp(sourceFile, { failOn: 'none', limitInputPixels: MAX_PIXELS }).rotate();
@@ -85,20 +117,23 @@ export async function processImage(sourceFile, { id = newId() } = {}) {
   const variants = [];
   for (const target of IMAGE_WIDTHS) {
     if (target >= width) break;
-    const file = `${target}.webp`;
-    await sharp(oriented.data)
+    const buffer = await sharp(oriented.data)
       .resize({ width: target })
       .webp({ quality: 78 })
-      .toFile(path.join(dir, file));
-    variants.push({ width: target, url: mediaUrl(id, file) });
+      .toBuffer();
+    variants.push({
+      width: target,
+      url: await saveFile(id, `${target}.webp`, buffer, 'image/webp'),
+    });
   }
 
   const fullWidth = Math.min(width, FULL_MAX);
-  await sharp(oriented.data)
+  const full = await sharp(oriented.data)
     .resize({ width: fullWidth, withoutEnlargement: true })
     .webp({ quality: 80 })
-    .toFile(path.join(dir, 'full.webp'));
-  variants.push({ width: fullWidth, url: mediaUrl(id, 'full.webp') });
+    .toBuffer();
+  const fullUrl = await saveFile(id, 'full.webp', full, 'image/webp');
+  variants.push({ width: fullWidth, url: fullUrl });
 
   const lqipBuffer = await sharp(oriented.data)
     .resize({ width: 20 })
@@ -110,7 +145,7 @@ export async function processImage(sourceFile, { id = newId() } = {}) {
     id,
     kind: 'image',
     mime: 'image/webp',
-    url: mediaUrl(id, 'full.webp'),
+    url: fullUrl,
     variants,
     width: fullWidth,
     height: Math.round((height * fullWidth) / width),
@@ -122,6 +157,11 @@ export async function storeVideo(sourceFile, { id = newId() } = {}) {
   const mime = await sniffVideo(sourceFile);
   if (!mime) throw new MediaError('Upload an MP4 (H.264) or WebM video.');
   const file = mime === 'video/mp4' ? 'video.mp4' : 'video.webm';
+  if (usesBlob()) {
+    const buffer = await readFile(sourceFile);
+    const url = await saveFile(id, file, buffer, mime);
+    return { id, kind: 'video', mime, url, variants: [], size: buffer.length };
+  }
   const dir = path.join(config.uploadsDir, id);
   await mkdir(dir, { recursive: true });
   await rename(sourceFile, path.join(dir, file));
@@ -129,8 +169,70 @@ export async function storeVideo(sourceFile, { id = newId() } = {}) {
   return { id, kind: 'video', mime, url: mediaUrl(id, file), variants: [], size };
 }
 
+/** Sniffs the type from the first bytes of a video already in Blob. */
+async function sniffBlobVideo(url) {
+  const response = await fetch(url, { headers: { Range: 'bytes=0-15' } });
+  if (!response.ok) throw new MediaError('That upload could not be found. Try again.');
+  const bytes = Buffer.from(await response.arrayBuffer());
+  if (bytes.length < 8) return null;
+  if (bytes.subarray(4, 8).toString('latin1') === 'ftyp') return 'video/mp4';
+  if (bytes.readUInt32BE(0) === 0x1a45dfa3) return 'video/webm';
+  return null;
+}
+
+/**
+ * Processes an original the admin uploaded straight to Blob under incoming/,
+ * then deletes the original. Images are fetched and re-encoded like any
+ * other upload; videos are checked by their leading bytes and copied into
+ * place without being downloaded.
+ */
+export async function processIncoming(url, { isVideo, maxImageBytes }) {
+  const token = config.blobToken;
+  const meta = await head(url, { token }).catch(() => null);
+  if (!meta || !meta.pathname.startsWith(INCOMING_PREFIX)) {
+    throw new MediaError('That upload could not be found. Try again.');
+  }
+  try {
+    const id = newId();
+    if (isVideo) {
+      const mime = await sniffBlobVideo(meta.url);
+      if (!mime) throw new MediaError('Upload an MP4 (H.264) or WebM video.');
+      const file = mime === 'video/mp4' ? 'video.mp4' : 'video.webm';
+      const blob = await copy(meta.url, `media/${id}/${file}`, {
+        access: 'public',
+        addRandomSuffix: false,
+        contentType: mime,
+        cacheControlMaxAge: CACHE_FOREVER,
+        token,
+      });
+      return { id, kind: 'video', mime, url: blob.url, variants: [], size: meta.size };
+    }
+    if (meta.size > maxImageBytes) {
+      throw new MediaError(
+        `Photographs must be under ${Math.round(maxImageBytes / 1024 / 1024)} MB.`
+      );
+    }
+    const response = await fetch(meta.url);
+    if (!response.ok) throw new MediaError('That upload could not be found. Try again.');
+    const processed = await processImage(Buffer.from(await response.arrayBuffer()), { id });
+    return { ...processed, size: meta.size };
+  } finally {
+    await del(meta.url, { token }).catch(() => {});
+  }
+}
+
 export async function removeMediaFiles(id) {
   if (!/^[\w-]+$/.test(id)) return;
+  if (usesBlob()) {
+    const token = config.blobToken;
+    const { blobs } = await list({ prefix: `media/${id}/`, token });
+    if (blobs.length)
+      await del(
+        blobs.map((b) => b.url),
+        { token }
+      );
+    return;
+  }
   await rm(path.join(config.uploadsDir, id), { recursive: true, force: true });
 }
 

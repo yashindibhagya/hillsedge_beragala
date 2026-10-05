@@ -57,6 +57,18 @@ export const config = {
    */
   dataFile: process.env.DATA_FILE ?? path.join(serverRoot, 'data', 'store.json'),
 
+  /**
+   * Postgres, for hosts that cannot keep a file (Vercel). When set, the store
+   * lives in the database and DATA_FILE is ignored.
+   */
+  databaseUrl: process.env.DATABASE_URL ?? process.env.POSTGRES_URL ?? '',
+
+  /**
+   * Vercel Blob, for hosts that cannot keep uploads on disk. When set,
+   * uploads go to the Blob store and UPLOADS_DIR is ignored.
+   */
+  blobToken: process.env.BLOB_READ_WRITE_TOKEN ?? '',
+
   /** Uploaded photographs and video, and the variants derived from them. */
   uploadsDir: process.env.UPLOADS_DIR ?? path.join(serverRoot, 'data', 'uploads'),
 
