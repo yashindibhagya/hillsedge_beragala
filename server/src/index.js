@@ -44,4 +44,6 @@ for (const signal of ['SIGTERM', 'SIGINT']) {
   process.on(signal, () => shutdown(signal));
 }
 
-export default server;
+// Vercel mounts the default export as the request handler; it must be the
+// Express app, not the http.Server.
+export default app;
