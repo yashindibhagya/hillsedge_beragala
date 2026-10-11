@@ -88,9 +88,9 @@
   --brand-strong: var(--olive-800);
   --accent: var(--gold-500);
   --accent-text: var(--gold-700);
-  --line: rgba(31, 38, 22, 0.1);
-  --line-strong: rgba(31, 38, 22, 0.2);
-  --line-gold: rgba(195, 162, 94, 0.45);
+  --line: color-mix(in srgb, var(--olive-900) 10%, transparent);
+  --line-strong: color-mix(in srgb, var(--olive-900) 20%, transparent);
+  --line-gold: color-mix(in srgb, var(--gold-500) 45%, transparent);
   --focus: var(--gold-600);
 
   /* type */
@@ -110,9 +110,31 @@
   --radius: 12px;
   --radius-l: 22px;
   --radius-pill: 999px;
-  --shadow-s: 0 1px 2px rgba(21, 26, 14, 0.06), 0 2px 8px rgba(21, 26, 14, 0.04);
-  --shadow: 0 10px 30px -12px rgba(21, 26, 14, 0.18);
-  --shadow-l: 0 30px 80px -30px rgba(21, 26, 14, 0.35);
+
+  /* fonts — Garamond Classic by default; [data-fonts] below swaps them */
+  --font-accent: var(--font-display);
+  --font-label: var(--font-body);
+  --display-weight: 500;
+  --display-tracking: -0.012em;
+  --display-stretch: normal;
+  --hero-weight: 500;
+  --hero-tracking: -0.025em;
+  --hero-scale: 1;
+  --display-strong: 600;
+
+  /* design — Heritage by default; client/src/styles/designs/ swaps them */
+  --display-case: none;
+  --hero-fit: 1;
+  --btn-radius: var(--radius-pill);
+  --btn-size: 0.78rem;
+  --btn-weight: 600;
+  --btn-tracking: 0.14em;
+  --btn-case: uppercase;
+  --shadow-s:
+    0 1px 2px color-mix(in srgb, var(--olive-950) 6%, transparent),
+    0 2px 8px color-mix(in srgb, var(--olive-950) 4%, transparent);
+  --shadow: 0 10px 30px -12px color-mix(in srgb, var(--olive-950) 18%, transparent);
+  --shadow-l: 0 30px 80px -30px color-mix(in srgb, var(--olive-950) 35%, transparent);
 
   /* motion */
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
@@ -132,6 +154,370 @@
   --safe-r: env(safe-area-inset-right, 0px);
   --safe-b: env(safe-area-inset-bottom, 0px);
   --safe-l: env(safe-area-inset-left, 0px);
+
+  /*
+   * The palette's colours under names nothing redefines. A section a design
+   * turns dark swaps the ramps around inside itself (see designs/_dark.css);
+   * these are what it swaps them to.
+   */
+  --keep-olive-950: var(--olive-950);
+  --keep-olive-900: var(--olive-900);
+  --keep-olive-800: var(--olive-800);
+  --keep-olive-700: var(--olive-700);
+  --keep-olive-600: var(--olive-600);
+  --keep-olive-500: var(--olive-500);
+  --keep-olive-400: var(--olive-400);
+  --keep-olive-200: var(--olive-200);
+  --keep-olive-100: var(--olive-100);
+  --keep-olive-50: var(--olive-50);
+  --keep-ivory: var(--ivory);
+  --keep-cream: var(--cream);
+  --keep-beige: var(--beige);
+}
+
+/* ═══════════════════════════════ palettes ═══════════════════════════════
+ *
+ * Chosen in the admin under Design & colours, and set on <html> as
+ * data-palette. Each replaces the two ramps every rule is written against:
+ * "olive" is the brand ramp, "gold" the accent ramp — the names are the
+ * original palette's, kept so nothing else has to change. Generated in
+ * OKLCH from the olive and gold ramps' own lightness steps, so contrast
+ * holds in every palette: --gold-700 stays at 4.5:1 or more on white.
+ * Hillside Olive is :root above.
+ */
+
+/* Midnight & Copper */
+[data-palette='midnight'] {
+  --olive-950: #121822;
+  --olive-900: #1c2331;
+  --olive-800: #252f42;
+  --olive-700: #323f58;
+  --olive-600: #415375;
+  --olive-500: #556d99;
+  --olive-400: #7c93bc;
+  --olive-200: #c5d1e6;
+  --olive-100: #e3eaf7;
+  --olive-50: #f0f4fc;
+  --gold-800: #814720;
+  --gold-700: #a15b2c;
+  --gold-600: #c2733f;
+  --gold-500: #e1915f;
+  --gold-400: #f0aa7f;
+  --gold-200: #ffd3ba;
+  --gold-100: #ffeade;
+  --ivory: #faf8f5;
+  --cream: #f3efe9;
+  --beige: #e9e3da;
+  --sand: #d7cdc0;
+}
+
+/* Terracotta & Sand */
+[data-palette='terracotta'] {
+  --olive-950: #23140f;
+  --olive-900: #311d17;
+  --olive-800: #42271f;
+  --olive-700: #583429;
+  --olive-600: #754536;
+  --olive-500: #995946;
+  --olive-400: #be816e;
+  --olive-200: #e8c8be;
+  --olive-100: #f8e5df;
+  --olive-50: #fdf1ed;
+  --gold-800: #71521e;
+  --gold-700: #8d682a;
+  --gold-600: #ab823d;
+  --gold-500: #c99f5d;
+  --gold-400: #dab67e;
+  --gold-200: #f2dab5;
+  --gold-100: #f9eddb;
+  --ivory: #fbf7f3;
+  --cream: #f7eee5;
+  --beige: #eee2d4;
+  --sand: #decbb6;
+}
+
+/* Forest & Blush */
+[data-palette='forest'] {
+  --olive-950: #0f1b16;
+  --olive-900: #172720;
+  --olive-800: #1e352b;
+  --olive-700: #284639;
+  --olive-600: #345d4c;
+  --olive-500: #437a63;
+  --olive-400: #6d9f89;
+  --olive-200: #bfd7cb;
+  --olive-100: #e0eee7;
+  --olive-50: #eef6f2;
+  --gold-800: #7a484a;
+  --gold-700: #985d5e;
+  --gold-600: #b87576;
+  --gold-500: #d69293;
+  --gold-400: #e7aaab;
+  --gold-200: #fbd2d2;
+  --gold-100: #fee9e9;
+  --ivory: #faf7f6;
+  --cream: #f4eeec;
+  --beige: #ebe1de;
+  --sand: #d9cbc6;
+}
+
+/* Noir & Champagne */
+[data-palette='noir'] {
+  --olive-950: #181817;
+  --olive-900: #242322;
+  --olive-800: #302f2d;
+  --olive-700: #403f3c;
+  --olive-600: #55534f;
+  --olive-500: #6f6d68;
+  --olive-400: #95928e;
+  --olive-200: #d1d0ce;
+  --olive-100: #eaeae8;
+  --olive-50: #f4f4f3;
+  --gold-800: #685533;
+  --gold-700: #836c43;
+  --gold-600: #9f8658;
+  --gold-500: #bda375;
+  --gold-400: #cfb992;
+  --gold-200: #eadbc1;
+  --gold-100: #f5eee1;
+  --ivory: #f9f8f6;
+  --cream: #f1efeb;
+  --beige: #e6e3de;
+  --sand: #d2cec5;
+}
+
+/* Plum & Saffron */
+[data-palette='plum'] {
+  --olive-950: #1e141c;
+  --olive-900: #2c1e29;
+  --olive-800: #3b2837;
+  --olive-700: #4e3649;
+  --olive-600: #684761;
+  --olive-500: #885c7e;
+  --olive-400: #ad83a3;
+  --olive-200: #dec9d9;
+  --olive-100: #f2e5ef;
+  --olive-50: #f9f1f7;
+  --gold-800: #794e04;
+  --gold-700: #986303;
+  --gold-600: #ba7b14;
+  --gold-500: #d89941;
+  --gold-400: #e8b16a;
+  --gold-200: #fbd6aa;
+  --gold-100: #feebd5;
+  --ivory: #faf8f5;
+  --cream: #f4eee9;
+  --beige: #ebe2db;
+  --sand: #d9cbc1;
+}
+
+/* Ocean & Coral */
+[data-palette='ocean'] {
+  --olive-950: #0c1a1e;
+  --olive-900: #13262b;
+  --olive-800: #19343a;
+  --olive-700: #22454d;
+  --olive-600: #2a5b67;
+  --olive-500: #367786;
+  --olive-400: #649dab;
+  --olive-200: #bbd6dd;
+  --olive-100: #ddedf1;
+  --olive-50: #ecf6f8;
+  --gold-800: #883f32;
+  --gold-700: #aa5242;
+  --gold-600: #cc6956;
+  --gold-500: #ec8773;
+  --gold-400: #faa290;
+  --gold-200: #ffd1c7;
+  --gold-100: #ffe9e4;
+  --ivory: #faf8f6;
+  --cream: #f3efea;
+  --beige: #e8e3dd;
+  --sand: #d5cdc4;
+}
+
+/* Espresso & Caramel */
+[data-palette='espresso'] {
+  --olive-950: #20150f;
+  --olive-900: #2f1f17;
+  --olive-800: #3f2a1f;
+  --olive-700: #53382a;
+  --olive-600: #6f4936;
+  --olive-500: #915f46;
+  --olive-400: #b5866e;
+  --olive-200: #e3cbbe;
+  --olive-100: #f5e6df;
+  --olive-50: #fbf2ed;
+  --gold-800: #814904;
+  --gold-700: #a25c02;
+  --gold-600: #c57314;
+  --gold-500: #e39140;
+  --gold-400: #f2ab6a;
+  --gold-200: #ffd4b0;
+  --gold-100: #ffead9;
+  --ivory: #fbf8f2;
+  --cream: #f6eee2;
+  --beige: #eee2d0;
+  --sand: #ddccb0;
+}
+
+/* Oxblood & Rice Paper */
+[data-palette='oxblood'] {
+  --olive-950: #1f1516;
+  --olive-900: #2d1f20;
+  --olive-800: #3d292b;
+  --olive-700: #51373a;
+  --olive-600: #6b494c;
+  --olive-500: #8c5f64;
+  --olive-400: #b1858a;
+  --olive-200: #e1cacc;
+  --olive-100: #f4e6e7;
+  --olive-50: #faf1f2;
+  --gold-800: #705044;
+  --gold-700: #8c6558;
+  --gold-600: #aa7e6f;
+  --gold-500: #c89b8b;
+  --gold-400: #dab2a4;
+  --gold-200: #f2d7cd;
+  --gold-100: #f9ebe6;
+  --ivory: #faf8f5;
+  --cream: #f4eee8;
+  --beige: #ebe2d9;
+  --sand: #d9ccbe;
+}
+
+/* Charcoal & Lagoon */
+[data-palette='lagoon'] {
+  --olive-950: #17181a;
+  --olive-900: #222325;
+  --olive-800: #2d3032;
+  --olive-700: #3c3f43;
+  --olive-600: #505459;
+  --olive-500: #686e74;
+  --olive-400: #8e9399;
+  --olive-200: #ced0d3;
+  --olive-100: #e8eaec;
+  --olive-50: #f3f4f5;
+  --gold-800: #176565;
+  --gold-700: #237f7f;
+  --gold-600: #389b9b;
+  --gold-500: #5cb8b8;
+  --gold-400: #80cccb;
+  --gold-200: #b8e8e7;
+  --gold-100: #ddf4f4;
+  --ivory: #faf8f4;
+  --cream: #f3efe6;
+  --beige: #e9e3d6;
+  --sand: #d7cdba;
+}
+
+/* ═══════════════════════════════ fonts ═══════════════════════════════
+ *
+ * Chosen in the admin, set on <html> as data-fonts. A pairing is a display
+ * face for headings and a body face for reading, with the weights and
+ * spacing that suit them. The stylesheets themselves load on demand — see
+ * shared/themes.js. Garamond Classic is :root above.
+ */
+[data-fonts='playfair'] {
+  --font-display: 'Playfair Display', Georgia, 'Times New Roman', serif;
+  --font-body: 'Karla', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --display-weight: 500;
+  --display-tracking: -0.015em;
+  --hero-weight: 500;
+  --hero-tracking: -0.03em;
+  --hero-scale: 0.86;
+  --display-strong: 600;
+}
+
+[data-fonts='didone'] {
+  --font-display: 'Instrument Serif', Georgia, 'Times New Roman', serif;
+  --font-body: 'Inter Tight', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --display-weight: 400;
+  --display-tracking: -0.015em;
+  --hero-weight: 400;
+  --hero-tracking: -0.03em;
+  --hero-scale: 1.04;
+  --display-strong: 400;
+}
+
+[data-fonts='zen'] {
+  --font-display: 'Jost', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-body: 'Jost', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-accent: 'Cormorant Garamond', 'Cormorant Fallback', Georgia, serif;
+  --display-weight: 300;
+  --display-tracking: 0.02em;
+  --hero-weight: 300;
+  --hero-tracking: 0.02em;
+  --hero-scale: 0.82;
+  --display-strong: 400;
+}
+
+[data-fonts='classic'] {
+  --font-display: 'EB Garamond', Georgia, 'Times New Roman', serif;
+  --font-body: 'Figtree', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --display-weight: 400;
+  --display-tracking: -0.01em;
+  --hero-weight: 400;
+  --hero-tracking: -0.02em;
+  --hero-scale: 0.9;
+  --display-strong: 500;
+}
+
+[data-fonts='cafe'] {
+  --font-display: 'Bricolage Grotesque', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-body: 'Outfit', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --display-weight: 600;
+  --display-tracking: -0.035em;
+  --display-stretch: 75%;
+  --hero-weight: 700;
+  --hero-tracking: -0.045em;
+  --hero-scale: 0.92;
+  --display-strong: 700;
+}
+
+[data-fonts='grotesk'] {
+  --font-display: 'Syne', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-body: 'DM Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --display-weight: 700;
+  --display-tracking: -0.04em;
+  --hero-weight: 800;
+  --hero-tracking: -0.055em;
+  --hero-scale: 0.8;
+  --display-strong: 700;
+}
+
+[data-fonts='swiss'] {
+  --font-display: 'Space Grotesk', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-body: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-label: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+  --display-weight: 500;
+  --display-tracking: -0.035em;
+  --hero-weight: 500;
+  --hero-tracking: -0.05em;
+  --hero-scale: 0.86;
+  --display-strong: 600;
+}
+
+[data-fonts='roman'] {
+  --font-display: 'Cinzel', Georgia, 'Times New Roman', serif;
+  --font-body: 'Jost', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --display-weight: 500;
+  --display-tracking: 0.02em;
+  --hero-weight: 500;
+  --hero-tracking: 0.01em;
+  --hero-scale: 0.68;
+  --display-strong: 600;
+}
+
+[data-fonts='organic'] {
+  --font-display: 'Fraunces', Georgia, 'Times New Roman', serif;
+  --font-body: 'Outfit', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --display-weight: 500;
+  --display-tracking: -0.025em;
+  --hero-weight: 500;
+  --hero-tracking: -0.04em;
+  --hero-scale: 0.86;
+  --display-strong: 600;
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -10,6 +10,7 @@ import { StickyReserve } from './components/StickyReserve';
 import { StructuredData } from './components/StructuredData';
 import { HeroProvider } from './context/Hero';
 import { SiteDataProvider } from './context/SiteData';
+import { ThemeProvider } from './context/Theme';
 import { redirects } from './data/routes';
 import Home from './pages/Home';
 
@@ -35,27 +36,29 @@ export function Layout() {
 
   return (
     <SiteDataProvider>
-      <HeroProvider>
-        <Splash />
-        <BrandMarkSprite />
-        <StructuredData />
-        <ScrollToTop />
-        <a className="skip-link" href="#main">
-          Skip to content
-        </a>
-        <Header />
-        <main id="main" tabIndex={-1}>
-          <ErrorBoundary key={pathname}>
-            {/* Holds the viewport open while a route chunk loads, so the
+      <ThemeProvider>
+        <HeroProvider>
+          <Splash />
+          <BrandMarkSprite />
+          <StructuredData />
+          <ScrollToTop />
+          <a className="skip-link" href="#main">
+            Skip to content
+          </a>
+          <Header />
+          <main id="main" tabIndex={-1}>
+            <ErrorBoundary key={pathname}>
+              {/* Holds the viewport open while a route chunk loads, so the
                 footer does not jump up against an empty page. */}
-            <Suspense fallback={<div className="route-loading" aria-hidden="true" />}>
-              <Outlet />
-            </Suspense>
-          </ErrorBoundary>
-        </main>
-        <StickyReserve />
-        <Footer />
-      </HeroProvider>
+              <Suspense fallback={<div className="route-loading" aria-hidden="true" />}>
+                <Outlet />
+              </Suspense>
+            </ErrorBoundary>
+          </main>
+          <StickyReserve />
+          <Footer />
+        </HeroProvider>
+      </ThemeProvider>
     </SiteDataProvider>
   );
 }

@@ -1,10 +1,10 @@
-import { useState } from 'react';
 import { navLinks } from '../data/routes';
+import { designById } from '../../../shared/themes.js';
 import { credit } from '../data/site';
 import { useSite } from '../context/SiteData';
+import { useTheme } from '../context/Theme';
 import { telHref } from '../lib/format';
 import { TLink } from './Button';
-import { Icon } from './Icon';
 import { useSocialProfiles } from './SocialLinks';
 
 /** The name set across the foot of the page, cropped at the bottom edge. */
@@ -19,34 +19,22 @@ const guestLinks = [
   { to: '/reservations#policy', label: 'Reservation policy' },
 ];
 
-/**
- * With no mailing-list service behind the site, signing up hands the address
- * to the guest's mail app, addressed to the restaurant, so nothing is lost.
- */
-function LoopForm({ to, name }) {
-  const [email, setEmail] = useState('');
-
-  const submit = (event) => {
-    event.preventDefault();
-    const subject = encodeURIComponent(`Keep me in the loop — ${name}`);
-    const body = encodeURIComponent(
-      `Please add ${email} to the ${name} mailing list for news, menus and events.`,
-    );
-    window.location.href = `mailto:${to}?subject=${subject}&body=${body}`;
-  };
-
-}
-
 export function Footer() {
   const { settings } = useSite();
   const { restaurant } = settings;
   const social = useSocialProfiles();
+  const { design } = useTheme();
   const year = new Date().getFullYear();
 
   return (
     <footer className="site-footer">
-      <svg className="footer-arc" viewBox="0 0 1440 120" preserveAspectRatio="none" aria-hidden="true">
-        <path d="M0 120V112C360 0 1080 0 1440 112V120Z" />
+      <svg
+        className="footer-arc"
+        viewBox="0 0 1440 120"
+        preserveAspectRatio="none"
+        aria-hidden="true"
+      >
+        <path d={designById(design).footer} />
       </svg>
 
       <div className="footer-body">
@@ -111,8 +99,6 @@ export function Footer() {
               </ul>
             </div>
           )}
-
-          {restaurant.email && <LoopForm to={restaurant.email} name={restaurant.name} />}
         </div>
 
         <div className="footer-bottom wrap">

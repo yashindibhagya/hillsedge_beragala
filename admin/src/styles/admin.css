@@ -3036,3 +3036,447 @@ a {
     border: 1px solid CanvasText;
   }
 }
+
+/* ============================================================ design studio */
+/*
+ * Design & colours: choices on the left, the real website on the right. The
+ * preview stays in view while the choices scroll.
+ */
+.page-design {
+  max-width: 1680px;
+}
+
+.design-studio {
+  display: grid;
+  grid-template-columns: minmax(340px, 440px) minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+
+.design-controls {
+  display: grid;
+  gap: 28px;
+  min-width: 0;
+}
+
+.look-group {
+  display: grid;
+  gap: 14px;
+}
+
+.look-legend {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+  font: 600 1.35rem/1.2 var(--font-display);
+  color: var(--olive-900);
+}
+
+.look-step {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--olive-800);
+  color: var(--gold-200);
+  font: 600 0.78rem/1 var(--font-body);
+}
+
+.look-grid,
+.palette-grid {
+  display: grid;
+  gap: 10px;
+}
+
+.palette-grid {
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+}
+
+/* a choice: a card with a ring when selected */
+.look-card,
+.palette-card {
+  position: relative;
+  display: grid;
+  gap: 12px;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-l);
+  background: var(--surface);
+  cursor: pointer;
+  transition:
+    border-color var(--dur-1) var(--ease),
+    box-shadow var(--dur-2) var(--ease),
+    transform var(--dur-2) var(--ease);
+}
+
+.look-card {
+  grid-template-columns: 156px minmax(0, 1fr);
+  align-items: center;
+}
+
+.look-card:hover,
+.palette-card:hover {
+  border-color: var(--line-strong);
+  box-shadow: var(--shadow);
+  transform: translateY(-1px);
+}
+
+.look-card.is-on,
+.palette-card.is-on {
+  border-color: var(--olive-700);
+  box-shadow:
+    0 0 0 1px var(--olive-700),
+    var(--shadow);
+}
+
+.look-card:has(:focus-visible),
+.palette-card:has(:focus-visible) {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.look-check {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--olive-800);
+  color: var(--white);
+  opacity: 0;
+  transform: scale(0.6);
+  transition:
+    opacity var(--dur-1) var(--ease),
+    transform var(--dur-2) var(--ease);
+}
+
+.look-check .icon {
+  stroke-width: 2.4;
+}
+
+.is-on > .look-check {
+  opacity: 1;
+  transform: none;
+}
+
+.look-card-text,
+.palette-card-text {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+  padding-right: 22px;
+}
+
+.look-card-name {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  color: var(--olive-900);
+}
+
+.look-card-desc {
+  font-size: 0.84rem;
+  line-height: 1.45;
+  color: var(--text-soft);
+}
+
+/* design cards: a drawn thumbnail of the layout */
+.look-card.design-card {
+  grid-template-columns: 168px minmax(0, 1fr);
+}
+
+.design-thumb {
+  width: 100%;
+  height: auto;
+  border-radius: calc(var(--radius-l) - 8px);
+  box-shadow: inset 0 0 0 1px var(--line);
+  overflow: hidden;
+}
+
+.look-card-meta {
+  margin-top: 4px;
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--gold-700);
+}
+
+.look-hint {
+  margin: -8px 0 4px;
+  font-size: 0.86rem;
+  color: var(--text-soft);
+}
+
+/* font cards: the pairing set as a heading and a line of text */
+.font-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 10px;
+}
+
+.look-card.font-card {
+  grid-template-columns: 1fr;
+  align-content: start;
+}
+
+.font-specimen {
+  display: grid;
+  gap: 6px;
+  min-height: 92px;
+  align-content: center;
+  padding: 12px 14px;
+  border-radius: calc(var(--radius-l) - 8px);
+  background: var(--bg-soft);
+  color: var(--olive-900);
+  overflow: hidden;
+}
+
+.font-specimen-display {
+  font-size: 1.7rem;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.font-specimen-body {
+  font-size: 0.8rem;
+  line-height: 1.4;
+  color: var(--text-soft);
+}
+
+.design-publish-sub {
+  font-size: 0.82rem;
+  color: var(--text-soft);
+}
+
+/* palette cards */
+.palette-card,
+.look-card.palette-card {
+  grid-template-columns: 1fr;
+  align-content: start;
+}
+
+.palette-strip {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr 0.8fr 0.8fr;
+  height: 52px;
+  overflow: hidden;
+  border-radius: calc(var(--radius-l) - 6px);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--olive-950) 8%, transparent);
+}
+
+.palette-strip span {
+  transition: flex-grow var(--dur-2) var(--ease);
+}
+
+/* publish bar: sticks to the bottom of the choices */
+.design-publish {
+  position: sticky;
+  bottom: calc(12px + var(--safe-b));
+  z-index: 2;
+  display: grid;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-l);
+  background: color-mix(in srgb, var(--white) 88%, transparent);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  box-shadow: var(--shadow-l);
+}
+
+.design-publish-text {
+  display: grid;
+  gap: 2px;
+}
+
+.design-publish-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--gold-700);
+}
+
+.design-publish-text strong {
+  font: 600 1.15rem/1.2 var(--font-display);
+  color: var(--olive-900);
+}
+
+.design-publish-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.design-publish-actions .btn:last-child {
+  flex: 1;
+  min-width: 140px;
+}
+
+/* the preview: a browser window holding the real site */
+.design-preview {
+  position: sticky;
+  top: 16px;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  height: calc(100dvh - 32px);
+  min-height: 520px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-l);
+  background: var(--olive-950);
+  box-shadow: var(--shadow-l);
+}
+
+.preview-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: var(--olive-900);
+  color: var(--ivory);
+}
+
+.preview-bar .segmented-track {
+  background: color-mix(in srgb, var(--white) 8%, transparent);
+  border-color: transparent;
+}
+
+.preview-bar .segmented-option {
+  color: color-mix(in srgb, var(--ivory) 75%, transparent);
+}
+
+.preview-bar .segmented-option.is-on {
+  color: var(--olive-950);
+}
+
+.preview-dots {
+  display: flex;
+  gap: 6px;
+  margin-right: 4px;
+}
+
+.preview-dots span {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--ivory) 22%, transparent);
+}
+
+.preview-dots span:first-child {
+  background: var(--gold-500);
+}
+
+.preview-open {
+  margin-left: auto;
+  color: var(--ivory);
+}
+
+.preview-stage {
+  position: relative;
+  display: grid;
+  place-items: start center;
+  min-height: 0;
+  padding: 16px;
+  overflow: hidden;
+  background:
+    radial-gradient(
+      80% 60% at 50% 0%,
+      color-mix(in srgb, var(--gold-500) 16%, transparent),
+      transparent 70%
+    ),
+    var(--olive-950);
+}
+
+.preview-phone {
+  place-items: center;
+}
+
+.preview-device {
+  position: relative;
+  overflow: hidden;
+  border-radius: 10px;
+  background: var(--white);
+  box-shadow: 0 30px 70px -20px rgba(0, 0, 0, 0.6);
+  transition:
+    width var(--dur-3) var(--ease),
+    height var(--dur-3) var(--ease);
+}
+
+.preview-phone .preview-device {
+  border-radius: 34px;
+  outline: 8px solid #0d0f0a;
+}
+
+.preview-frame {
+  display: block;
+  border: 0;
+  transform-origin: 0 0;
+  background: var(--white);
+}
+
+.preview-loading {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 12px;
+  background: var(--ivory);
+  color: var(--text-soft);
+  font-size: 0.9rem;
+}
+
+.preview-spinner {
+  width: 28px;
+  height: 28px;
+  border: 2px solid var(--line-strong);
+  border-top-color: var(--gold-600);
+  border-radius: 50%;
+  animation: preview-spin 0.8s linear infinite;
+}
+
+@keyframes preview-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 1180px) {
+  .design-studio {
+    grid-template-columns: 1fr;
+  }
+
+  /* The preview comes first on narrow screens, so choices show their effect. */
+  .design-preview {
+    position: relative;
+    top: 0;
+    order: -1;
+    height: min(72dvh, 680px);
+  }
+}
+
+@media (max-width: 720px) {
+  .look-card,
+  .look-card.design-card {
+    grid-template-columns: 1fr;
+  }
+
+  .preview-dots {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .preview-spinner {
+    animation-duration: 2.4s;
+  }
+}

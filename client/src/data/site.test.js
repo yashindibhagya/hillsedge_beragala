@@ -70,7 +70,7 @@ describe('routes', () => {
 describe('fallback settings', () => {
   it('cover every group the live settings have', () => {
     expect(Object.keys(fallbackSettings).sort()).toStrictEqual(
-      ['about', 'home', 'hours', 'menu', 'reservations', 'restaurant', 'social'].sort()
+      ['about', 'home', 'hours', 'menu', 'reservations', 'restaurant', 'social', 'theme'].sort()
     );
   });
 

@@ -11,15 +11,15 @@
   min-height: 48px;
   padding: 0 1.6em;
   border: 1px solid var(--btn-border);
-  border-radius: var(--radius-pill);
+  border-radius: var(--btn-radius);
   background: var(--btn-bg);
   color: var(--btn-fg);
   font-family: var(--font-body);
-  font-size: 0.78rem;
-  font-weight: 600;
-  letter-spacing: 0.14em;
+  font-size: var(--btn-size);
+  font-weight: var(--btn-weight);
+  letter-spacing: var(--btn-tracking);
   line-height: 1;
-  text-transform: uppercase;
+  text-transform: var(--btn-case);
   text-decoration: none;
   white-space: nowrap;
   cursor: pointer;
@@ -59,12 +59,12 @@
 .btn-gold {
   --btn-bg: var(--gold-500);
   --btn-fg: var(--olive-950);
-  box-shadow: 0 10px 30px -14px rgba(167, 132, 63, 0.75);
+  box-shadow: 0 10px 30px -14px color-mix(in srgb, var(--gold-600) 75%, transparent);
 }
 
 .btn-gold:hover {
   --btn-bg: var(--gold-400);
-  box-shadow: 0 14px 34px -14px rgba(167, 132, 63, 0.9);
+  box-shadow: 0 14px 34px -14px color-mix(in srgb, var(--gold-600) 90%, transparent);
 }
 
 .btn-outline {
@@ -600,7 +600,7 @@
   justify-content: center;
   padding: max(16px, var(--safe-t)) max(16px, var(--safe-r)) max(16px, var(--safe-b))
     max(16px, var(--safe-l));
-  background: rgba(21, 26, 14, 0.55);
+  background: color-mix(in srgb, var(--olive-950) 55%, transparent);
   -webkit-backdrop-filter: blur(6px);
   backdrop-filter: blur(6px);
   animation: fade-in var(--dur-2) var(--ease);
@@ -676,7 +676,7 @@
   z-index: 90;
   display: grid;
   grid-template-rows: auto 1fr;
-  background: rgba(21, 26, 14, 0.97);
+  background: color-mix(in srgb, var(--olive-950) 97%, transparent);
   color: var(--ivory);
   outline: none;
   animation: fade-in var(--dur-2) var(--ease);
@@ -824,6 +824,6 @@
 }
 
 .social-light a:hover {
-  background: rgba(195, 162, 94, 0.15);
+  background: color-mix(in srgb, var(--gold-500) 15%, transparent);
   color: var(--gold-400);
 }

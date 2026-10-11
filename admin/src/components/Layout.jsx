@@ -39,6 +39,7 @@ export const NAV = [
     group: 'Website',
     items: [
       { to: '/content', label: 'Website content', icon: 'content', permission: 'content:write' },
+      { to: '/design', label: 'Design & colours', icon: 'palette', permission: 'content:write' },
       { to: '/media', label: 'Media library', icon: 'media', permission: 'media:write' },
       {
         to: '/promotions',

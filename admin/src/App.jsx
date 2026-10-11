@@ -20,6 +20,7 @@ const Media = lazy(() => import('./pages/Media'));
 const Promotions = lazy(() => import('./pages/Promotions'));
 const Testimonials = lazy(() => import('./pages/Testimonials'));
 const Content = lazy(() => import('./pages/Content'));
+const Design = lazy(() => import('./pages/Design'));
 const Users = lazy(() => import('./pages/Users'));
 const Activity = lazy(() => import('./pages/Activity'));
 const Account = lazy(() => import('./pages/Account'));
@@ -54,6 +55,7 @@ export default function App() {
             <Route path="promotions" element={guarded('promotions:write', <Promotions />)} />
             <Route path="testimonials" element={guarded('testimonials:write', <Testimonials />)} />
             <Route path="content" element={guarded('content:write', <Content />)} />
+            <Route path="design" element={guarded('content:write', <Design />)} />
             <Route path="users" element={guarded('users:manage', <Users />)} />
             <Route path="activity" element={guarded('dashboard', <Activity />)} />
             <Route path="account" element={<Account />} />

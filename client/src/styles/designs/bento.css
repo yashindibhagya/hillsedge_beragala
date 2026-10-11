@@ -1,0 +1,363 @@
+/*
+ * Bento — modern tiles.
+ *
+ * The header floats as an island. Every section is a rounded panel with a
+ * little air around it, tinted in turn, so the page reads as a set of tiles.
+ * Numbers sit in their own coloured tiles; dishes and rooms are cards inside
+ * the panels; the hero has a white card laid over its photograph.
+ */
+[data-design='bento'] {
+  --radius-s: 12px;
+  --radius: 20px;
+  --radius-l: 28px;
+  --btn-size: 0.92rem;
+  --btn-weight: 600;
+  --btn-tracking: 0;
+  --btn-case: none;
+  --tile-gap: clamp(8px, 1vw, 14px);
+  --tile-r: clamp(24px, 3vw, 36px);
+}
+
+[data-design='bento'] body {
+  background: var(--white);
+}
+
+/* ─── header: an island ─── */
+[data-design='bento'] .site-header,
+[data-design='bento'] .site-header.is-solid,
+[data-design='bento'] .site-header.is-transparent {
+  padding-top: calc(var(--safe-t) + var(--tile-gap));
+  background: none;
+  box-shadow: none;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  color: var(--olive-900);
+}
+
+[data-design='bento'] .site-header-inner {
+  width: min(100% - 2 * var(--tile-gap), var(--max-wide));
+  height: calc(var(--header-h) - 12px);
+  padding-inline: 1rem 0.75rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--white) 88%, transparent);
+  -webkit-backdrop-filter: blur(18px) saturate(1.4);
+  backdrop-filter: blur(18px) saturate(1.4);
+  box-shadow:
+    0 0 0 1px var(--line),
+    var(--shadow);
+}
+
+[data-design='bento'] .is-transparent .brand-mark {
+  color: #a7843f;
+}
+
+[data-design='bento'] .site-header.is-open .site-header-inner {
+  background: none;
+  box-shadow: none;
+}
+
+[data-design='bento'] .site-header.is-open {
+  color: var(--ivory);
+}
+
+[data-design='bento'] .nav-link::after {
+  display: none;
+}
+
+[data-design='bento'] .nav-link {
+  padding-inline: 0.85rem;
+  border-radius: 999px;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  font-size: 0.92rem;
+}
+
+[data-design='bento'] .nav-link[aria-current='page'] {
+  background: var(--olive-50);
+}
+
+/* ─── sections become tiles ─── */
+[data-design='bento'] main > .section,
+[data-design='bento'] main > .reserve-cta,
+[data-design='bento'] main > .closing,
+[data-design='bento'] main > .page-intro {
+  margin: var(--tile-gap);
+  border-radius: var(--tile-r);
+}
+
+[data-design='bento'] main > .section {
+  padding-block: clamp(48px, 7vw, 112px);
+}
+
+[data-design='bento'] .intro,
+[data-design='bento'] .menu-preview,
+[data-design='bento'] .testimonials {
+  background: var(--olive-50);
+}
+
+[data-design='bento'] .signature,
+[data-design='bento'] .gallery-strip,
+[data-design='bento'] .promos {
+  background: var(--gold-100);
+}
+
+[data-design='bento'] .spaces {
+  background: var(--cream);
+}
+
+[data-design='bento'] .experience-head {
+  margin-bottom: 0;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+[data-design='bento'] .hstory {
+  margin: 0 var(--tile-gap) var(--tile-gap);
+  border-radius: 0 0 var(--tile-r) var(--tile-r);
+  overflow: clip;
+}
+
+/* ─── hero: a framed photograph with a white card on it ─── */
+[data-design='bento'] .hero,
+[data-design='bento'] .page-hero {
+  margin: calc(-1 * var(--header-h) - var(--safe-t)) var(--tile-gap) 0;
+  padding-top: var(--tile-gap);
+  border-radius: var(--tile-r);
+}
+
+[data-design='bento'] .hero {
+  min-height: calc(100svh - var(--tile-gap));
+  align-content: end;
+  padding-bottom: clamp(16px, 2vw, 28px);
+}
+
+[data-design='bento'] .hero-content {
+  width: min(640px, 100% - 2 * clamp(16px, 2vw, 28px));
+  margin: 0 0 0 clamp(16px, 2vw, 28px);
+  padding: clamp(24px, 3vw, 40px);
+  border-radius: calc(var(--tile-r) - 6px);
+  background: var(--white);
+  color: var(--olive-900);
+  box-shadow: var(--shadow-l);
+}
+
+[data-design='bento'] .hero-title {
+  color: var(--olive-900);
+  --hero-fit: 0.62;
+}
+
+[data-design='bento'] .hero-sub {
+  color: var(--text-soft);
+}
+
+[data-design='bento'] .hero .eyebrow-light {
+  color: var(--accent-text);
+}
+
+[data-design='bento'] .hero .btn-light {
+  --btn-bg: var(--olive-50);
+  --btn-fg: var(--olive-900);
+  --btn-border: transparent;
+}
+
+[data-design='bento'] .hero-link {
+  color: var(--olive-800);
+}
+
+[data-design='bento'] .hero-foot,
+[data-design='bento'] .hero-scroll {
+  display: none;
+}
+
+[data-design='bento'] .hero-media::after {
+  background: linear-gradient(
+    to top,
+    color-mix(in srgb, var(--olive-950) 35%, transparent),
+    transparent 50%
+  );
+}
+
+/* ─── type: chips for labels ─── */
+[data-design='bento'] .eyebrow {
+  padding: 0.45em 0.95em;
+  border-radius: 999px;
+  background: var(--white);
+  color: var(--olive-800);
+  letter-spacing: 0.12em;
+}
+
+[data-design='bento'] .eyebrow::before {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--gold-500);
+  opacity: 1;
+}
+
+[data-design='bento'] .eyebrow-light {
+  background: color-mix(in srgb, white 16%, transparent);
+  color: var(--white);
+}
+
+/* ─── intro: text tile, picture tile, number tiles ─── */
+[data-design='bento'] .intro-grid {
+  gap: var(--tile-gap);
+  align-items: stretch;
+}
+
+[data-design='bento'] .intro-text {
+  display: grid;
+  align-content: center;
+  padding: clamp(24px, 4vw, 56px);
+  border-radius: var(--radius-l);
+  background: var(--white);
+}
+
+[data-design='bento'] .intro-text .btn {
+  justify-self: start;
+}
+
+[data-design='bento'] .stats {
+  gap: var(--tile-gap);
+  margin-top: var(--tile-gap);
+}
+
+[data-design='bento'] .stats > div {
+  padding: clamp(20px, 2.5vw, 32px);
+  border-top: 0;
+  border-radius: var(--radius-l);
+  background: var(--white);
+}
+
+[data-design='bento'] .stats > div:nth-child(2) {
+  background: var(--gold-200);
+}
+
+[data-design='bento'] .stats > div:nth-child(3) {
+  background: var(--olive-800);
+}
+
+[data-design='bento'] .stats > div:nth-child(3) :is(dd, dt) {
+  color: var(--ivory);
+}
+
+[data-design='bento'] .stats dd {
+  font-weight: var(--display-strong);
+}
+
+/* ─── cards inside the tiles ─── */
+[data-design='bento'] .dish-feature,
+[data-design='bento'] .room {
+  padding: 10px 10px 1.25rem;
+  border-radius: var(--radius-l);
+  background: var(--white);
+}
+
+[data-design='bento'] :is(.dish-feature-text, .room-body) {
+  padding-inline: 0.6rem;
+}
+
+[data-design='bento'] .dish-feature-media,
+[data-design='bento'] .dish-feature-numeral,
+[data-design='bento'] .room-media {
+  aspect-ratio: 4 / 3;
+  border-radius: calc(var(--radius-l) - 8px);
+}
+
+[data-design='bento'] .dish-feature-name,
+[data-design='bento'] .room-name {
+  font-size: var(--step-2);
+}
+
+/* ─── menu index: a grid of tiles ─── */
+[data-design='bento'] .menu-index {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr));
+  gap: var(--tile-gap);
+  border-top: 0;
+}
+
+[data-design='bento'] .menu-index-link {
+  grid-template-columns: 1fr auto;
+  min-height: 92px;
+  padding: 1rem 1.25rem;
+  border: 0;
+  border-radius: var(--radius-l);
+  background: var(--white);
+  transition:
+    background var(--dur-1) var(--ease),
+    transform var(--dur-2) var(--ease);
+}
+
+[data-design='bento'] .menu-index-link:hover {
+  background: var(--gold-200);
+  transform: translateY(-2px);
+}
+
+[data-design='bento'] .menu-index-num {
+  grid-column: 1 / -1;
+}
+
+[data-design='bento'] .menu-index-name {
+  font-size: var(--step-1);
+  font-weight: var(--display-strong);
+}
+
+[data-design='bento'] .menu-index-link:hover .menu-index-name {
+  transform: none;
+  font-style: normal;
+}
+
+[data-design='bento'] .menu-index-peek {
+  display: none;
+}
+
+/* ─── the rest ─── */
+[data-design='bento'] .strip-item {
+  border-radius: var(--radius-l);
+}
+
+[data-design='bento'] .testimonials-inner {
+  padding: clamp(28px, 4vw, 56px);
+  border-radius: var(--radius-l);
+  background: var(--white);
+}
+
+[data-design='bento'] .quote blockquote {
+  font-style: normal;
+  font-weight: var(--display-strong);
+}
+
+[data-design='bento'] .reserve-cta-content {
+  width: min(560px, 100% - 2 * var(--gutter));
+  margin-left: var(--gutter);
+  padding: clamp(24px, 3vw, 40px);
+  border-radius: calc(var(--tile-r) - 6px);
+  background: color-mix(in srgb, var(--olive-950) 55%, transparent);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+}
+
+[data-design='bento'] main:has(> :is(.reserve-cta, .closing):last-child) ~ .site-footer {
+  margin-top: 0;
+}
+
+/* ─── footer: the last tile ─── */
+[data-design='bento'] .site-footer {
+  --footer-bg: var(--olive-100);
+  margin: var(--tile-gap);
+}
+
+[data-design='bento'] .footer-body {
+  border-radius: var(--tile-r);
+}
+
+[data-design='bento'] .footer-wordmark {
+  fill: var(--olive-800);
+}
+
+[data-design='bento'] .hero-link {
+  font-size: 0.92rem;
+  letter-spacing: 0;
+  text-transform: none;
+}

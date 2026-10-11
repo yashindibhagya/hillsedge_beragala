@@ -22,7 +22,11 @@
 
 .site-header.is-transparent {
   color: var(--white);
-  background: linear-gradient(to bottom, rgba(21, 26, 14, 0.45), rgba(21, 26, 14, 0));
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--olive-950) 45%, transparent),
+    color-mix(in srgb, var(--olive-950) 0%, transparent)
+  );
 }
 
 .site-header.is-open {
@@ -55,12 +59,14 @@
 .brand-mark {
   width: auto;
   height: 40px;
-  color: var(--gold-600);
+  /* The logo keeps its own gold in every palette: these are the original
+     --gold-600 and --gold-400, written out so a palette cannot recolour them. */
+  color: #a7843f;
 }
 
 .is-transparent .brand-mark,
 .is-open .brand-mark {
-  color: var(--gold-400);
+  color: #d4b97f;
 }
 
 .brand-word {
@@ -69,7 +75,8 @@
 }
 
 .brand-name {
-  font-family: var(--font-display);
+  /* Part of the logo, so it keeps its face whatever the design. */
+  font-family: 'Cormorant Garamond', 'Cormorant Fallback', Georgia, serif;
   font-size: 1.45rem;
   font-weight: 600;
   letter-spacing: 0.01em;
@@ -77,6 +84,7 @@
 
 .brand-place {
   margin-top: 3px;
+  font-family: 'Manrope', 'Manrope Fallback', system-ui, sans-serif;
   font-size: 0.6rem;
   font-weight: 600;
   letter-spacing: 0.42em;
@@ -186,7 +194,11 @@
     max(32px, var(--safe-b)) max(var(--gutter), var(--safe-l));
   overflow-y: auto;
   background:
-    radial-gradient(120% 80% at 100% 0%, rgba(195, 162, 94, 0.14), transparent 60%),
+    radial-gradient(
+      120% 80% at 100% 0%,
+      color-mix(in srgb, var(--gold-500) 14%, transparent),
+      transparent 60%
+    ),
     var(--olive-950);
   color: var(--ivory);
   outline: none;
@@ -386,74 +398,6 @@ main > .closing:last-child {
   color: var(--gold-800);
 }
 
-/* "Stay in the loop" */
-.footer-loop {
-  flex: 1 1 18rem;
-  max-width: 30rem;
-  margin-left: auto;
-}
-
-.footer-loop-label {
-  display: block;
-  margin-bottom: 1rem;
-  font-size: 0.78rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--footer-ink);
-}
-
-.footer-loop-field {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  max-width: 30rem;
-  padding: 0.5rem 0.5rem 0.5rem 1.6rem;
-  border: 1px solid var(--olive-200);
-  border-radius: 999px;
-  background: var(--white);
-}
-
-.footer-loop-field input {
-  flex: 1;
-  min-width: 0;
-  min-height: 44px;
-  border: 0;
-  background: transparent;
-  color: var(--olive-900);
-  font-weight: 600;
-  outline: none;
-}
-
-.footer-loop-field input::placeholder {
-  color: var(--gold-700);
-  opacity: 1;
-}
-
-.footer-loop-field:focus-within {
-  box-shadow: 0 0 0 3px var(--gold-500);
-}
-
-.footer-loop-field button {
-  display: grid;
-  place-items: center;
-  flex-shrink: 0;
-  width: 44px;
-  height: 44px;
-  border: 0;
-  border-radius: 50%;
-  background: var(--gold-100);
-  color: var(--gold-700);
-  transition:
-    background var(--dur-1) var(--ease),
-    color var(--dur-1) var(--ease);
-}
-
-.footer-loop-field button:hover {
-  background: var(--gold-500);
-  color: var(--white);
-}
-
 .footer-bottom {
   display: flex;
   flex-wrap: wrap;
@@ -478,7 +422,7 @@ main > .closing:last-child {
   fill: var(--footer-ink);
   font-family: var(--font-display);
   font-size: 212px;
-  font-weight: 600;
+  font-weight: var(--display-strong);
   user-select: none;
 }
 
@@ -502,13 +446,13 @@ main > .closing:last-child {
     gap: 6px;
     height: var(--dock-h);
     padding: 6px;
-    border: 1px solid rgba(212, 185, 127, 0.28);
-    border-radius: 999px;
-    background: rgba(21, 26, 14, 0.9);
+    border: 1px solid color-mix(in srgb, var(--gold-400) 28%, transparent);
+    border-radius: var(--radius-pill);
+    background: color-mix(in srgb, var(--olive-950) 90%, transparent);
     -webkit-backdrop-filter: blur(18px) saturate(140%);
     backdrop-filter: blur(18px) saturate(140%);
     box-shadow:
-      0 18px 40px -12px rgba(21, 26, 14, 0.55),
+      0 18px 40px -12px color-mix(in srgb, var(--olive-950) 55%, transparent),
       inset 0 1px 0 rgba(255, 255, 255, 0.06);
     opacity: 0;
     pointer-events: none;
@@ -531,7 +475,7 @@ main > .closing:last-child {
     width: 52px;
     height: 52px;
     flex-shrink: 0;
-    border-radius: 50%;
+    border-radius: min(50%, var(--radius-pill));
     color: var(--gold-400);
     background: rgba(250, 248, 243, 0.08);
     transition: background var(--dur-1) var(--ease);
@@ -547,7 +491,7 @@ main > .closing:last-child {
     position: absolute;
     inset: 0;
     border: 1.5px solid var(--gold-400);
-    border-radius: 50%;
+    border-radius: min(50%, var(--radius-pill));
     opacity: 0;
   }
 
@@ -568,7 +512,7 @@ main > .closing:last-child {
     min-width: 0;
     height: 52px;
     padding: 0 6px 0 1.4rem;
-    border-radius: 999px;
+    border-radius: var(--radius-pill);
     background: linear-gradient(135deg, var(--gold-400), var(--gold-500));
     color: var(--olive-950);
     text-decoration: none;
@@ -598,7 +542,7 @@ main > .closing:last-child {
     overflow: hidden;
     font-family: var(--font-display);
     font-size: 1.2rem;
-    font-weight: 600;
+    font-weight: var(--display-strong);
     white-space: nowrap;
     text-overflow: ellipsis;
   }
@@ -609,7 +553,7 @@ main > .closing:last-child {
     width: 40px;
     height: 40px;
     flex-shrink: 0;
-    border-radius: 50%;
+    border-radius: min(50%, var(--radius-pill));
     background: var(--olive-950);
     color: var(--gold-400);
     transition: transform var(--dur-2) var(--ease);
@@ -675,10 +619,10 @@ main > .closing:last-child {
   inset: 0;
   background: linear-gradient(
     to top,
-    rgba(21, 26, 14, 0.82) 0%,
-    rgba(21, 26, 14, 0.35) 45%,
-    rgba(21, 26, 14, 0.2) 70%,
-    rgba(21, 26, 14, 0.45) 100%
+    color-mix(in srgb, var(--olive-950) 82%, transparent) 0%,
+    color-mix(in srgb, var(--olive-950) 35%, transparent) 45%,
+    color-mix(in srgb, var(--olive-950) 20%, transparent) 70%,
+    color-mix(in srgb, var(--olive-950) 45%, transparent) 100%
   );
 }
 
@@ -708,10 +652,10 @@ main > .closing:last-child {
 
 .hero-title {
   color: var(--white);
-  font-size: clamp(3rem, 2rem + 6.5vw, 8.5rem);
-  font-weight: 500;
+  font-size: calc(clamp(3rem, 2rem + 6.5vw, 8.5rem) * var(--hero-scale) * var(--hero-fit));
+  font-weight: var(--hero-weight);
   line-height: 0.95;
-  letter-spacing: -0.025em;
+  letter-spacing: var(--hero-tracking);
   max-width: 11ch;
 }
 

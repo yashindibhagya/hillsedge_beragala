@@ -36,7 +36,8 @@ describe('security headers', () => {
     expect(res.headers['x-content-type-options']).toBe('nosniff');
     expect(res.headers['referrer-policy']).toBe('strict-origin-when-cross-origin');
     // Must match what the static hosting configs send, not helmet's default.
-    expect(res.headers['x-frame-options']).toBe('DENY');
+    expect(res.headers['x-frame-options']).toBe('SAMEORIGIN');
+    expect(res.headers['content-security-policy']).toMatch(/frame-ancestors 'self'/);
   });
 
   it('does not advertise what it runs on', async () => {

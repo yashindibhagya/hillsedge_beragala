@@ -97,9 +97,11 @@ h3,
 h4 {
   margin: 0;
   font-family: var(--font-display);
-  font-weight: 500;
+  font-weight: var(--display-weight);
+  font-stretch: var(--display-stretch);
   line-height: 1.06;
-  letter-spacing: -0.012em;
+  letter-spacing: var(--display-tracking);
+  text-transform: var(--display-case);
   color: var(--olive-900);
   text-wrap: balance;
 }
@@ -108,6 +110,7 @@ h1 em,
 h2 em,
 h3 em,
 p em {
+  font-family: var(--font-accent);
   font-style: italic;
   color: var(--accent-text);
 }
@@ -227,7 +230,7 @@ main {
   align-items: center;
   gap: 0.9em;
   margin: 0 0 1.1rem;
-  font-family: var(--font-body);
+  font-family: var(--font-label);
   font-size: 0.74rem;
   font-weight: 600;
   letter-spacing: 0.22em;
@@ -287,4 +290,20 @@ main {
   text-transform: none;
   letter-spacing: 0;
   color: var(--text-faint);
+}
+
+/* Everything else set in the display face takes the pairing's width too. */
+.stats dd,
+.menu-index-name,
+.hstory-end-title,
+.room-price,
+.band-title,
+.closing-title,
+.statement-text,
+.quote blockquote,
+.dish-name,
+.dish-feature-numeral,
+.step-num,
+.greetings {
+  font-stretch: var(--display-stretch);
 }

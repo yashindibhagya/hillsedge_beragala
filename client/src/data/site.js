@@ -89,6 +89,7 @@ export const fallbackSettings = {
       'Nothing is charged and nothing is held until we confirm. For groups over 15, or set menus, message us and we will plan it with you.',
     acceptingOnline: true,
   },
+  theme: { design: 'heritage', fonts: 'garamond', palette: 'olive' },
 };
 
 /**

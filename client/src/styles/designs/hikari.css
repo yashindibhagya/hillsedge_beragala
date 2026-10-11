@@ -1,0 +1,320 @@
+/*
+ * Hikari — Japanese calm.
+ *
+ * The logo sits in the middle of the header with the links either side.
+ * Headings are thin capitals, centred or set to the right; one word may
+ * drop into a script accent. Sections alternate between rice paper and a
+ * dark band patterned with a fine lattice. Photographs are square-cut and
+ * framed by hairlines; nothing is rounded.
+ */
+[data-design='hikari'] {
+  --display-case: uppercase;
+  --radius-s: 0px;
+  --radius: 0px;
+  --radius-l: 0px;
+  --radius-pill: 0px;
+  --btn-size: 0.72rem;
+  --btn-weight: 500;
+  --btn-tracking: 0.24em;
+  --bg-soft: var(--ivory);
+  --lattice: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 48 48'%3E%3Cpath d='M24 0L48 24L24 48L0 24Z' fill='none' stroke='%23ffffff' stroke-opacity='0.07' stroke-width='1'/%3E%3C/svg%3E");
+}
+
+/* The lattice on every dark band. */
+[data-design='hikari'] :is(.signature, .gallery-strip, .band, .experience-head, .hstory) {
+  background-image: var(--lattice);
+  background-size: 48px 48px;
+}
+
+/* ─── header: links left, logo centre, reserve right ─── */
+@media (min-width: 72rem) {
+  [data-design='hikari'] .site-header-inner {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+  }
+
+  [data-design='hikari'] .brand {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  [data-design='hikari'] .nav-desktop {
+    grid-column: 1;
+    grid-row: 1;
+    justify-self: start;
+    margin: 0;
+  }
+
+  [data-design='hikari'] .nav-desktop ul {
+    gap: clamp(0.9rem, 1.6vw, 1.75rem);
+  }
+
+  [data-design='hikari'] .nav-desktop + .header-actions {
+    grid-column: 3;
+    justify-self: end;
+  }
+}
+
+[data-design='hikari'] .nav-link {
+  font-weight: 400;
+  letter-spacing: 0.22em;
+}
+
+/* ─── hero: one thin word, centred ─── */
+[data-design='hikari'] .hero-content,
+[data-design='hikari'] .page-hero-content {
+  display: grid;
+  justify-items: center;
+  text-align: center;
+}
+
+[data-design='hikari'] .hero {
+  align-content: center;
+}
+
+[data-design='hikari'] .hero-title {
+  max-width: 16ch;
+  line-height: 1;
+  --hero-fit: 0.9;
+}
+
+[data-design='hikari'] .hero-sub,
+[data-design='hikari'] .page-hero-intro {
+  margin-inline: auto;
+  font-family: var(--font-accent);
+  font-size: var(--step-2);
+  font-style: italic;
+  color: rgba(255, 255, 255, 0.82);
+}
+
+[data-design='hikari'] .hero-actions,
+[data-design='hikari'] .page-hero-actions {
+  justify-content: center;
+}
+
+[data-design='hikari'] .hero-foot {
+  justify-content: center;
+  border-top: 0;
+}
+
+[data-design='hikari'] .hero-media::after,
+[data-design='hikari'] .page-hero-media::after {
+  background: color-mix(in srgb, var(--olive-950) 55%, transparent);
+}
+
+[data-design='hikari'] .page-hero-title {
+  margin-inline: auto;
+}
+
+/* ─── type ─── */
+[data-design='hikari'] .eyebrow {
+  font-weight: 400;
+  letter-spacing: 0.32em;
+}
+
+[data-design='hikari'] .eyebrow::after {
+  content: '';
+  width: 28px;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.7;
+}
+
+[data-design='hikari'] .section-head {
+  padding-bottom: clamp(18px, 2vw, 28px);
+  border-bottom: 1px solid var(--line-strong);
+}
+
+[data-design='hikari'] .section-title {
+  line-height: 1.08;
+}
+
+/* Every other head sits to the right, as on a scroll. */
+[data-design='hikari'] :is(.signature, .spaces, .testimonials) .section-head {
+  justify-items: end;
+  text-align: right;
+}
+
+[data-design='hikari'] :is(.signature, .spaces) .section-head .section-title {
+  margin-left: auto;
+}
+
+@media (min-width: 56rem) {
+  [data-design='hikari'] :is(.signature, .spaces) .section-head:has(.section-head-action) {
+    grid-template-columns: auto 1fr;
+  }
+
+  [data-design='hikari'] :is(.signature, .spaces) .section-head-action {
+    order: -1;
+  }
+}
+
+/* ─── intro: a framed square and ruled numbers ─── */
+[data-design='hikari'] .intro-media {
+  aspect-ratio: 1;
+  outline: 1px solid var(--line-strong);
+  outline-offset: 14px;
+}
+
+[data-design='hikari'] .stats > div {
+  align-items: center;
+  text-align: center;
+  border-top: 0;
+  border-left: 1px solid var(--line-strong);
+}
+
+[data-design='hikari'] .stats > div:first-child {
+  border-left: 0;
+}
+
+[data-design='hikari'] .stats dd {
+  font-weight: 300;
+}
+
+/* ─── signature dishes: square plates between rules, captions in capitals ─── */
+[data-design='hikari'] .dish-feature {
+  gap: 1rem;
+  text-align: center;
+}
+
+[data-design='hikari'] .dish-feature-media,
+[data-design='hikari'] .dish-feature-numeral {
+  aspect-ratio: 1;
+  padding-block: 10px;
+  border-block: 1px solid var(--line-strong);
+  background-clip: content-box;
+}
+
+[data-design='hikari'] .dish-feature-media :is(img, video) {
+  border-radius: 0;
+}
+
+[data-design='hikari'] .dish-feature-name {
+  font-size: var(--step-1);
+  letter-spacing: 0.08em;
+}
+
+[data-design='hikari'] .dish-feature-text .dish-tags {
+  justify-content: center;
+}
+
+[data-design='hikari'] .dish-feature-numeral {
+  place-items: center;
+  border-inline: 0;
+  font-style: normal;
+  font-weight: 300;
+}
+
+/* ─── menu index: quiet capitals ─── */
+[data-design='hikari'] .menu-index-name {
+  font-size: var(--step-1);
+  font-weight: 300;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+[data-design='hikari'] .menu-index-link:hover .menu-index-name {
+  font-style: normal;
+}
+
+/* ─── the experience ─── */
+[data-design='hikari'] .hstory-title,
+[data-design='hikari'] .hstory-end-title {
+  text-transform: uppercase;
+  font-weight: 300;
+}
+
+/* ─── rooms: square-cut ─── */
+[data-design='hikari'] .room {
+  text-align: center;
+}
+
+[data-design='hikari'] .room-media {
+  aspect-ratio: 1;
+}
+
+[data-design='hikari'] .room-name {
+  font-size: var(--step-2);
+  letter-spacing: 0.06em;
+}
+
+[data-design='hikari'] .room-facts,
+[data-design='hikari'] .room-features {
+  justify-content: center;
+}
+
+/* ─── gallery: a mosaic of squares ─── */
+[data-design='hikari'] .strip-item,
+[data-design='hikari'] .strip-item:nth-child(even) {
+  aspect-ratio: 1;
+  align-self: start;
+  width: clamp(220px, 24vw, 380px);
+}
+
+[data-design='hikari'] .strip-caption {
+  font-family: var(--font-accent);
+}
+
+/* ─── testimonials: a quiet quotation in capitals ─── */
+[data-design='hikari'] .quote blockquote {
+  font-family: var(--font-body);
+  font-size: var(--step-1);
+  font-style: normal;
+  font-weight: 300;
+  letter-spacing: 0.08em;
+  line-height: 1.7;
+  text-transform: uppercase;
+}
+
+[data-design='hikari'] .quote-author {
+  font-family: var(--font-accent);
+  font-size: 1.2rem;
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: 0;
+}
+
+/* ─── closing call: centred ─── */
+[data-design='hikari'] .reserve-cta-content,
+[data-design='hikari'] .closing-content {
+  display: grid;
+  justify-items: center;
+  text-align: center;
+}
+
+[data-design='hikari'] .reserve-cta-content .display-2,
+[data-design='hikari'] .closing-title {
+  margin-inline: auto;
+  text-transform: uppercase;
+  font-weight: 300;
+}
+
+[data-design='hikari'] .reserve-cta-actions,
+[data-design='hikari'] .closing-actions {
+  justify-content: center;
+}
+
+[data-design='hikari'] .reserve-cta-media::after,
+[data-design='hikari'] .closing-media::after {
+  background: color-mix(in srgb, var(--olive-950) 62%, transparent);
+}
+
+/* ─── footer: rice paper, a hairline above ─── */
+[data-design='hikari'] .site-footer {
+  --footer-bg: var(--ivory);
+}
+
+[data-design='hikari'] .footer-body {
+  border-top: 1px solid var(--line-strong);
+}
+
+[data-design='hikari'] .footer-heading {
+  font-weight: 400;
+  letter-spacing: 0.28em;
+  font-size: 0.9rem;
+}
+
+[data-design='hikari'] .footer-wordmark {
+  font-weight: 300;
+  opacity: 0.85;
+}

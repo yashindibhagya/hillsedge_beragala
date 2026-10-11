@@ -109,6 +109,7 @@ publicRouter.get('/site', cacheBriefly, (req, res) => {
       about: settings.about,
       menu: settings.menu,
       reservations: settings.reservations,
+      theme: settings.theme,
     },
     categories: categories.map(({ id, slug, name, description, imageId }) => ({
       id,

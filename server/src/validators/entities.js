@@ -30,6 +30,41 @@ export const MEDIA_CATEGORIES = [
 export const ROLES = ['super_admin', 'manager', 'staff'];
 export const SITTINGS = ['Lunch', 'Afternoon', 'Sunset', 'Dinner'];
 
+/* The site's look, chosen in the admin. Ids match shared/themes.js. */
+export const THEME_DESIGNS = [
+  'heritage',
+  'roastery',
+  'hikari',
+  'savore',
+  'heha',
+  'bento',
+  'atelier',
+];
+export const THEME_FONTS = [
+  'garamond',
+  'playfair',
+  'didone',
+  'zen',
+  'classic',
+  'cafe',
+  'grotesk',
+  'swiss',
+  'roman',
+  'organic',
+];
+export const THEME_PALETTES = [
+  'olive',
+  'espresso',
+  'oxblood',
+  'noir',
+  'lagoon',
+  'midnight',
+  'terracotta',
+  'forest',
+  'plum',
+  'ocean',
+];
+
 export const categorySchema = {
   name: field.text({ max: 80, required: true }),
   description: field.text({ max: 600 }),
@@ -202,5 +237,10 @@ export const settingsSchema = {
     intro: field.text({ max: 600 }),
     policy: field.text({ max: 1200 }),
     acceptingOnline: field.bool({ fallback: true }),
+  }),
+  theme: field.object({
+    design: field.oneOf(THEME_DESIGNS),
+    fonts: field.oneOf(THEME_FONTS),
+    palette: field.oneOf(THEME_PALETTES),
   }),
 };

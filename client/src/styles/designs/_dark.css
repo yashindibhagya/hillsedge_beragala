@@ -1,0 +1,103 @@
+/*
+ * Dark sections.
+ *
+ * Several designs set some sections on the palette's darkest colour. Rather
+ * than restyle every component for dark, such a section swaps the colour
+ * ramps around inside itself: what was dark ink becomes light, what was a
+ * white card becomes a deep surface. Every rule written against the ramps
+ * then reads correctly with no other change. The --keep-* names hold the
+ * palette's real colours (tokens.css), so the swap works in any palette.
+ *
+ * Gold stays gold — it reads on both — except the pale tints, which would
+ * glare, and the darkest shades, which would vanish.
+ */
+:is(
+  [data-design='roastery'] .site-footer,
+  [data-design='hikari'] .signature,
+  [data-design='hikari'] .gallery-strip,
+  [data-design='hikari'] .band,
+  [data-design='savore'] .signature,
+  [data-design='savore'] .spaces,
+  [data-design='savore'] .gallery-strip,
+  [data-design='savore'] .promos,
+  [data-design='savore'] .band,
+  [data-design='savore'] .site-footer,
+  [data-design='heha'] .site-footer,
+  [data-design='atelier'] .site-footer
+) {
+  --olive-950: var(--keep-olive-50);
+  --olive-900: var(--keep-olive-100);
+  --olive-800: var(--keep-olive-200);
+  --olive-700: var(--keep-olive-400);
+  --olive-600: var(--keep-olive-400);
+  --olive-500: var(--keep-olive-500);
+  --olive-400: var(--keep-olive-600);
+  --olive-200: var(--keep-olive-700);
+  --olive-100: var(--keep-olive-800);
+  --olive-50: var(--keep-olive-900);
+  --white: color-mix(in srgb, var(--keep-ivory) 6%, var(--keep-olive-950));
+  --ivory: var(--keep-olive-950);
+  --cream: var(--keep-olive-900);
+  --beige: var(--keep-olive-800);
+  --gold-100: color-mix(in srgb, var(--gold-500) 16%, var(--keep-olive-900));
+  --gold-200: color-mix(in srgb, var(--gold-500) 32%, var(--keep-olive-900));
+  --gold-700: color-mix(in srgb, var(--gold-500) 75%, white);
+  --gold-800: color-mix(in srgb, var(--gold-500) 55%, white);
+  --ink: var(--keep-ivory);
+  --bg: var(--keep-olive-950);
+  --bg-soft: var(--keep-olive-950);
+  --bg-sunk: var(--keep-olive-900);
+  --surface: var(--white);
+  --text: color-mix(in srgb, var(--keep-ivory) 88%, transparent);
+  --text-soft: color-mix(in srgb, var(--keep-ivory) 66%, transparent);
+  --text-faint: color-mix(in srgb, var(--keep-ivory) 45%, transparent);
+  --line: color-mix(in srgb, var(--keep-ivory) 13%, transparent);
+  --line-strong: color-mix(in srgb, var(--keep-ivory) 26%, transparent);
+  --accent-text: var(--gold-400);
+  background-color: var(--keep-olive-950);
+  color: var(--text);
+}
+
+/* A gold button keeps dark lettering wherever it sits. */
+:is(
+    [data-design='roastery'] .site-footer,
+    [data-design='hikari'] .signature,
+    [data-design='hikari'] .gallery-strip,
+    [data-design='hikari'] .band,
+    [data-design='savore'] .signature,
+    [data-design='savore'] .spaces,
+    [data-design='savore'] .gallery-strip,
+    [data-design='savore'] .promos,
+    [data-design='savore'] .band,
+    [data-design='savore'] .site-footer,
+    [data-design='heha'] .site-footer,
+    [data-design='atelier'] .site-footer
+  )
+  .btn-gold {
+  --btn-fg: var(--keep-olive-950);
+}
+
+/* Designs whose hero is not a dark photograph at the top of the page put the
+   header on a solid ground from the start, so its ink always reads. */
+:is([data-design='roastery'], [data-design='atelier']) .site-header.is-transparent {
+  color: var(--olive-900);
+  background: color-mix(in srgb, var(--ivory) 92%, transparent);
+  -webkit-backdrop-filter: saturate(1.4) blur(18px);
+  backdrop-filter: saturate(1.4) blur(18px);
+  box-shadow: 0 1px 0 var(--line);
+}
+
+:is([data-design='roastery'], [data-design='atelier']) .is-transparent .brand-mark {
+  color: #a7843f;
+}
+
+/* Flat-edged footers need no room for a curve. */
+:is(
+  [data-design='hikari'],
+  [data-design='savore'],
+  [data-design='heha'],
+  [data-design='bento'],
+  [data-design='atelier']
+) {
+  --footer-arc-h: 0px;
+}

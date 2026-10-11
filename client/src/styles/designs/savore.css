@@ -1,0 +1,289 @@
+/*
+ * Savore — fine dining after dark.
+ *
+ * Most of the page is night: deep sections, dishes on glowing cards with
+ * the price in a row beneath, white pill buttons. Soft light bands break it
+ * up — the welcome, the menu, the guests' words — so it never feels heavy.
+ * Headings are elegant and lowercase-quiet, their emphasis in italic.
+ */
+[data-design='savore'] {
+  --bg-soft: color-mix(in srgb, var(--keep-olive-50) 70%, var(--white));
+  --radius-s: 8px;
+  --radius: 14px;
+  --radius-l: 18px;
+  --btn-size: 0.82rem;
+  --btn-weight: 500;
+  --btn-tracking: 0.02em;
+  --btn-case: none;
+}
+
+[data-design='savore'] body {
+  background: var(--keep-olive-950);
+}
+
+/* Light bands: a soft, cool paper. */
+[data-design='savore'] :is(.intro, .menu-preview, .testimonials) {
+  background: var(--bg-soft);
+}
+
+/* ─── header: always night ─── */
+[data-design='savore'] .site-header.is-solid {
+  color: var(--keep-ivory);
+  background: color-mix(in srgb, var(--keep-olive-950) 86%, transparent);
+  box-shadow: 0 1px 0 color-mix(in srgb, var(--keep-ivory) 8%, transparent);
+}
+
+[data-design='savore'] .is-solid .brand-mark {
+  color: #d4b97f;
+}
+
+[data-design='savore'] .header-reserve {
+  --btn-bg: var(--keep-ivory);
+  --btn-fg: var(--keep-olive-950);
+}
+
+/* ─── buttons: white pills on dark, ink pills on light ─── */
+[data-design='savore'] .btn-gold {
+  --btn-bg: var(--keep-ivory);
+  --btn-fg: var(--keep-olive-950);
+}
+
+[data-design='savore'] .btn-gold:hover {
+  --btn-bg: var(--gold-400);
+}
+
+[data-design='savore'] .btn-light {
+  --btn-bg: transparent;
+  --btn-border: color-mix(in srgb, white 38%, transparent);
+  --btn-fg: var(--white);
+}
+
+/* ─── hero: left-aligned, low and moody ─── */
+[data-design='savore'] .hero {
+  min-height: max(88svh, 560px);
+  align-content: center;
+}
+
+[data-design='savore'] .hero-title {
+  max-width: 14ch;
+  line-height: 1.02;
+  --hero-fit: 0.72;
+}
+
+[data-design='savore'] .hero-media::after,
+[data-design='savore'] .page-hero-media::after {
+  background:
+    linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--keep-olive-950) 92%, transparent) 0%,
+      color-mix(in srgb, var(--keep-olive-950) 70%, transparent) 45%,
+      color-mix(in srgb, var(--keep-olive-950) 35%, transparent) 100%
+    ),
+    linear-gradient(to top, var(--keep-olive-950), transparent 30%);
+}
+
+[data-design='savore'] .hero-foot {
+  border-top: 0;
+  padding-top: 0;
+}
+
+[data-design='savore'] .hero-foot-rule {
+  height: 28px;
+  width: 1px;
+  flex: 0 0 1px;
+}
+
+/* ─── type ─── */
+[data-design='savore'] .eyebrow {
+  font-size: 0.68rem;
+  letter-spacing: 0.3em;
+}
+
+[data-design='savore'] .eyebrow::before {
+  display: none;
+}
+
+[data-design='savore'] .section-title {
+  font-size: var(--step-3);
+  font-weight: 400;
+  max-width: 20ch;
+}
+
+[data-design='savore'] .display-2 {
+  font-size: var(--step-3);
+}
+
+[data-design='savore'] h2 em,
+[data-design='savore'] h1 em {
+  color: inherit;
+}
+
+/* ─── intro: two prints, one large ─── */
+[data-design='savore'] .intro-media {
+  box-shadow: var(--shadow-l);
+}
+
+[data-design='savore'] .stats > div {
+  border-top-color: var(--line);
+}
+
+/* ─── signature: dark cards that glow ─── */
+[data-design='savore'] .signature-grid {
+  gap: clamp(16px, 2vw, 24px);
+}
+
+@media (min-width: 72rem) {
+  [data-design='savore'] .signature-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+[data-design='savore'] .dish-feature {
+  gap: 0;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-l);
+  background: var(--white);
+  transition:
+    border-color var(--dur-2) var(--ease),
+    transform var(--dur-2) var(--ease),
+    box-shadow var(--dur-2) var(--ease);
+}
+
+[data-design='savore'] .dish-feature:hover {
+  border-color: color-mix(in srgb, var(--gold-500) 45%, transparent);
+  box-shadow: 0 24px 60px -30px color-mix(in srgb, var(--gold-500) 45%, transparent);
+  transform: translateY(-4px);
+}
+
+[data-design='savore'] .dish-feature-media,
+[data-design='savore'] .dish-feature-numeral {
+  aspect-ratio: 4 / 3;
+  border: 0;
+  border-radius: 0;
+}
+
+[data-design='savore'] .dish-feature-numeral {
+  font-size: clamp(3rem, 24cqi, 6rem);
+}
+
+[data-design='savore'] .dish-feature-text {
+  display: grid;
+  grid-template-rows: auto auto 1fr auto;
+  height: 100%;
+  padding: 1.1rem 1.25rem 1.25rem;
+}
+
+[data-design='savore'] .dish-feature-name {
+  font-size: var(--step-1);
+  margin: 0.4rem 0 0.35rem;
+}
+
+[data-design='savore'] .dish-feature-text p {
+  font-size: 0.9rem;
+}
+
+[data-design='savore'] .dish-feature-price {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 1rem !important;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--line);
+  color: var(--gold-400) !important;
+}
+
+[data-design='savore'] .dish-feature-price::after {
+  content: '→';
+  color: var(--text-soft);
+}
+
+/* ─── menu index on a light band ─── */
+[data-design='savore'] .menu-index-name {
+  font-size: var(--step-1);
+}
+
+/* ─── the experience: night ─── */
+[data-design='savore'] :is(.experience-head, .hstory) {
+  background: var(--keep-olive-950);
+}
+
+[data-design='savore'] .hstory-media {
+  box-shadow: var(--shadow-l);
+}
+
+/* ─── rooms on the dark: lifted cards ─── */
+[data-design='savore'] .room {
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-l);
+  background: var(--white);
+  gap: 0;
+}
+
+[data-design='savore'] .room-media {
+  border-radius: 0;
+}
+
+[data-design='savore'] .room-body {
+  padding: 1.25rem;
+}
+
+/* ─── gallery ─── */
+[data-design='savore'] .strip-item {
+  box-shadow: var(--shadow-l);
+}
+
+/* ─── testimonials: quiet italic on paper ─── */
+[data-design='savore'] .testimonials-inner {
+  justify-items: start;
+  text-align: left;
+}
+
+[data-design='savore'] .quote blockquote {
+  font-size: var(--step-2);
+}
+
+/* ─── closing call: centred in the dark ─── */
+[data-design='savore'] .reserve-cta-content,
+[data-design='savore'] .closing-content {
+  display: grid;
+  justify-items: center;
+  text-align: center;
+}
+
+[data-design='savore'] .reserve-cta-content .display-2,
+[data-design='savore'] .closing-title {
+  margin-inline: auto;
+  font-weight: 400;
+}
+
+[data-design='savore'] .reserve-cta-actions,
+[data-design='savore'] .closing-actions {
+  justify-content: center;
+}
+
+[data-design='savore'] .reserve-cta-media::after,
+[data-design='savore'] .closing-media::after {
+  background: color-mix(in srgb, var(--keep-olive-950) 72%, transparent);
+}
+
+/* ─── footer: night, no edge ─── */
+[data-design='savore'] .site-footer {
+  --footer-bg: var(--keep-olive-950);
+  --footer-ink: color-mix(in srgb, var(--keep-ivory) 82%, transparent);
+}
+
+[data-design='savore'] .footer-body {
+  border-top: 1px solid var(--line);
+}
+
+[data-design='savore'] .footer-heading {
+  font-size: 0.78rem;
+  letter-spacing: 0.24em;
+  color: var(--gold-400);
+}
+
+[data-design='savore'] .footer-wordmark {
+  fill: color-mix(in srgb, var(--keep-ivory) 10%, transparent);
+}

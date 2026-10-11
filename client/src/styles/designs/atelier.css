@@ -1,0 +1,402 @@
+/*
+ * Atelier — a Swiss studio.
+ *
+ * The hero splits in two: words on paper at the left, the photograph at the
+ * right. Every section is ruled off and headed like a page in a catalogue,
+ * the label in its own column in monospace, the title beside it. Dishes,
+ * numbers and rooms sit in cells of one ruled grid. Square corners; buttons
+ * are outlined boxes; the footer's name is drawn in outline.
+ */
+[data-design='atelier'] {
+  --radius-s: 0px;
+  --radius: 0px;
+  --radius-l: 0px;
+  --radius-pill: 0px;
+  --btn-size: 0.74rem;
+  --btn-weight: 500;
+  --btn-tracking: 0.08em;
+  --rule: 1px solid var(--olive-900);
+}
+
+[data-design='atelier'] .btn {
+  font-family: var(--font-label);
+}
+
+[data-design='atelier'] .btn-gold {
+  --btn-border: var(--olive-950);
+}
+
+/* ─── header: ruled, no blur ─── */
+[data-design='atelier'] .site-header.is-solid,
+[data-design='atelier'] .site-header.is-transparent {
+  background: var(--ivory);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  box-shadow: 0 1px 0 var(--olive-900);
+}
+
+[data-design='atelier'] .nav-link {
+  font-family: var(--font-label);
+  font-weight: 400;
+  letter-spacing: 0.06em;
+}
+
+[data-design='atelier'] .nav-link::after {
+  bottom: 6px;
+  height: 2px;
+  background: var(--olive-900);
+}
+
+/* ─── hero: split in two ─── */
+[data-design='atelier'] .hero,
+[data-design='atelier'] .page-hero {
+  margin-top: 0;
+  min-height: calc(100svh - var(--header-h));
+  padding: 0;
+  grid-template-columns: 1fr;
+  align-content: stretch;
+  background: var(--ivory);
+  color: var(--olive-900);
+  border-bottom: var(--rule);
+}
+
+[data-design='atelier'] .page-hero {
+  min-height: clamp(420px, 60svh, 680px);
+}
+
+[data-design='atelier'] .hero-media,
+[data-design='atelier'] .page-hero-media {
+  position: relative;
+  inset: auto;
+  z-index: 0;
+  min-height: 46svh;
+  overflow: hidden;
+}
+
+[data-design='atelier'] .hero-media::after,
+[data-design='atelier'] .page-hero-media::after {
+  display: none;
+}
+
+[data-design='atelier'] .hero-content,
+[data-design='atelier'] .page-hero-content {
+  width: auto;
+  margin: 0;
+  padding: clamp(32px, 5vw, 72px) var(--gutter);
+  align-self: center;
+}
+
+[data-design='atelier'] .hero-title,
+[data-design='atelier'] .page-hero-title {
+  color: var(--olive-900);
+  max-width: 10ch;
+  --hero-fit: 0.78;
+}
+
+[data-design='atelier'] .page-hero-title {
+  font-size: var(--step-5);
+}
+
+[data-design='atelier'] :is(.hero, .page-hero) .eyebrow-light {
+  color: var(--accent-text);
+}
+
+[data-design='atelier'] :is(.hero-sub, .page-hero-intro) {
+  color: var(--text-soft);
+}
+
+[data-design='atelier'] :is(.hero, .page-hero) .btn-light {
+  --btn-bg: transparent;
+  --btn-fg: var(--olive-900);
+  --btn-border: var(--olive-900);
+}
+
+[data-design='atelier'] .hero-link {
+  color: var(--olive-900);
+  font-family: var(--font-label);
+}
+
+[data-design='atelier'] .hero-foot {
+  width: auto;
+  margin: 0;
+  padding: 1rem var(--gutter);
+  border-top: var(--rule);
+  color: var(--olive-800);
+  font-family: var(--font-label);
+  font-weight: 400;
+  letter-spacing: 0.08em;
+}
+
+[data-design='atelier'] .hero-scroll {
+  display: none;
+}
+
+@media (min-width: 64rem) {
+  [data-design='atelier'] .hero,
+  [data-design='atelier'] .page-hero {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr auto;
+  }
+
+  [data-design='atelier'] .hero-media,
+  [data-design='atelier'] .page-hero-media {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    min-height: 0;
+    border-left: var(--rule);
+  }
+
+  [data-design='atelier'] .hero-content,
+  [data-design='atelier'] .page-hero-content {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  [data-design='atelier'] .hero-foot {
+    grid-column: 1;
+    grid-row: 2;
+  }
+}
+
+/* ─── sections: ruled off, catalogued ─── */
+[data-design='atelier'] main > .section + .section,
+[data-design='atelier'] main > .section + .hstory + .section {
+  border-top: var(--rule);
+}
+
+[data-design='atelier'] .eyebrow {
+  padding: 0.3em 0.7em;
+  border: 1px solid currentColor;
+  font-weight: 400;
+  letter-spacing: 0.08em;
+}
+
+[data-design='atelier'] .eyebrow::before {
+  content: '§';
+  width: auto;
+  height: auto;
+  background: none;
+  opacity: 1;
+}
+
+@media (min-width: 56rem) {
+  [data-design='atelier'] .section-head-text {
+    display: grid;
+    grid-template-columns: minmax(12rem, 1fr) 3fr;
+    column-gap: 2rem;
+    align-items: start;
+  }
+
+  [data-design='atelier'] .section-head-text > :not(.eyebrow) {
+    grid-column: 2;
+  }
+
+  [data-design='atelier'] .section-head .eyebrow {
+    justify-self: start;
+    margin-top: 0.6rem;
+  }
+}
+
+[data-design='atelier'] .section-title {
+  font-weight: var(--display-weight);
+  max-width: 20ch;
+}
+
+/* ─── intro and numbers: cells of one grid ─── */
+[data-design='atelier'] .intro-media {
+  border: var(--rule);
+}
+
+[data-design='atelier'] .stats {
+  gap: 0;
+  border: var(--rule);
+}
+
+[data-design='atelier'] .stats > div {
+  padding: 1.5rem;
+  border-top: 0;
+  border-right: var(--rule);
+}
+
+[data-design='atelier'] .stats > div:last-child {
+  border-right: 0;
+}
+
+[data-design='atelier'] .stats dt {
+  font-family: var(--font-label);
+  font-weight: 400;
+  letter-spacing: 0.06em;
+}
+
+@media (max-width: 47.99rem) {
+  [data-design='atelier'] .stats > div:nth-child(2n) {
+    border-right: 0;
+  }
+
+  [data-design='atelier'] .stats > div:nth-child(-n + 2) {
+    border-bottom: var(--rule);
+  }
+}
+
+/* ─── dishes: one ruled grid ─── */
+[data-design='atelier'] .signature {
+  background: var(--ivory);
+}
+
+[data-design='atelier'] .signature-grid {
+  gap: 0;
+  counter-reset: cell;
+  border-top: var(--rule);
+  border-left: var(--rule);
+}
+
+[data-design='atelier'] .signature-grid > div {
+  border-right: var(--rule);
+  border-bottom: var(--rule);
+}
+
+[data-design='atelier'] .dish-feature {
+  position: relative;
+  padding: 1rem;
+}
+
+[data-design='atelier'] .dish-feature::before {
+  counter-increment: cell;
+  content: counter(cell, decimal-leading-zero);
+  position: absolute;
+  top: 1.5rem;
+  left: 1.5rem;
+  z-index: 1;
+  padding: 0.2em 0.5em;
+  background: var(--ivory);
+  font: 400 0.72rem/1.4 var(--font-label);
+  color: var(--olive-900);
+}
+
+[data-design='atelier'] .dish-feature-media,
+[data-design='atelier'] .dish-feature-numeral {
+  aspect-ratio: 1;
+}
+
+[data-design='atelier'] .dish-feature-numeral {
+  border: 0;
+  background: var(--cream);
+  font-style: normal;
+}
+
+[data-design='atelier'] .dish-feature-price {
+  font-family: var(--font-label);
+  font-weight: 400 !important;
+}
+
+/* ─── menu index: a table ─── */
+[data-design='atelier'] .menu-index {
+  border-top: var(--rule);
+}
+
+[data-design='atelier'] .menu-index-link {
+  border-bottom: var(--rule);
+}
+
+[data-design='atelier'] .menu-index-num {
+  font-family: var(--font-label);
+  letter-spacing: 0.04em;
+  color: var(--olive-800);
+}
+
+[data-design='atelier'] .menu-index-link:hover {
+  background: var(--olive-900);
+  color: var(--ivory);
+}
+
+[data-design='atelier'] .menu-index-link:hover .menu-index-name {
+  color: var(--ivory);
+  font-style: normal;
+}
+
+/* ─── rooms: cells ─── */
+[data-design='atelier'] .room-grid {
+  gap: 0;
+  border-top: var(--rule);
+  border-left: var(--rule);
+}
+
+[data-design='atelier'] .room-grid > div {
+  border-right: var(--rule);
+  border-bottom: var(--rule);
+}
+
+[data-design='atelier'] .room {
+  padding: 1rem;
+}
+
+[data-design='atelier'] .room-features li {
+  font-family: var(--font-label);
+  font-size: 0.74rem;
+}
+
+/* ─── gallery and words ─── */
+[data-design='atelier'] .strip-item,
+[data-design='atelier'] .strip-item:nth-child(even) {
+  aspect-ratio: 3 / 4;
+  align-self: start;
+  border: var(--rule);
+}
+
+[data-design='atelier'] .strip-caption {
+  font-family: var(--font-label);
+  font-style: normal;
+  font-size: 0.78rem;
+}
+
+[data-design='atelier'] .testimonials-inner {
+  justify-items: start;
+  padding-left: clamp(20px, 3vw, 40px);
+  border-left: 4px solid var(--gold-500);
+  text-align: left;
+}
+
+[data-design='atelier'] .quote blockquote {
+  font-style: normal;
+}
+
+[data-design='atelier'] .quote-author {
+  font-family: var(--font-label);
+  font-weight: 400;
+}
+
+/* ─── closing ─── */
+[data-design='atelier'] .reserve-cta-media::after,
+[data-design='atelier'] .closing-media::after {
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--olive-950) 90%, transparent) 0 50%,
+    color-mix(in srgb, var(--olive-950) 10%, transparent) 50%
+  );
+}
+
+@media (max-width: 63.99rem) {
+  [data-design='atelier'] .reserve-cta-media::after,
+  [data-design='atelier'] .closing-media::after {
+    background: color-mix(in srgb, var(--olive-950) 75%, transparent);
+  }
+}
+
+/* ─── footer: ink, the name in outline ─── */
+[data-design='atelier'] .site-footer {
+  --footer-bg: var(--keep-olive-950);
+  --footer-ink: var(--keep-ivory);
+}
+
+[data-design='atelier'] .footer-heading {
+  font-family: var(--font-label);
+  font-size: 0.8rem;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+}
+
+[data-design='atelier'] .footer-wordmark {
+  fill: none;
+  stroke: var(--keep-ivory);
+  stroke-width: 1.2px;
+}

@@ -12,3 +12,11 @@
 @import './pages.css';
 @import './motion.css';
 @import './adaptive.css';
+/* Designs, chosen in the admin: each restyles the layout under [data-design]. */
+@import './designs/_dark.css';
+@import './designs/roastery.css';
+@import './designs/hikari.css';
+@import './designs/savore.css';
+@import './designs/heha.css';
+@import './designs/bento.css';
+@import './designs/atelier.css';

@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import { routes } from './App';
+import { applyTheme, initialTheme } from './lib/theme';
 import './styles/index.css';
 
 /*
@@ -14,6 +15,12 @@ import './styles/index.css';
 for (const link of document.querySelectorAll('link[data-webfont]')) {
   link.media = 'all';
 }
+
+/*
+ * Paint in the right design and palette from the first frame: the last one
+ * this browser saw, or the one the admin's preview asked for.
+ */
+applyTheme(initialTheme());
 
 /*
  * A data router rather than <BrowserRouter>: it is what lets links opt into

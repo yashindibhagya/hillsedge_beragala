@@ -1,0 +1,475 @@
+/*
+ * Roastery — a warm café.
+ *
+ * Cream paper, headings centred over everything, dish photographs cut into
+ * circles on soft cards with a "+" to open them, a hero photograph set like a
+ * print on the table, bands with torn-paper edges, a scrapbook gallery, and
+ * a dark footer torn across the top.
+ */
+[data-design='roastery'] {
+  --bg: var(--ivory);
+  --bg-soft: var(--cream);
+  --radius-s: 10px;
+  --radius: 18px;
+  --radius-l: 26px;
+  --btn-size: 0.74rem;
+  --btn-tracking: 0.12em;
+  --footer-arc-h: clamp(22px, 3vw, 44px);
+  /* A torn paper edge, top and bottom, for the bands. */
+  --torn: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 40' preserveAspectRatio='none'%3E%3Cpath d='M0 40V16L30 10L62 22L96 6L128 18L170 4L204 16L246 8L288 24L320 10L364 18L398 4L438 20L474 10L510 22L554 6L590 18L628 8L666 24L702 12L744 20L778 4L820 22L858 10L894 24L938 6L974 18L1010 8L1050 24L1088 10L1126 20L1162 4L1202 22L1238 10L1274 24L1316 8L1354 20L1394 10L1440 22V40Z'/%3E%3C/svg%3E");
+  --torn-b: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 40' preserveAspectRatio='none'%3E%3Cpath transform='matrix(1 0 0 -1 0 40)' d='M0 40V16L30 10L62 22L96 6L128 18L170 4L204 16L246 8L288 24L320 10L364 18L398 4L438 20L474 10L510 22L554 6L590 18L628 8L666 24L702 12L744 20L778 4L820 22L858 10L894 24L938 6L974 18L1010 8L1050 24L1088 10L1126 20L1162 4L1202 22L1238 10L1274 24L1316 8L1354 20L1394 10L1440 22V40Z'/%3E%3C/svg%3E");
+}
+
+[data-design='roastery'] body {
+  background: var(--ivory);
+}
+
+/* ─── header: a cream bar with a pill for every link ─── */
+[data-design='roastery'] .nav-link::after {
+  display: none;
+}
+
+[data-design='roastery'] .nav-link {
+  padding-inline: 0.9rem;
+  border-radius: var(--radius-pill);
+  letter-spacing: 0.08em;
+  transition:
+    background var(--dur-1) var(--ease),
+    color var(--dur-1) var(--ease);
+}
+
+[data-design='roastery'] .nav-link[aria-current='page'],
+[data-design='roastery'] .nav-link:hover {
+  background: var(--gold-500);
+  color: var(--olive-950);
+}
+
+[data-design='roastery'] .nav-desktop ul {
+  gap: 0.25rem;
+}
+
+/* ─── hero: a print on the table, title centred above it ─── */
+[data-design='roastery'] .hero,
+[data-design='roastery'] .page-hero {
+  margin-top: 0;
+  min-height: 0;
+  align-content: start;
+  justify-items: center;
+  gap: clamp(28px, 4vw, 56px);
+  padding-block: clamp(40px, 6vw, 88px) clamp(48px, 7vw, 96px);
+  background: radial-gradient(60% 50% at 50% 0%, var(--gold-100), transparent 70%), var(--ivory);
+  color: var(--olive-900);
+  text-align: center;
+}
+
+[data-design='roastery'] .hero-content,
+[data-design='roastery'] .page-hero-content {
+  display: grid;
+  justify-items: center;
+  padding-top: 0;
+}
+
+[data-design='roastery'] .hero-title,
+[data-design='roastery'] .page-hero-title {
+  color: var(--olive-900);
+  max-width: 14ch;
+  --hero-fit: 0.82;
+}
+
+[data-design='roastery'] .page-hero-title {
+  font-size: var(--step-5);
+}
+
+[data-design='roastery'] .hero-sub,
+[data-design='roastery'] .page-hero-intro {
+  margin-inline: auto;
+  color: var(--text-soft);
+}
+
+[data-design='roastery'] .hero .eyebrow-light,
+[data-design='roastery'] .page-hero .eyebrow-light {
+  color: var(--accent-text);
+}
+
+[data-design='roastery'] .hero-actions,
+[data-design='roastery'] .page-hero-actions {
+  justify-content: center;
+}
+
+[data-design='roastery'] .hero .btn-light,
+[data-design='roastery'] .page-hero .btn-light {
+  --btn-bg: var(--white);
+  --btn-fg: var(--olive-900);
+  --btn-border: var(--line-strong);
+}
+
+[data-design='roastery'] .hero-link {
+  color: var(--olive-800);
+}
+
+[data-design='roastery'] .hero-media,
+[data-design='roastery'] .page-hero-media {
+  position: relative;
+  inset: auto;
+  z-index: 0;
+  order: 2;
+  width: min(1120px, 100% - 2 * var(--gutter));
+  aspect-ratio: 16 / 7;
+  overflow: hidden;
+  border: 10px solid var(--white);
+  border-radius: var(--radius-l);
+  box-shadow: var(--shadow-l);
+  transform: rotate(-1.4deg);
+}
+
+[data-design='roastery'] .page-hero-media {
+  aspect-ratio: 16 / 6;
+}
+
+[data-design='roastery'] .hero-media::after,
+[data-design='roastery'] .page-hero-media::after {
+  display: none;
+}
+
+[data-design='roastery'] .hero-foot,
+[data-design='roastery'] .hero-scroll {
+  display: none;
+}
+
+@media (max-width: 40rem) {
+  [data-design='roastery'] .hero-media,
+  [data-design='roastery'] .page-hero-media {
+    aspect-ratio: 4 / 3;
+    border-width: 6px;
+  }
+}
+
+/* ─── type: centred heads, dotted labels ─── */
+[data-design='roastery'] .eyebrow::before {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--gold-500);
+  opacity: 1;
+}
+
+[data-design='roastery'] .section-head {
+  justify-items: center;
+  text-align: center;
+}
+
+[data-design='roastery'] .section-head .section-title,
+[data-design='roastery'] .section-head .lede {
+  margin-inline: auto;
+}
+
+@media (min-width: 56rem) {
+  [data-design='roastery'] .section-head:has(.section-head-action) {
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
+}
+
+/* ─── intro: a tilted print and round numbers ─── */
+[data-design='roastery'] .intro-media {
+  border: 10px solid var(--white);
+  box-shadow: var(--shadow-l);
+  transform: rotate(2deg);
+}
+
+[data-design='roastery'] .stats > div {
+  align-items: center;
+  text-align: center;
+  border-top: 0;
+}
+
+[data-design='roastery'] .stats dd {
+  font-weight: var(--display-strong);
+  color: var(--olive-900);
+}
+
+/* ─── signature dishes: round photos on soft cards ─── */
+[data-design='roastery'] .signature {
+  background:
+    radial-gradient(40% 30% at 0% 0%, var(--gold-100), transparent 70%),
+    radial-gradient(40% 30% at 100% 100%, var(--gold-100), transparent 70%), var(--cream);
+}
+
+[data-design='roastery'] .dish-feature {
+  position: relative;
+  gap: 1.5rem;
+  padding: 1.75rem 1.5rem 2.75rem;
+  border-radius: var(--radius-l);
+  background: var(--white);
+  box-shadow: var(--shadow);
+  text-align: center;
+}
+
+[data-design='roastery'] .dish-feature-text {
+  order: -1;
+}
+
+[data-design='roastery'] .dish-feature-text .dish-tags {
+  justify-content: center;
+}
+
+[data-design='roastery'] .dish-feature-media,
+[data-design='roastery'] .dish-feature-numeral {
+  justify-self: center;
+  width: min(78%, 280px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  box-shadow: 0 18px 40px -18px color-mix(in srgb, var(--olive-950) 55%, transparent);
+}
+
+[data-design='roastery'] .dish-feature-numeral {
+  place-items: center;
+  font-size: clamp(3.5rem, 22cqi, 6rem);
+}
+
+/* The "+" that says a dish opens. */
+[data-design='roastery'] .dish-feature::after {
+  content: '+';
+  position: absolute;
+  left: 50%;
+  bottom: -20px;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--gold-500);
+  color: var(--olive-950);
+  font: 400 1.6rem/1 var(--font-body);
+  box-shadow: 0 8px 18px -6px color-mix(in srgb, var(--gold-600) 70%, transparent);
+  transform: translateX(-50%);
+}
+
+[data-design='roastery'] .dish-feature-price {
+  color: var(--gold-700) !important;
+  font-size: 1.15rem;
+}
+
+/* ─── menu index: a row of pills ─── */
+[data-design='roastery'] .menu-preview-grid {
+  grid-template-columns: 1fr;
+  justify-items: center;
+}
+
+[data-design='roastery'] .menu-preview-grid .section-head {
+  position: static;
+}
+
+[data-design='roastery'] .menu-index {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.6rem;
+  max-width: 60rem;
+  border-top: 0;
+}
+
+[data-design='roastery'] .menu-index-link {
+  grid-template-columns: auto auto;
+  gap: 0.5rem;
+  padding: 0.55rem 1.2rem;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-pill);
+  background: var(--white);
+  transition:
+    background var(--dur-1) var(--ease),
+    border-color var(--dur-1) var(--ease);
+}
+
+[data-design='roastery'] .menu-index-link:hover {
+  background: var(--gold-500);
+  border-color: var(--gold-500);
+}
+
+[data-design='roastery'] .menu-index-num,
+[data-design='roastery'] .menu-index-peek {
+  display: none;
+}
+
+[data-design='roastery'] .menu-index-name {
+  font-size: 1.15rem;
+}
+
+[data-design='roastery'] .menu-index-link:hover .menu-index-name {
+  transform: none;
+  color: var(--olive-950);
+  font-style: normal;
+}
+
+/* ─── the experience band, torn top and bottom ─── */
+[data-design='roastery'] .experience-head {
+  padding-top: calc(clamp(72px, 10vw, 160px) + 20px);
+  -webkit-mask:
+    var(--torn) top / 100% 28px no-repeat,
+    linear-gradient(#000, #000) 0 27px / 100% 100% no-repeat;
+  mask:
+    var(--torn) top / 100% 28px no-repeat,
+    linear-gradient(#000, #000) 0 27px / 100% 100% no-repeat;
+}
+
+[data-design='roastery'] .experience-head .section-head {
+  justify-items: center;
+}
+
+[data-design='roastery'] .hstory {
+  padding-bottom: calc(clamp(72px, 10vw, 140px) + 20px);
+}
+
+[data-design='roastery'] .hstory.is-pinned {
+  padding-bottom: 0;
+}
+
+/* Torn along the bottom: the edge drawn the other way up. */
+[data-design='roastery'] .hstory {
+  -webkit-mask-image: var(--torn-b), linear-gradient(#000, #000);
+  mask-image: var(--torn-b), linear-gradient(#000, #000);
+  -webkit-mask-position:
+    0 calc(100% + 1px),
+    0 0;
+  mask-position:
+    0 calc(100% + 1px),
+    0 0;
+  -webkit-mask-size:
+    100% 28px,
+    100% calc(100% - 27px);
+  mask-size:
+    100% 28px,
+    100% calc(100% - 27px);
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+}
+
+[data-design='roastery'] .hstory-media {
+  border: 8px solid color-mix(in srgb, var(--ivory) 92%, transparent);
+}
+
+/* ─── rooms: cards ─── */
+[data-design='roastery'] .room {
+  padding: 12px 12px 1.5rem;
+  border-radius: var(--radius-l);
+  background: var(--white);
+  box-shadow: var(--shadow);
+}
+
+[data-design='roastery'] .room-body {
+  padding-inline: 0.75rem;
+}
+
+[data-design='roastery'] .room-media {
+  border-radius: calc(var(--radius-l) - 8px);
+}
+
+/* ─── gallery: a scrapbook of prints ─── */
+[data-design='roastery'] .gallery-strip {
+  background: var(--ivory);
+}
+
+[data-design='roastery'] .strip {
+  padding-block: 24px 40px;
+  align-items: center;
+}
+
+[data-design='roastery'] .strip-item {
+  border: 8px solid var(--white);
+  border-bottom-width: 36px;
+  border-radius: 4px;
+  box-shadow: var(--shadow);
+  transform: rotate(-2.5deg);
+}
+
+[data-design='roastery'] .strip-item:nth-child(even) {
+  align-self: center;
+  transform: rotate(2deg) translateY(18px);
+}
+
+[data-design='roastery'] .strip-item:nth-child(3n) {
+  transform: rotate(-1deg) translateY(-12px);
+}
+
+[data-design='roastery'] .strip-caption {
+  left: 0;
+  right: 0;
+  bottom: -30px;
+  color: var(--olive-800);
+  font-size: 1rem;
+  text-align: center;
+  text-shadow: none;
+}
+
+/* ─── testimonials: a soft panel ─── */
+[data-design='roastery'] .testimonials-inner {
+  padding: clamp(40px, 6vw, 80px) clamp(20px, 5vw, 72px);
+  border-radius: var(--radius-l);
+  background: var(--gold-100);
+}
+
+/* ─── the closing call, torn at both edges ─── */
+[data-design='roastery'] .reserve-cta,
+[data-design='roastery'] .closing {
+  text-align: center;
+  -webkit-mask-image: var(--torn), var(--torn-b), linear-gradient(#000, #000);
+  mask-image: var(--torn), var(--torn-b), linear-gradient(#000, #000);
+  -webkit-mask-position:
+    0 0,
+    0 calc(100% + 1px),
+    0 27px;
+  mask-position:
+    0 0,
+    0 calc(100% + 1px),
+    0 27px;
+  -webkit-mask-size:
+    100% 28px,
+    100% 28px,
+    100% calc(100% - 54px);
+  mask-size:
+    100% 28px,
+    100% 28px,
+    100% calc(100% - 54px);
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+}
+
+[data-design='roastery'] .reserve-cta-content,
+[data-design='roastery'] .closing-content {
+  display: grid;
+  justify-items: center;
+}
+
+[data-design='roastery'] .reserve-cta-content .display-2,
+[data-design='roastery'] .closing-title {
+  margin-inline: auto;
+}
+
+[data-design='roastery'] .reserve-cta-actions,
+[data-design='roastery'] .closing-actions {
+  justify-content: center;
+}
+
+/* The footer is torn instead of domed; the photo needs no extra room. */
+[data-design='roastery'] main > .reserve-cta:last-child {
+  padding-bottom: 0;
+}
+
+[data-design='roastery'] main:has(> :is(.reserve-cta, .closing):last-child) ~ .site-footer {
+  margin-top: clamp(32px, 5vw, 72px);
+}
+
+/* ─── footer: dark roast ─── */
+[data-design='roastery'] .site-footer {
+  --footer-bg: var(--keep-olive-900);
+  --footer-ink: var(--keep-ivory);
+}
+
+[data-design='roastery'] .footer-heading {
+  color: var(--gold-400);
+}
+
+[data-design='roastery'] .footer-wordmark {
+  fill: var(--gold-500);
+  opacity: 0.9;
+}

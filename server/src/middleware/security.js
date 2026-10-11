@@ -11,7 +11,9 @@ const directives = {
   defaultSrc: ["'self'"],
   baseUri: ["'self'"],
   objectSrc: ["'none'"],
-  frameAncestors: ["'none'"],
+  // 'self' so the admin's Design & colours page can preview the live site in
+  // a frame. No other origin can frame it.
+  frameAncestors: ["'self'"],
   formAction: ["'self'"],
   scriptSrc: ["'self'"],
   // React writes inline style attributes, which style-src-attr covers; the
@@ -21,7 +23,7 @@ const directives = {
   // blob: lets the admin preview a photo before it finishes uploading.
   imgSrc: ["'self'", 'data:', 'blob:'],
   mediaSrc: ["'self'", 'blob:'],
-  frameSrc: ['https://maps.google.com', 'https://www.google.com'],
+  frameSrc: ["'self'", 'https://maps.google.com', 'https://www.google.com'],
   connectSrc: ["'self'"],
   manifestSrc: ["'self'"],
 };
@@ -47,9 +49,8 @@ export const security = helmet({
   crossOriginEmbedderPolicy: false,
   crossOriginResourcePolicy: { policy: 'same-site' },
   referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
-  // helmet defaults to SAMEORIGIN; the static configs send DENY, and so does
-  // frame-ancestors above. Match the stricter one rather than disagree.
-  frameguard: { action: 'deny' },
+  // Matches frame-ancestors above and the static hosting configs.
+  frameguard: { action: 'sameorigin' },
   hsts: config.isProduction ? { maxAge: 63072000, includeSubDomains: true, preload: true } : false,
 });
 

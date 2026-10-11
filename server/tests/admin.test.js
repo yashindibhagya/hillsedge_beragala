@@ -373,6 +373,21 @@ describe('settings', () => {
       .expect(422);
     await admin.patch('/api/admin/settings/nope').send({}).expect(404);
   });
+
+  it('saves the design and palette, and publishes them to the site', async () => {
+    await admin
+      .patch('/api/admin/settings/theme')
+      .send({ design: 'bento', fonts: 'grotesk', palette: 'ocean' })
+      .expect(200);
+    const { body } = await request(app).get('/api/public/site').expect(200);
+    expect(body.settings.theme).toEqual({ design: 'bento', fonts: 'grotesk', palette: 'ocean' });
+
+    const res = await admin
+      .patch('/api/admin/settings/theme')
+      .send({ design: 'brutalist', palette: 'ocean' })
+      .expect(422);
+    expect(res.body.errors.design).toBeDefined();
+  });
 });
 
 describe('the store', () => {

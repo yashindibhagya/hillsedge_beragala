@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { isThemePreview } from '../lib/theme';
 
 /** Never hold the splash longer than this, however the app is doing. */
 const MIN_VISIBLE_MS = 650;
@@ -19,7 +20,8 @@ export function Splash() {
 
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     // performance.now() counts from navigation start — when the splash first painted.
-    const wait = reduce ? 0 : Math.max(0, MIN_VISIBLE_MS - performance.now());
+    // The admin's preview frame skips it: the point there is the page.
+    const wait = reduce || isThemePreview ? 0 : Math.max(0, MIN_VISIBLE_MS - performance.now());
 
     const timer = setTimeout(() => {
       node.classList.add('is-leaving');

@@ -1,0 +1,271 @@
+/*
+ * Heha — a luxury retreat.
+ *
+ * The hero is a framed photograph inset from the edges, its title in
+ * towering capitals and its links gathered in a frosted glass bar. Every
+ * section is numbered — (01), (02) — and headed in tall condensed capitals.
+ * Photographs rest in black and white until touched. Sand paper, a charcoal
+ * footer with the name across it.
+ */
+[data-design='heha'] {
+  --display-case: uppercase;
+  --bg-soft: var(--ivory);
+  --radius-s: 8px;
+  --radius: 14px;
+  --radius-l: 20px;
+  --btn-radius: 12px;
+  --btn-size: 0.74rem;
+  --btn-tracking: 0.16em;
+  --frame: clamp(8px, 1.2vw, 16px);
+}
+
+[data-design='heha'] body {
+  background: var(--ivory);
+}
+
+[data-design='heha'] main {
+  counter-reset: chapter;
+}
+
+/* ─── hero: framed, giant capitals, glass bar ─── */
+[data-design='heha'] .hero,
+[data-design='heha'] .page-hero {
+  margin: calc(-1 * var(--header-h) + var(--frame)) var(--frame) 0;
+  border-radius: var(--radius-l);
+}
+
+[data-design='heha'] .hero {
+  min-height: calc(100svh - 2 * var(--frame));
+  align-content: space-between;
+  padding-bottom: clamp(20px, 3vh, 36px);
+}
+
+[data-design='heha'] .hero-content {
+  display: grid;
+  grid-template-columns: 1fr;
+  padding-top: calc(var(--header-h) + 24px);
+}
+
+[data-design='heha'] .hero-title {
+  max-width: none;
+  line-height: 0.86;
+  letter-spacing: -0.01em;
+  --hero-fit: 1.15;
+}
+
+[data-design='heha'] .page-hero-title {
+  line-height: 0.88;
+}
+
+[data-design='heha'] .hero-sub {
+  max-width: 36ch;
+  margin-top: 1.25rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  line-height: 1.7;
+  text-transform: uppercase;
+}
+
+/* The links, in a frosted bar floating on the photograph. */
+[data-design='heha'] .hero-actions {
+  justify-self: start;
+  width: fit-content;
+  max-width: 100%;
+  margin-top: clamp(28px, 5vh, 56px);
+  padding: 8px;
+  border: 1px solid color-mix(in srgb, white 18%, transparent);
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--olive-950) 38%, transparent);
+  -webkit-backdrop-filter: blur(16px) saturate(1.3);
+  backdrop-filter: blur(16px) saturate(1.3);
+  gap: 6px;
+}
+
+[data-design='heha'] .hero-actions .btn {
+  min-height: 42px;
+}
+
+[data-design='heha'] .hero-actions .btn-light {
+  --btn-border: transparent;
+}
+
+[data-design='heha'] .hero-link {
+  padding-inline: 1rem;
+}
+
+[data-design='heha'] .hero-foot {
+  border-top: 0;
+}
+
+[data-design='heha'] .hero-media::after,
+[data-design='heha'] .page-hero-media::after {
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--olive-950) 55%, transparent),
+    color-mix(in srgb, var(--olive-950) 5%, transparent) 45%,
+    color-mix(in srgb, var(--olive-950) 60%, transparent)
+  );
+}
+
+@media (max-width: 40rem) {
+  [data-design='heha'] .hero-actions {
+    width: 100%;
+  }
+}
+
+/* ─── numbered chapters ─── */
+[data-design='heha'] .section-head .eyebrow {
+  counter-increment: chapter;
+  color: var(--olive-800);
+}
+
+[data-design='heha'] .section-head .eyebrow::before {
+  content: '(' counter(chapter, decimal-leading-zero) ')';
+  width: auto;
+  height: auto;
+  background: none;
+  opacity: 1;
+  color: var(--gold-700);
+}
+
+[data-design='heha'] .experience-head .section-head .eyebrow {
+  color: var(--keep-ivory);
+}
+
+[data-design='heha'] .section-title,
+[data-design='heha'] .display-2 {
+  font-size: var(--step-5);
+  line-height: 0.9;
+  max-width: 16ch;
+}
+
+[data-design='heha'] .section-head .lede {
+  font-size: 0.95rem;
+}
+
+/* ─── intro: black and white until touched ─── */
+[data-design='heha'] :is(.intro-media, .strip-item, .room-media, .hstory-media) :is(img, video) {
+  filter: grayscale(1) contrast(1.05);
+  transition: filter var(--dur-3) var(--ease);
+}
+
+[data-design='heha']
+  :is(.intro-media, .strip-item, .room-media, .hstory-media):hover
+  :is(img, video) {
+  filter: none;
+}
+
+[data-design='heha'] .stats > div {
+  border-top-color: var(--olive-900);
+}
+
+[data-design='heha'] .stats dd {
+  font-size: var(--step-5);
+  color: var(--olive-900);
+}
+
+/* ─── signature: numbered plates ─── */
+[data-design='heha'] .signature-grid {
+  counter-reset: plate;
+}
+
+[data-design='heha'] .dish-feature-text::before {
+  counter-increment: plate;
+  content: '(' counter(plate, decimal-leading-zero) ')';
+  display: block;
+  margin-bottom: 0.25rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  color: var(--gold-700);
+}
+
+[data-design='heha'] .dish-feature-media,
+[data-design='heha'] .dish-feature-numeral {
+  aspect-ratio: 3 / 4;
+}
+
+[data-design='heha'] .dish-feature-name {
+  font-size: var(--step-3);
+  line-height: 0.95;
+}
+
+/* ─── menu index: tall capitals with numbers in brackets ─── */
+[data-design='heha'] .menu-index-link {
+  grid-template-columns: 4rem 1fr auto;
+}
+
+[data-design='heha'] .menu-index-num::before {
+  content: '(';
+}
+
+[data-design='heha'] .menu-index-num::after {
+  content: ')';
+}
+
+[data-design='heha'] .menu-index-name {
+  font-size: var(--step-3);
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+/* ─── rooms ─── */
+[data-design='heha'] .room-name {
+  font-size: var(--step-4);
+  line-height: 0.92;
+}
+
+/* ─── testimonials: capitals, left ─── */
+[data-design='heha'] .testimonials-inner {
+  justify-items: start;
+  text-align: left;
+}
+
+[data-design='heha'] .quote blockquote {
+  font-style: normal;
+  text-transform: uppercase;
+  line-height: 1.05;
+}
+
+/* ─── closing: framed like the hero ─── */
+[data-design='heha'] .reserve-cta,
+[data-design='heha'] .closing {
+  margin-inline: var(--frame);
+  border-radius: var(--radius-l);
+}
+
+[data-design='heha'] .reserve-cta-content .display-2,
+[data-design='heha'] .closing-title {
+  font-size: var(--step-5);
+  line-height: 0.9;
+  text-transform: uppercase;
+}
+
+[data-design='heha'] main:has(> :is(.reserve-cta, .closing):last-child) ~ .site-footer {
+  margin-top: var(--frame);
+}
+
+/* ─── footer: charcoal, framed, the name across it ─── */
+[data-design='heha'] .site-footer {
+  --footer-bg: var(--keep-olive-900);
+  --footer-ink: var(--keep-ivory);
+  margin-inline: var(--frame);
+  margin-bottom: var(--frame);
+}
+
+[data-design='heha'] .footer-body {
+  border-radius: var(--radius-l);
+}
+
+[data-design='heha'] .footer-heading {
+  font-family: var(--font-display);
+  font-size: clamp(1.6rem, 3vw, 2.6rem);
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 0.9;
+}
+
+[data-design='heha'] .footer-wordmark {
+  fill: var(--keep-ivory);
+}
