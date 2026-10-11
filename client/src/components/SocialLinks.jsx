@@ -13,7 +13,7 @@ const PROFILES = [
  * Social profiles from the admin's settings, plus WhatsApp from the phone
  * details. A profile with no URL is left out rather than linking nowhere.
  */
-export function SocialLinks({ className = '' }) {
+export function useSocialProfiles() {
   const { settings } = useSite();
   const links = PROFILES.filter(([key]) => settings.social?.[key]).map(([key, label]) => ({
     key,
@@ -27,6 +27,11 @@ export function SocialLinks({ className = '' }) {
       href: `https://wa.me/${settings.restaurant.whatsapp}`,
     });
   }
+  return links;
+}
+
+export function SocialLinks({ className = '' }) {
+  const links = useSocialProfiles();
   if (links.length === 0) return null;
 
   return (

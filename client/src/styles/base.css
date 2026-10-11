@@ -2,6 +2,7 @@
 :root {
   --header-h: 76px;
   --menu-nav-h: 64px;
+  --footer-arc-h: clamp(40px, 9vw, 150px);
   color-scheme: light;
 }
 
@@ -20,6 +21,41 @@ html {
 @media (prefers-reduced-motion: no-preference) {
   html {
     scroll-behavior: smooth;
+  }
+}
+
+/* The page scrollbar, dark to match the footer: a muted olive pill on a
+ * deep olive track, gold under the pointer. Chrome ignores the ::-webkit-scrollbar rules once scrollbar-color
+ * is set, so the standard properties are kept for browsers without them. */
+html::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+html::-webkit-scrollbar-track {
+  background: var(--olive-950);
+  border-left: 1px solid var(--olive-800);
+}
+
+html::-webkit-scrollbar-thumb {
+  min-height: 48px;
+  border: 3px solid var(--olive-950);
+  border-radius: 999px;
+  background: var(--olive-500);
+}
+
+html::-webkit-scrollbar-thumb:hover {
+  background: var(--gold-500);
+}
+
+html::-webkit-scrollbar-thumb:active {
+  background: var(--gold-600);
+}
+
+@supports not selector(::-webkit-scrollbar) {
+  html {
+    scrollbar-width: thin;
+    scrollbar-color: var(--olive-500) var(--olive-950);
   }
 }
 

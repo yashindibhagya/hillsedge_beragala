@@ -1,107 +1,137 @@
+import { useState } from 'react';
 import { navLinks } from '../data/routes';
 import { credit } from '../data/site';
 import { useSite } from '../context/SiteData';
-import { addressLines, groupHours, telHref } from '../lib/format';
-import { BrandMark } from './BrandMark';
-import { Button, TLink } from './Button';
-import { SocialLinks } from './SocialLinks';
+import { telHref } from '../lib/format';
+import { TLink } from './Button';
+import { Icon } from './Icon';
+import { useSocialProfiles } from './SocialLinks';
+
+/** The name set across the foot of the page, cropped at the bottom edge. */
+const WORDMARK = 'Hillsedge';
+
+const explore = navLinks.filter((link) => link.nav !== false);
+const half = Math.ceil(explore.length / 2);
+
+const guestLinks = [
+  { to: '/reservations', label: 'Reserve a table' },
+  { to: '/contact#faq', label: 'Booking & dietary FAQs' },
+  { to: '/reservations#policy', label: 'Reservation policy' },
+];
+
+/**
+ * With no mailing-list service behind the site, signing up hands the address
+ * to the guest's mail app, addressed to the restaurant, so nothing is lost.
+ */
+function LoopForm({ to, name }) {
+  const [email, setEmail] = useState('');
+
+  const submit = (event) => {
+    event.preventDefault();
+    const subject = encodeURIComponent(`Keep me in the loop — ${name}`);
+    const body = encodeURIComponent(
+      `Please add ${email} to the ${name} mailing list for news, menus and events.`,
+    );
+    window.location.href = `mailto:${to}?subject=${subject}&body=${body}`;
+  };
+
+}
 
 export function Footer() {
   const { settings } = useSite();
-  const { restaurant, hours } = settings;
-  const rows = groupHours(hours.days);
+  const { restaurant } = settings;
+  const social = useSocialProfiles();
   const year = new Date().getFullYear();
 
   return (
     <footer className="site-footer">
-      <div className="footer-grid wrap">
-        <div className="footer-brand">
-          <BrandMark variant="full" className="footer-mark" />
-          <p>{restaurant.tagline}</p>
-          <Button to="/reservations" variant="gold" size="sm" arrow>
-            Reserve a table
-          </Button>
-          <SocialLinks className="social-light" />
+      <svg className="footer-arc" viewBox="0 0 1440 120" preserveAspectRatio="none" aria-hidden="true">
+        <path d="M0 120V112C360 0 1080 0 1440 112V120Z" />
+      </svg>
+
+      <div className="footer-body">
+        <div className="footer-grid wrap">
+          <nav className="footer-info" aria-label="Footer">
+            <h2 className="footer-heading">Info</h2>
+            <div className="footer-cols">
+              <ul>
+                {explore.slice(0, half).map(({ to, label }) => (
+                  <li key={to}>
+                    <TLink to={to}>{label}</TLink>
+                  </li>
+                ))}
+              </ul>
+              <ul>
+                {explore.slice(half).map(({ to, label }) => (
+                  <li key={to}>
+                    <TLink to={to}>{label}</TLink>
+                  </li>
+                ))}
+              </ul>
+              <ul>
+                {guestLinks.map(({ to, label }) => (
+                  <li key={to}>
+                    <TLink to={to}>{label}</TLink>
+                  </li>
+                ))}
+              </ul>
+              <ul className="footer-contact">
+                {restaurant.phone && (
+                  <li>
+                    <a href={telHref(restaurant.phone)}>{restaurant.phone}</a>
+                  </li>
+                )}
+                {restaurant.email && (
+                  <li>
+                    <a href={`mailto:${restaurant.email}`}>{restaurant.email}</a>
+                  </li>
+                )}
+                {restaurant.mapsUrl && (
+                  <li>
+                    <a href={restaurant.mapsUrl} target="_blank" rel="noopener noreferrer">
+                      Get directions
+                    </a>
+                  </li>
+                )}
+              </ul>
+            </div>
+          </nav>
+
+          {social.length > 0 && (
+            <div className="footer-follow">
+              <h2 className="footer-heading">Follow Hillsedge</h2>
+              <ul>
+                {social.map(({ key, label, href }) => (
+                  <li key={key}>
+                    <a href={href} target="_blank" rel="noopener noreferrer">
+                      {label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {restaurant.email && <LoopForm to={restaurant.email} name={restaurant.name} />}
         </div>
 
-        <nav className="footer-col" aria-label="Footer">
-          <h2 className="footer-heading">Explore</h2>
-          <ul>
-            {navLinks.map(({ to, label }) => (
-              <li key={to}>
-                <TLink to={to}>{label}</TLink>
-              </li>
-            ))}
-          </ul>
-        </nav>
-
-        <div className="footer-col">
-          <h2 className="footer-heading">Visit</h2>
-          <address>
-            {addressLines(restaurant.address).map((line) => (
-              <span key={line}>{line}</span>
-            ))}
-            <span>{restaurant.region}</span>
-          </address>
-          {restaurant.mapsUrl && (
-            <a
-              href={restaurant.mapsUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-link"
-            >
-              Open in Google Maps
+        <div className="footer-bottom wrap">
+          <p>
+            © {year} {restaurant.name}. All rights reserved.
+          </p>
+          <p className="credit">
+            {credit.prefix}{' '}
+            <a href={credit.href} target="_blank" rel="noopener noreferrer">
+              {credit.name}
             </a>
-          )}
+          </p>
         </div>
 
-        <div className="footer-col">
-          <h2 className="footer-heading">Hours</h2>
-          {hours.summary && <p>{hours.summary}</p>}
-          {rows.length > 0 && (
-            <dl className="footer-hours">
-              {rows.map(({ label, value }) => (
-                <div key={label}>
-                  <dt>{label}</dt>
-                  <dd>{value}</dd>
-                </div>
-              ))}
-            </dl>
-          )}
-          <h2 className="footer-heading footer-heading-gap">Contact</h2>
-          <ul>
-            {restaurant.phone && (
-              <li>
-                <a href={telHref(restaurant.phone)}>{restaurant.phone}</a>
-              </li>
-            )}
-            {restaurant.email && (
-              <li>
-                <a href={`mailto:${restaurant.email}`}>{restaurant.email}</a>
-              </li>
-            )}
-          </ul>
-        </div>
-      </div>
-
-      <div className="footer-bottom wrap">
-        <p>
-          © {year} {restaurant.name}. All rights reserved.
-        </p>
-        <ul className="footer-policies">
-          <li>
-            <TLink to="/contact#faq">Booking & dietary FAQs</TLink>
-          </li>
-          <li>
-            <TLink to="/reservations#policy">Reservation policy</TLink>
-          </li>
-        </ul>
-        <p className="credit">
-          {credit.prefix}{' '}
-          <a href={credit.href} target="_blank" rel="noopener noreferrer">
-            {credit.name}
-          </a>
-        </p>
+        <svg className="footer-wordmark" viewBox="0 0 1000 150" aria-hidden="true">
+          <text x="0" y="168" textLength="1000" lengthAdjust="spacingAndGlyphs">
+            {WORDMARK.toUpperCase()}
+          </text>
+        </svg>
       </div>
     </footer>
   );

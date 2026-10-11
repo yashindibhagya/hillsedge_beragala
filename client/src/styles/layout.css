@@ -140,10 +140,6 @@
   margin-left: auto;
 }
 
-.nav-desktop + .header-actions {
-  margin-left: 0;
-}
-
 .menu-toggle {
   display: grid;
   place-items: center;
@@ -153,11 +149,18 @@
   border-radius: 50%;
   background: transparent;
   color: inherit;
+  /* The lines sit inside a 44px target; pull it out so they line up with
+     the page edge rather than floating short of it. */
+  margin-right: -10px;
 }
 
 @media (min-width: 72rem) {
   .nav-desktop {
     display: block;
+  }
+
+  .nav-desktop + .header-actions {
+    margin-left: 0;
   }
 
   .menu-toggle {
@@ -267,94 +270,188 @@
 
 /* ═══════════════════════════════ footer ═══════════════════════════════ */
 .site-footer {
-  background: var(--olive-950);
-  color: rgba(250, 248, 243, 0.72);
-  padding-top: clamp(64px, 8vw, 120px);
+  --footer-bg: var(--olive-100);
+  --footer-ink: var(--olive-800);
+  /* Positioned so the dome paints over a positioned section above it. */
+  position: relative;
+  margin-top: clamp(32px, 5vw, 72px);
+  color: var(--footer-ink);
+  font-size: 0.98rem;
+}
+
+/* When a page ends on a full-bleed photo, the dome rises over the photo
+   instead of leaving a white band between them. */
+main:has(> :is(.reserve-cta, .closing):last-child) ~ .site-footer {
+  margin-top: calc(-1 * var(--footer-arc-h));
+}
+
+main > .reserve-cta:last-child {
+  padding-bottom: var(--footer-arc-h);
+}
+
+main > .closing:last-child {
+  padding-bottom: calc(clamp(72px, 10vw, 160px) + var(--footer-arc-h));
+}
+
+/* The domed top edge. */
+.footer-arc {
+  width: 100%;
+  height: var(--footer-arc-h);
+  margin-bottom: -1px;
+  fill: var(--footer-bg);
+}
+
+.footer-body {
   padding-bottom: var(--safe-b);
-  font-size: 0.95rem;
+  background: var(--footer-bg);
+  overflow: hidden;
 }
 
 .footer-grid {
-  display: grid;
-  gap: 3rem 2rem;
-  padding-bottom: clamp(48px, 6vw, 88px);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 2.5rem clamp(3rem, 7vw, 7rem);
+  padding-top: clamp(8px, 1.5vw, 24px);
+  padding-bottom: clamp(40px, 5vw, 72px);
 }
 
-@media (min-width: 40rem) {
-  .footer-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
+.footer-info {
+  flex: 1 1 100%;
 }
 
 @media (min-width: 64rem) {
-  .footer-grid {
-    grid-template-columns: 1.5fr 1fr 1fr 1.2fr;
+  .footer-info {
+    flex: 0 1 auto;
   }
 }
 
-.footer-brand {
-  display: grid;
-  justify-items: start;
-  align-content: start;
-  gap: 1.25rem;
-  max-width: 26rem;
-}
-
-.footer-mark {
-  width: auto;
-  height: 110px;
-  color: var(--gold-400);
-}
-
 .footer-heading {
-  margin-bottom: 1.1rem;
+  margin-bottom: 0.9rem;
   font-family: var(--font-body);
-  font-size: 0.72rem;
+  font-size: clamp(1.15rem, 1.6vw, 1.45rem);
   font-weight: 600;
-  letter-spacing: 0.22em;
+  letter-spacing: 0.04em;
+  line-height: 1.2;
   text-transform: uppercase;
-  color: var(--gold-400);
+  white-space: nowrap;
+  color: var(--footer-ink);
 }
 
-.footer-heading-gap {
-  margin-top: 2rem;
-}
-
-.footer-col ul {
+.footer-cols {
   display: grid;
-  gap: 0.15rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.5rem 2rem;
 }
 
-.footer-col a,
+@media (min-width: 40rem) {
+  .footer-cols {
+    grid-template-columns: repeat(4, auto);
+    justify-content: start;
+    gap: 1.5rem clamp(2rem, 4vw, 3.5rem);
+  }
+}
+
+@media (max-width: 39.99rem) {
+  .footer-cols > ul:nth-child(n + 3) {
+    grid-column: 1 / -1;
+  }
+}
+
+.footer-cols ul,
+.footer-follow ul {
+  display: grid;
+  align-content: start;
+  gap: 0.1rem;
+}
+
+.footer-contact a {
+  overflow-wrap: anywhere;
+}
+
+.footer-info a,
+.footer-follow a,
 .footer-bottom a {
   display: inline-flex;
   align-items: center;
   min-height: 36px;
-  color: rgba(250, 248, 243, 0.85);
+  color: var(--footer-ink);
   text-decoration: none;
   transition: color var(--dur-1) var(--ease);
 }
 
-.footer-col a:hover,
+.footer-info a:hover,
+.footer-follow a:hover,
 .footer-bottom a:hover {
-  color: var(--gold-400);
+  color: var(--gold-800);
 }
 
-.footer-col address {
-  display: grid;
-  margin-bottom: 0.75rem;
+/* "Stay in the loop" */
+.footer-loop {
+  flex: 1 1 18rem;
+  max-width: 30rem;
+  margin-left: auto;
 }
 
-.site-footer .text-link {
-  color: var(--gold-400);
+.footer-loop-label {
+  display: block;
+  margin-bottom: 1rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--footer-ink);
 }
 
-.footer-hours div {
+.footer-loop-field {
   display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  padding: 0.35rem 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  align-items: center;
+  gap: 0.5rem;
+  max-width: 30rem;
+  padding: 0.5rem 0.5rem 0.5rem 1.6rem;
+  border: 1px solid var(--olive-200);
+  border-radius: 999px;
+  background: var(--white);
+}
+
+.footer-loop-field input {
+  flex: 1;
+  min-width: 0;
+  min-height: 44px;
+  border: 0;
+  background: transparent;
+  color: var(--olive-900);
+  font-weight: 600;
+  outline: none;
+}
+
+.footer-loop-field input::placeholder {
+  color: var(--gold-700);
+  opacity: 1;
+}
+
+.footer-loop-field:focus-within {
+  box-shadow: 0 0 0 3px var(--gold-500);
+}
+
+.footer-loop-field button {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--gold-100);
+  color: var(--gold-700);
+  transition:
+    background var(--dur-1) var(--ease),
+    color var(--dur-1) var(--ease);
+}
+
+.footer-loop-field button:hover {
+  background: var(--gold-500);
+  color: var(--white);
 }
 
 .footer-bottom {
@@ -362,20 +459,27 @@
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 0.5rem 2rem;
-  padding-block: 1.5rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  font-size: 0.82rem;
+  gap: 0.25rem 2rem;
+  padding-block: 1rem;
+  border-top: 1px solid var(--olive-200);
+  font-size: 0.8rem;
+  color: var(--olive-700);
 }
 
 .footer-bottom p {
   margin: 0;
 }
 
-.footer-policies {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0 1.5rem;
+/* The name, edge to edge and cut off by the bottom of the page. */
+.footer-wordmark {
+  width: 100%;
+  height: auto;
+  margin-top: clamp(4px, 1vw, 16px);
+  fill: var(--footer-ink);
+  font-family: var(--font-display);
+  font-size: 212px;
+  font-weight: 600;
+  user-select: none;
 }
 
 /* ═══════════════════════════════ sticky reserve (phones) ═══════════════════════════════ */
@@ -384,43 +488,153 @@
 }
 
 @media (max-width: 47.99rem) {
+  /* A dock floating clear of the screen edges: call on the left, booking
+     filling the rest. */
   .sticky-reserve {
+    --dock-h: 64px;
     position: fixed;
-    inset: auto 0 0;
+    left: max(12px, var(--safe-l));
+    right: max(12px, var(--safe-r));
+    bottom: calc(12px + var(--safe-b));
     z-index: 40;
     display: flex;
-    gap: 10px;
-    padding: 10px max(16px, var(--safe-r)) calc(10px + var(--safe-b)) max(16px, var(--safe-l));
-    background: rgba(255, 255, 255, 0.92);
-    -webkit-backdrop-filter: blur(16px);
-    backdrop-filter: blur(16px);
-    box-shadow: 0 -1px 0 var(--line);
-    transform: translateY(110%);
-    transition: transform var(--dur-3) var(--ease);
+    align-items: center;
+    gap: 6px;
+    height: var(--dock-h);
+    padding: 6px;
+    border: 1px solid rgba(212, 185, 127, 0.28);
+    border-radius: 999px;
+    background: rgba(21, 26, 14, 0.9);
+    -webkit-backdrop-filter: blur(18px) saturate(140%);
+    backdrop-filter: blur(18px) saturate(140%);
+    box-shadow:
+      0 18px 40px -12px rgba(21, 26, 14, 0.55),
+      inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(calc(100% + 24px)) scale(0.96);
+    transition:
+      transform var(--dur-3) var(--ease),
+      opacity var(--dur-2) var(--ease);
   }
 
   .sticky-reserve.is-visible {
+    opacity: 1;
+    pointer-events: auto;
     transform: none;
   }
 
-  .sticky-reserve-btn {
-    flex: 1;
-  }
-
   .sticky-reserve-call {
+    position: relative;
     display: grid;
     place-items: center;
-    width: 48px;
-    height: 48px;
+    width: 52px;
+    height: 52px;
     flex-shrink: 0;
-    border: 1px solid var(--line-strong);
     border-radius: 50%;
-    color: var(--olive-800);
+    color: var(--gold-400);
+    background: rgba(250, 248, 243, 0.08);
+    transition: background var(--dur-1) var(--ease);
   }
 
-  /* Room for the bar, so it never sits over the footer's last line. */
-  .site-footer {
-    padding-bottom: calc(80px + var(--safe-b));
+  .sticky-reserve-call:active {
+    background: rgba(250, 248, 243, 0.16);
+  }
+
+  /* A soft ring that breathes outward, so the call button reads as live. */
+  .sticky-reserve-call::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border: 1.5px solid var(--gold-400);
+    border-radius: 50%;
+    opacity: 0;
+  }
+
+  .is-visible .sticky-reserve-call::after {
+    animation: dock-ring 2.8s var(--ease) 0.6s infinite;
+  }
+
+  .sticky-reserve-call-icon {
+    display: grid;
+  }
+
+  .sticky-reserve-btn {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    min-width: 0;
+    height: 52px;
+    padding: 0 6px 0 1.4rem;
+    border-radius: 999px;
+    background: linear-gradient(135deg, var(--gold-400), var(--gold-500));
+    color: var(--olive-950);
+    text-decoration: none;
+    transition: transform var(--dur-1) var(--ease);
+  }
+
+  .sticky-reserve-btn:active {
+    transform: scale(0.98);
+  }
+
+  .sticky-reserve-text {
+    display: grid;
+    min-width: 0;
+    line-height: 1.15;
+  }
+
+  .sticky-reserve-eyebrow {
+    font-size: 0.62rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--olive-800);
+    opacity: 0.75;
+  }
+
+  .sticky-reserve-label {
+    overflow: hidden;
+    font-family: var(--font-display);
+    font-size: 1.2rem;
+    font-weight: 600;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .sticky-reserve-arrow {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: var(--olive-950);
+    color: var(--gold-400);
+    transition: transform var(--dur-2) var(--ease);
+  }
+
+  .sticky-reserve-btn:hover .sticky-reserve-arrow {
+    transform: translateX(2px);
+  }
+}
+
+@keyframes dock-ring {
+  0% {
+    opacity: 0.7;
+    transform: scale(1);
+  }
+  70%,
+  100% {
+    opacity: 0;
+    transform: scale(1.45);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .is-visible .sticky-reserve-call::after {
+    animation: none;
   }
 }
 
