@@ -103,7 +103,10 @@ export function createApp() {
         })
       );
 
-      app.use(express.static(clientDir, { index: false, maxAge: '1h' }));
+      // redirect: false — each page is prerendered to <route>/index.html, and
+      // without this a request for /menu would be bounced to /menu/ because a
+      // directory of that name exists. The handler below serves it instead.
+      app.use(express.static(clientDir, { index: false, redirect: false, maxAge: '1h' }));
 
       // Client-side routing: anything not matched above is a route in the
       // app, so the shell answers with 200 rather than a 404.
@@ -115,8 +118,18 @@ export function createApp() {
         }
         res.set('Cache-Control', 'public, max-age=0, must-revalidate');
         // The app renders its own not-found page; the status tells crawlers.
-        if (!isKnownRoute(req.path)) res.status(404);
-        return res.sendFile(path.join(clientDir, 'index.html'));
+        if (!isKnownRoute(req.path)) {
+          const notFound = path.join(clientDir, '404.html');
+          res.status(404);
+          return res.sendFile(existsSync(notFound) ? notFound : path.join(clientDir, 'index.html'));
+        }
+        // A known page answers with its own prerendered file, so its title,
+        // share tags and content are in the HTML before any script runs. A
+        // build without one (or the client source missing, where every path
+        // counts as known) falls back to the shell.
+        const page = path.join(clientDir, req.path.replace(/\/+$/, ''), 'index.html');
+        const prerendered = page.startsWith(clientDir + path.sep) && existsSync(page);
+        return res.sendFile(prerendered ? page : path.join(clientDir, 'index.html'));
       });
     } else {
       console.warn(

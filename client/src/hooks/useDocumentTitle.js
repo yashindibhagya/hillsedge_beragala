@@ -1,8 +1,7 @@
 import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import { shareImage, site } from '../data/site';
-
-const DEFAULT_TITLE = `${site.name} — Mountain Smokehouse & Restaurant, Haputale`;
+import { shareImage } from '../data/site';
+import { fullTitle as composeTitle, pageSeo } from '../data/seo';
 
 /** Creates the tag if it is missing, then sets it. */
 function setMeta(selector, attributes) {
@@ -20,18 +19,16 @@ function setMeta(selector, attributes) {
  * Graph tags in step with the route. Absolute URLs come from the live origin,
  * so they are correct on whatever domain the site is served from.
  *
- * `brandSuffix: false` hands the whole title to the page. Search engines cut
- * a title around sixty characters, and " — Hillsedge Beragala" eats a third of
- * that, which leaves no room to say where we are or what we cook. Pages that
- * have a title worth spending the space on opt out and carry the brand name
- * themselves.
+ * The build prerenders the same tags into each route's HTML, so this finds
+ * them already in place on a cold load and only has work to do on navigation.
+ *
+ * `brandSuffix: false` hands the whole title to the page — see data/seo.js.
  */
 export function useDocumentTitle(title, description, { noindex = false, brandSuffix = true } = {}) {
   const { pathname } = useLocation();
 
   useEffect(() => {
-    let fullTitle = DEFAULT_TITLE;
-    if (title) fullTitle = brandSuffix ? `${title} — ${site.name}` : title;
+    const fullTitle = composeTitle(title, brandSuffix);
     const url = `${window.location.origin}${pathname}`;
 
     document.title = fullTitle;
@@ -62,6 +59,12 @@ export function useDocumentTitle(title, description, { noindex = false, brandSuf
       });
     }
   }, [title, description, noindex, brandSuffix, pathname]);
+}
+
+/** The title and description data/seo.js holds for one of the site's pages. */
+export function usePageSeo(path) {
+  const { title, description, brandSuffix } = pageSeo[path];
+  useDocumentTitle(title, description, { brandSuffix });
 }
 
 export default useDocumentTitle;

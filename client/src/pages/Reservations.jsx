@@ -2,17 +2,14 @@ import { useSearchParams } from 'react-router-dom';
 import { useSite } from '../context/SiteData';
 import { photos } from '../data/site';
 import { reservePoints } from '../data/content';
-import { useDocumentTitle } from '../hooks/useDocumentTitle';
+import { usePageSeo } from '../hooks/useDocumentTitle';
 import { groupHours, telHref } from '../lib/format';
 import { Icon } from '../components/Icon';
 import { Picture } from '../components/Picture';
 import { ReservationForm } from '../components/ReservationForm';
 
 export default function Reservations() {
-  useDocumentTitle(
-    'Reserve a Table',
-    'Book a table at Hillsedge Beragala — the sunset sitting, lunch on the drive between Ella and Haputale, or a group or coach stop.'
-  );
+  usePageSeo('/reservations');
   const { settings } = useSite();
   const [params] = useSearchParams();
   const { restaurant, reservations, hours } = settings;

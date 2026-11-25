@@ -6,7 +6,7 @@ import {
   sundownerPoints,
   reservePoints,
 } from '../data/content';
-import { useDocumentTitle } from '../hooks/useDocumentTitle';
+import { usePageSeo } from '../hooks/useDocumentTitle';
 import { Button } from '../components/Button';
 import { PageHero } from '../components/PageHero';
 import { Picture } from '../components/Picture';
@@ -55,11 +55,7 @@ function Feature({ id, photo, eyebrow, title, children, reverse = false }) {
  * people use to find a barbecue in the hill country land here.
  */
 export default function Experiences() {
-  useDocumentTitle(
-    "Smokehouse & Experiences — Slow-Smoked BBQ in Sri Lanka's Hill Country",
-    "Sri Lanka's mountain smokehouse: hardwood, hours and charcoal in hand-built offset smokers, 1,000 m above the sea at Beragala — plus the sunset sitting and group dining.",
-    { brandSuffix: false }
-  );
+  usePageSeo('/experiences');
 
   return (
     <>

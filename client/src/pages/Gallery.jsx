@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { useSite } from '../context/SiteData';
 import { photos } from '../data/site';
 import { galleryOrder } from '../data/content';
-import { useDocumentTitle } from '../hooks/useDocumentTitle';
+import { usePageSeo } from '../hooks/useDocumentTitle';
 import { Icon } from '../components/Icon';
 import { Lightbox } from '../components/Lightbox';
 import { Media } from '../components/Media';
@@ -39,11 +39,7 @@ function photoAsMedia(key) {
  * bundled with the site, so the page is never empty.
  */
 export default function Gallery() {
-  useDocumentTitle(
-    'Gallery — A Restaurant With A View, Haputale Road',
-    'The lodge, the smoker, the table and the light over the valley — photographs of Hillsedge Beragala on the Beragala–Haputale hill road.',
-    { brandSuffix: false }
-  );
+  usePageSeo('/gallery');
   const { gallery, media, status } = useSite();
   const [filter, setFilter] = useState('all');
   const [open, setOpen] = useState(null);

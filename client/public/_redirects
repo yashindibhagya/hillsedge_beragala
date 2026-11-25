@@ -1,2 +1,8 @@
-# Client-side routing: every path falls through to the app shell.
-/*  /index.html  200
+# Old URLs that now live elsewhere. Mirrors src/data/routes.js.
+/cuisine     /menu         301
+/smokehouse  /experiences  301
+/visit       /contact      301
+
+# Every page is prerendered to a file of its own, and those are served first.
+# Anything else gets 404.html: the app shell with its not-found page rendered.
+/*  /404.html  404

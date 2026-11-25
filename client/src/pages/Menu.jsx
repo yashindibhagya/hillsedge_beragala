@@ -1,7 +1,7 @@
 import { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useMenu, useSite } from '../context/SiteData';
-import { useDocumentTitle } from '../hooks/useDocumentTitle';
+import { usePageSeo } from '../hooks/useDocumentTitle';
 import { useReducedMotion } from '../hooks/useReducedMotion';
 import { Button } from '../components/Button';
 import { DishModal, DishRow } from '../components/Dish';
@@ -68,11 +68,7 @@ function useScrollSpy(ids) {
 }
 
 export default function Menu() {
-  useDocumentTitle(
-    'Menu — Sri Lankan, BBQ, Italian, Indian & Continental',
-    'Nine kitchens: Sri Lankan rice and curry, slow-smoked BBQ, Italian, Indian tandoori, Chinese and continental grills, plus vegetarian and vegan throughout.',
-    { brandSuffix: false }
-  );
+  usePageSeo('/menu');
   const { settings } = useSite();
   const menu = useMenu();
   const reduced = useReducedMotion();

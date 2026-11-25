@@ -10,7 +10,7 @@
     "predev": "npm run images",
     "dev": "vite",
     "prebuild": "npm run images && npm run seo",
-    "build": "vite build",
+    "build": "vite build && vite build --ssr src/entry-prerender.jsx --outDir dist-ssr && node scripts/prerender.mjs",
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest"

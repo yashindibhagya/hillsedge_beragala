@@ -90,6 +90,21 @@ server on upload instead.
 **`sitemap.xml`, `robots.txt` and `llms.txt` are generated** from
 `client/src/data/routes.js` and the page data. Edit those, not the files.
 
+**Every page is prerendered at build time.** `npm run build` ends by writing
+`dist/<route>/index.html` for each route, with that page's title, description,
+canonical URL, share tags, structured data and rendered content, plus
+`dist/404.html` (the app with its not-found page, marked noindex) as the
+fallback for everything else. Crawlers that run no JavaScript — WhatsApp and
+Facebook link previews, AI answer engines — read these. Titles and
+descriptions live in `client/src/data/seo.js`. A new route must be added to
+`routes.js`, `seo.js` and the page rewrite in `vercel.json`; a test fails if
+they disagree. The prerender uses the fallback facts in `client/src/data/`,
+not the admin's live settings — the browser replaces it with live data on load.
+
+**The origin baked into those files** is `SITE_ORIGIN` if set, else the Vercel
+project's production domain, else `PRODUCTION_ORIGIN` in `routes.js`
+(`client/scripts/origin.mjs`).
+
 ## Things that look odd and are not
 
 - **A Vercel / Netlify static deploy of `client/dist` alone will not work** —

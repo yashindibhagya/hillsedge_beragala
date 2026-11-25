@@ -1,7 +1,7 @@
 import { useSite } from '../context/SiteData';
 import { photos, site } from '../data/site';
 import { faqs, nearbyLandmarks, routes } from '../data/content';
-import { useDocumentTitle } from '../hooks/useDocumentTitle';
+import { usePageSeo } from '../hooks/useDocumentTitle';
 import { addressLines, groupHours, telHref } from '../lib/format';
 import { Button } from '../components/Button';
 import { Icon } from '../components/Icon';
@@ -11,11 +11,7 @@ import { SectionHead } from '../components/SectionHead';
 import { SocialLinks } from '../components/SocialLinks';
 
 export default function Contact() {
-  useDocumentTitle(
-    'Restaurant near Diyaluma Falls & Haputale — Hillsedge',
-    'Where to eat between Ella and Haputale — on the A4 at Beragala, about 21 km from Diyaluma Falls. Directions, hours, coach parking and table reservations.',
-    { brandSuffix: false }
-  );
+  usePageSeo('/contact');
   const { settings } = useSite();
   const { restaurant, hours } = settings;
   const rows = groupHours(hours.days);

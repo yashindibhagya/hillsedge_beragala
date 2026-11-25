@@ -4,12 +4,13 @@
  *
  *   npm run seo
  *
- * The production origin lives in src/data/routes.js — change it there.
+ * Which origin the URLs are written for is decided in scripts/origin.mjs.
  */
 import { writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { navLinks, PRODUCTION_ORIGIN } from '../src/data/routes.js';
+import { navLinks } from '../src/data/routes.js';
+import { SITE_ORIGIN as PRODUCTION_ORIGIN } from './origin.mjs';
 import { cuisines, faqs, nearbyLandmarks, routes } from '../src/data/content.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');

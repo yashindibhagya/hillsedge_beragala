@@ -1,8 +1,9 @@
 import { images } from './images';
 import { navLinks } from './routes';
+import { SITE_NAME } from './seo';
 
 export const site = {
-  name: 'Hillsedge Beragala',
+  name: SITE_NAME,
   tagline:
     'A mountain smokehouse and dining destination in Beragala, Sri Lanka — smoke, flavour and nature, in one place.',
   region: 'Beragala · Sri Lanka Hill Country',

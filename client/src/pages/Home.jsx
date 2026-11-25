@@ -2,7 +2,7 @@ import { useSite } from '../context/SiteData';
 import { useDeclareHero } from '../context/Hero';
 import { photos, site } from '../data/site';
 import { homeStats } from '../data/content';
-import { useDocumentTitle } from '../hooks/useDocumentTitle';
+import { usePageSeo } from '../hooks/useDocumentTitle';
 import { useParallax } from '../hooks/useParallax';
 import { telHref } from '../lib/format';
 import { Button, TLink } from '../components/Button';
@@ -104,10 +104,7 @@ function Hero() {
 }
 
 export default function Home() {
-  useDocumentTitle(
-    null,
-    'A mountain smokehouse and BBQ restaurant in Beragala, on the hill road between Ella and Haputale. Slow-smoked meats, nine kitchens and views over the valley.'
-  );
+  usePageSeo('/');
   const { settings, featured, categories, rooms, gallery, media } = useSite();
   const { home, restaurant } = settings;
   const galleryItems = gallery

@@ -1,6 +1,6 @@
 import { useSite } from '../context/SiteData';
 import { photos } from '../data/site';
-import { useDocumentTitle } from '../hooks/useDocumentTitle';
+import { usePageSeo } from '../hooks/useDocumentTitle';
 import { Button } from '../components/Button';
 import { PageHero } from '../components/PageHero';
 import { Reveal } from '../components/Reveal';
@@ -8,10 +8,7 @@ import { RoomCard } from '../components/RoomCard';
 import { EmptyState, ErrorState, Loading } from '../components/StateBlock';
 
 export default function Rooms() {
-  useDocumentTitle(
-    'Rooms & Private Dining',
-    'The dining hall, the sunset deck, group and private dining at Hillsedge Beragala — and what is coming next on the hillside.'
-  );
+  usePageSeo('/rooms');
   const { rooms, status, error, retry, settings } = useSite();
 
   return (

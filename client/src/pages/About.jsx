@@ -1,7 +1,7 @@
 import { useSite } from '../context/SiteData';
 import { photos } from '../data/site';
 import { greetings, hierarchyTiers, pillars, settingPoints } from '../data/content';
-import { useDocumentTitle } from '../hooks/useDocumentTitle';
+import { usePageSeo } from '../hooks/useDocumentTitle';
 import { Button, TLink } from '../components/Button';
 import { Icon } from '../components/Icon';
 import { Visual } from '../components/Media';
@@ -11,11 +11,7 @@ import { Reveal } from '../components/Reveal';
 import { SectionHead } from '../components/SectionHead';
 
 export default function About() {
-  useDocumentTitle(
-    'About — Mountain Dining Destination, Beragala',
-    "A dining destination on the Beragala–Haputale hill road in Sri Lanka's tea country. How the smokehouse, the setting and nine kitchens fit together.",
-    { brandSuffix: false }
-  );
+  usePageSeo('/about');
   const { settings } = useSite();
   const { about } = settings;
 

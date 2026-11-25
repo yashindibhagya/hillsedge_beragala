@@ -7,32 +7,34 @@ import { Icon } from './Icon';
 const ROTATE_MS = 7000;
 
 /**
- * Guest reviews, one at a time.
+ * Guest reviews, one at a time, turning on their own.
  *
  * Only reviews the admin has entered are shown, and the section is absent
- * when there are none — the site never invents praise. Rotation pauses on
- * hover, on focus, off screen, when the guest presses pause, and entirely
- * under reduced motion; the arrows reach every review without any of that.
+ * when there are none — the site never invents praise. There are no buttons:
+ * a row of hairlines under the quote fills while each review is read, and the
+ * next one follows when its line is full. Hovering, focusing or scrolling
+ * away holds the current review. The fill's animationend drives the turn, so
+ * a hold freezes line and timer together; under reduced motion the fill is
+ * not animated and a plain interval turns the reviews instead.
  */
 export function Testimonials() {
   const { testimonials } = useSite();
   const [index, setIndex] = useState(0);
-  const [paused, setPaused] = useState(false);
   const [held, setHeld] = useState(false);
   const reduced = useReducedMotion();
   const [ref, inView] = useInView();
   const count = testimonials.length;
-  const rotating = count > 1 && !paused && !held && !reduced && inView;
+  const running = count > 1 && !held && inView;
 
   useEffect(() => {
-    if (!rotating) return undefined;
+    if (!running || !reduced) return undefined;
     const timer = setInterval(() => setIndex((i) => (i + 1) % count), ROTATE_MS);
     return () => clearInterval(timer);
-  }, [rotating, count]);
+  }, [running, reduced, count]);
 
   if (count === 0) return null;
   const current = testimonials[Math.min(index, count - 1)];
-  const go = (delta) => setIndex((i) => (i + delta + count) % count);
+  const next = () => setIndex((i) => (i + 1) % count);
 
   return (
     <section
@@ -85,29 +87,19 @@ export function Testimonials() {
           </figcaption>
         </figure>
         {count > 1 && (
-          <div className="carousel-controls">
-            <button type="button" className="icon-btn" onClick={() => go(-1)}>
-              <Icon name="chevronLeft" />
-              <span className="sr-only">Previous review</span>
-            </button>
-            <span className="carousel-count" aria-live={rotating ? 'off' : 'polite'}>
-              {index + 1} / {count}
-            </span>
-            <button type="button" className="icon-btn" onClick={() => go(1)}>
-              <Icon name="chevronRight" />
-              <span className="sr-only">Next review</span>
-            </button>
-            {!reduced && (
-              <button
-                type="button"
-                className="icon-btn"
-                onClick={() => setPaused((p) => !p)}
-                aria-pressed={paused}
+          <div
+            className={`quote-progress${running ? '' : ' is-held'}`}
+            style={{ '--rotate-ms': `${ROTATE_MS}ms` }}
+            aria-hidden="true"
+          >
+            {testimonials.map((t, i) => (
+              <span
+                key={t.id}
+                className={i < index ? 'is-done' : i === index ? 'is-active' : undefined}
               >
-                <Icon name={paused ? 'play' : 'pause'} />
-                <span className="sr-only">{paused ? 'Resume' : 'Pause'} rotation</span>
-              </button>
-            )}
+                {i === index && !reduced && <i key={current.id} onAnimationEnd={next} />}
+              </span>
+            ))}
           </div>
         )}
       </div>

@@ -27,9 +27,11 @@ export const redirects = [
 ];
 
 /**
- * Where the site is served from in production. This is the one place to
- * change it — the sitemap and robots.txt are generated from it, and
- * everything in the app derives absolute URLs from the live origin instead.
+ * Where the site is served from in production — the default the build writes
+ * into the sitemap, robots.txt and each page's canonical and share tags.
+ * scripts/origin.mjs lets SITE_ORIGIN, or the Vercel project's production
+ * domain, override it at build time; in the browser the app derives absolute
+ * URLs from the live origin instead.
  */
 export const PRODUCTION_ORIGIN = 'https://hillsedgeberagala.com';
 

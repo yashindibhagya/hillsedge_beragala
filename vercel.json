@@ -6,8 +6,12 @@
       "framework": "vite",
       "rewrites": [
         {
+          "source": "/:page(menu|about|experiences|rooms|gallery|contact|reservations)",
+          "destination": "/:page/index.html"
+        },
+        {
           "source": "/(.*)",
-          "destination": "/index.html"
+          "destination": "/404.html"
         }
       ],
       "headers": [

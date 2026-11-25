@@ -18,7 +18,7 @@
 
   # The shell must revalidate, or a deploy strands visitors on asset URLs
   # that no longer exist.
-  <FilesMatch "^index\.html$">
+  <FilesMatch "^(index|404)\.html$">
     Header set Cache-Control "public, max-age=0, must-revalidate"
   </FilesMatch>
 </IfModule>
@@ -27,13 +27,20 @@
   AddOutputFilterByType DEFLATE text/html text/css text/javascript application/javascript image/svg+xml application/xml
 </IfModule>
 
-# Client-side routing: anything that is not a real file falls through to the
-# app shell, so a deep link like /cuisine works on a cold load.
+# Client-side routing: anything that is not a real file falls through to
+# 404.html — the app shell with its not-found page prerendered — so the router
+# still takes over and an old link like /cuisine works on a cold load.
 <IfModule mod_rewrite.c>
   RewriteEngine On
   RewriteBase /
+  # Each page is prerendered to <route>/index.html. Serve it at /menu itself:
+  # left alone, Apache would redirect to /menu/ because the directory exists,
+  # and the canonical URL has no trailing slash.
+  DirectorySlash Off
+  RewriteCond %{DOCUMENT_ROOT}/$1/index.html -f
+  RewriteRule ^([^.]+?)/?$ $1/index.html [L]
   RewriteCond %{REQUEST_FILENAME} -f [OR]
   RewriteCond %{REQUEST_FILENAME} -d
   RewriteRule ^ - [L]
-  RewriteRule ^ index.html [L]
+  RewriteRule ^ 404.html [L]
 </IfModule>
