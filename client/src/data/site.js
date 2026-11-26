@@ -99,6 +99,12 @@ export const fallbackSettings = {
  * text and captions of their own.
  */
 export const photos = {
+  lodgeNight: {
+    ...images.lodgeNight,
+    alt: 'Thatched-roof dining lodge at Hillsedge Beragala lit up at night, with lantern-lined garden paths winding up the hillside',
+    caption: 'The lodge, after dark',
+    category: 'place',
+  },
   pathDusk: {
     ...images.pathDusk,
     alt: 'Lantern-lit garden path leading up to the Hillsedge Beragala lodge at dusk, framed by hills',

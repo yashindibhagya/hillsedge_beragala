@@ -55,7 +55,7 @@ function Hero() {
   const still = image ? (
     <Media media={image} priority className="hero-img" />
   ) : (
-    <Picture photo={photos.pathDusk} priority className="hero-img media is-loaded" alt="" />
+    <Picture photo={photos.lodgeNight} priority className="hero-img media is-loaded" alt="" />
   );
 
   return (

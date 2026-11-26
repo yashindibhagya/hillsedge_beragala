@@ -216,6 +216,7 @@ export const galleryFilters = [
 ];
 
 export const galleryOrder = [
+  'lodgeNight',
   'pathDusk',
   'smoker',
   'sunsetValley',
