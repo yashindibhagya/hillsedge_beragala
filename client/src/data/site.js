@@ -187,9 +187,9 @@ export const photos = {
 
 /** The studio credit in the footer's bottom bar. */
 export const credit = {
-  prefix: 'Creative web concept by',
-  name: 'EVO ART (PVT) LTD',
-  href: 'https://www.evoart.lk',
+  prefix: 'Website by',
+  name: 'DevoraLabs',
+  href: 'https://devoralabs.vercel.app/',
 };
 
 /**
